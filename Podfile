@@ -6,7 +6,7 @@ target 'Legere-iOS' do
   use_frameworks!
 
   # Pods for Legere-iOS
-    pod 'SwifterSwift'
+    pod 'SwifterSwift', '~> 4.6.0'
     pod 'Moya/RxSwift', '~> 12.0.1'
     pod 'RxSwift'
     pod 'RxCocoa'
