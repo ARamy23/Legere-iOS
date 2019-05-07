@@ -20,8 +20,8 @@ class MoyaManager: NetworkProtocol {
                 switch result {
                 case .success(let response):
                     do {
-                        if let error = try? response.map(NetworkError.self), error.error == true {
-                            reject(error)
+                        if let error = try? response.map(NetworkErrorResponse.self), error.reason != nil {
+                            reject(error.handleError(from: response.statusCode))
                         }
                         let model = try response.map(T.self)
                         fullfil(model)
@@ -36,11 +36,39 @@ class MoyaManager: NetworkProtocol {
     }
 }
 
-struct NetworkError: Error, LocalizedError, Codable {
+enum NetworkError: Error {
+    case networkFail(error: String)
+    case notAuthorized
+    case notFound
+    
+    var message: String {
+        switch self {
+        case .networkFail(error: let reason):
+            return "Request Failed due to \(reason)"
+        case .notAuthorized:
+            return "Not Authorized? hmm, Interesting 🧐"
+        case .notFound:
+            return "Nope, Nothing, Sorry 😅"
+        }
+    }
+}
+
+extension NetworkError: LocalizedError {
+    
+}
+
+struct NetworkErrorResponse: Codable {
     let error: Bool?
     let reason: String?
     
-    var errorDescription: String? {
-        return reason ?? "Something went wrong."
+    func handleError(from code: Int) -> NetworkError {
+        switch code {
+        case 401:
+            return .notAuthorized
+        case 404:
+            return .notFound
+        default:
+            return .networkFail(error: self.reason ?? "Something went wrong, try again maybe?")
+        }
     }
 }
