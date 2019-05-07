@@ -1237,9 +1237,9 @@
 				INFOPLIST_FILE = "Legere-iOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(FRAMEWORK_SEARCH_PATHS)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
+					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.aramy23.Legere-iOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1259,9 +1259,9 @@
 				INFOPLIST_FILE = "Legere-iOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(FRAMEWORK_SEARCH_PATHS)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
+					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.aramy23.Legere-iOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1282,6 +1282,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
+					"$(FRAMEWORK_SEARCH_PATHS)\n$(FRAMEWORK_SEARCH_PATHS)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.aramy23.Legere-iOSUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1302,6 +1303,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
+					"$(FRAMEWORK_SEARCH_PATHS)\n$(FRAMEWORK_SEARCH_PATHS)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.aramy23.Legere-iOSUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
