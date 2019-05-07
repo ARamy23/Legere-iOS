@@ -20,7 +20,6 @@
 		B883C24A2280FC5A0094CC9D /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1F42280FC580094CC9D /* HomeViewModel.swift */; };
 		B883C24B2280FC5A0094CC9D /* ArticleDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1F62280FC580094CC9D /* ArticleDetails.swift */; };
 		B883C24C2280FC5A0094CC9D /* Article.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1F72280FC580094CC9D /* Article.swift */; };
-		B883C24E2280FC5A0094CC9D /* HomeWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1F92280FC580094CC9D /* HomeWorker.swift */; };
 		B883C24F2280FC5A0094CC9D /* ArticleDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1FB2280FC580094CC9D /* ArticleDetailsViewController.swift */; };
 		B883C2502280FC5A0094CC9D /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1FC2280FC580094CC9D /* HomeViewController.swift */; };
 		B883C2512280FC5A0094CC9D /* Home.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B883C1FD2280FC580094CC9D /* Home.storyboard */; };
@@ -113,7 +112,6 @@
 		B883C1F42280FC580094CC9D /* HomeViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		B883C1F62280FC580094CC9D /* ArticleDetails.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArticleDetails.swift; sourceTree = "<group>"; };
 		B883C1F72280FC580094CC9D /* Article.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Article.swift; sourceTree = "<group>"; };
-		B883C1F92280FC580094CC9D /* HomeWorker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeWorker.swift; sourceTree = "<group>"; };
 		B883C1FB2280FC580094CC9D /* ArticleDetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArticleDetailsViewController.swift; sourceTree = "<group>"; };
 		B883C1FC2280FC580094CC9D /* HomeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
 		B883C1FE2280FC580094CC9D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Home.storyboard; sourceTree = "<group>"; };
@@ -292,7 +290,6 @@
 				B883C1EF2280FC580094CC9D /* Cells */,
 				B883C1F42280FC580094CC9D /* HomeViewModel.swift */,
 				B883C1F52280FC580094CC9D /* Models */,
-				B883C1F92280FC580094CC9D /* HomeWorker.swift */,
 				B883C1FA2280FC580094CC9D /* View */,
 				B883C1FF2280FC580094CC9D /* Interactors */,
 			);
@@ -863,7 +860,6 @@
 				B883C2692280FC5A0094CC9D /* Router.swift in Sources */,
 				B883C24A2280FC5A0094CC9D /* HomeViewModel.swift in Sources */,
 				B883C25B2280FC5A0094CC9D /* AuthenticationViewController.swift in Sources */,
-				B883C24E2280FC5A0094CC9D /* HomeWorker.swift in Sources */,
 				B883C2532280FC5A0094CC9D /* ArticleDetailsInteractor.swift in Sources */,
 				B883C24B2280FC5A0094CC9D /* ArticleDetails.swift in Sources */,
 				B883C2632280FC5A0094CC9D /* Authentication.swift in Sources */,
