@@ -11,7 +11,6 @@
 		B2A83EAE752403CBA7F96ADD /* Pods_Legere_iOSTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C149BAF187DE8EF80265FA3 /* Pods_Legere_iOSTests.framework */; };
 		B883C1C02280FC170094CC9D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1BF2280FC170094CC9D /* AppDelegate.swift */; };
 		B883C1CA2280FC180094CC9D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B883C1C82280FC180094CC9D /* LaunchScreen.storyboard */; };
-		B883C1D52280FC180094CC9D /* Legere_iOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1D42280FC180094CC9D /* Legere_iOSTests.swift */; };
 		B883C2462280FC5A0094CC9D /* ArticleCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1F02280FC580094CC9D /* ArticleCollectionViewCell.swift */; };
 		B883C2472280FC5A0094CC9D /* ArticleSearchbarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1F12280FC580094CC9D /* ArticleSearchbarView.swift */; };
 		B883C2482280FC5A0094CC9D /* ArticleSearchbarView.xib in Resources */ = {isa = PBXBuildFile; fileRef = B883C1F22280FC580094CC9D /* ArticleSearchbarView.xib */; };
@@ -73,7 +72,6 @@
 		B883C2902281504B0094CC9D /* NetworkMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C28F2281504B0094CC9D /* NetworkMock.swift */; };
 		B883C293228153BF0094CC9D /* BaseSceneTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C292228153BF0094CC9D /* BaseSceneTests.swift */; };
 		B883C297228154C80094CC9D /* LoginTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C296228154C80094CC9D /* LoginTests.swift */; };
-		B8D2C03B2281DDD3006F5255 /* BuildFile in CopyFiles */ = {isa = PBXBuildFile; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -84,27 +82,7 @@
 			remoteGlobalIDString = B883C1BB2280FC170094CC9D;
 			remoteInfo = "Legere-iOS";
 		};
-		B883C1DC2280FC180094CC9D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = B883C1B42280FC170094CC9D /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = B883C1BB2280FC170094CC9D;
-			remoteInfo = "Legere-iOS";
-		};
 /* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		B8D2C03A2281DD93006F5255 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 7;
-			files = (
-				B8D2C03B2281DDD3006F5255 /* BuildFile in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		26B00D86C921B4F0C1FA7E83 /* Pods-Legere-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOS.debug.xcconfig"; path = "Target Support Files/Pods-Legere-iOS/Pods-Legere-iOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -116,9 +94,7 @@
 		B883C1C92280FC180094CC9D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B883C1CB2280FC180094CC9D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B883C1D02280FC180094CC9D /* Legere-iOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Legere-iOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		B883C1D42280FC180094CC9D /* Legere_iOSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Legere_iOSTests.swift; sourceTree = "<group>"; };
 		B883C1D62280FC180094CC9D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B883C1DB2280FC180094CC9D /* Legere-iOSUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Legere-iOSUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B883C1F02280FC580094CC9D /* ArticleCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArticleCollectionViewCell.swift; sourceTree = "<group>"; };
 		B883C1F12280FC580094CC9D /* ArticleSearchbarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArticleSearchbarView.swift; sourceTree = "<group>"; };
 		B883C1F22280FC580094CC9D /* ArticleSearchbarView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ArticleSearchbarView.xib; sourceTree = "<group>"; };
@@ -201,13 +177,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B883C1D82280FC180094CC9D /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -247,7 +216,6 @@
 			children = (
 				B883C1BC2280FC170094CC9D /* Legere-iOS.app */,
 				B883C1D02280FC180094CC9D /* Legere-iOSTests.xctest */,
-				B883C1DB2280FC180094CC9D /* Legere-iOSUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -270,7 +238,6 @@
 			children = (
 				B883C291228153950094CC9D /* Scenes */,
 				B883C28822814DBB0094CC9D /* Mocks */,
-				B883C1D42280FC180094CC9D /* Legere_iOSTests.swift */,
 				B883C1D62280FC180094CC9D /* Info.plist */,
 			);
 			path = "Legere-iOSTests";
@@ -614,25 +581,6 @@
 			productReference = B883C1D02280FC180094CC9D /* Legere-iOSTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		B883C1DA2280FC180094CC9D /* Legere-iOSUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = B883C1EA2280FC180094CC9D /* Build configuration list for PBXNativeTarget "Legere-iOSUITests" */;
-			buildPhases = (
-				B883C1D72280FC180094CC9D /* Sources */,
-				B883C1D82280FC180094CC9D /* Frameworks */,
-				B883C1D92280FC180094CC9D /* Resources */,
-				B8D2C03A2281DD93006F5255 /* CopyFiles */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				B883C1DD2280FC180094CC9D /* PBXTargetDependency */,
-			);
-			name = "Legere-iOSUITests";
-			productName = "Legere-iOSUITests";
-			productReference = B883C1DB2280FC180094CC9D /* Legere-iOSUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -648,11 +596,6 @@
 					};
 					B883C1CF2280FC180094CC9D = {
 						CreatedOnToolsVersion = 10.1;
-						TestTargetID = B883C1BB2280FC170094CC9D;
-					};
-					B883C1DA2280FC180094CC9D = {
-						CreatedOnToolsVersion = 10.1;
-						LastSwiftMigration = 1010;
 						TestTargetID = B883C1BB2280FC170094CC9D;
 					};
 				};
@@ -672,7 +615,6 @@
 			targets = (
 				B883C1BB2280FC170094CC9D /* Legere-iOS */,
 				B883C1CF2280FC180094CC9D /* Legere-iOSTests */,
-				B883C1DA2280FC180094CC9D /* Legere-iOSUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -696,13 +638,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		B883C1CE2280FC180094CC9D /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B883C1D92280FC180094CC9D /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -916,17 +851,9 @@
 			files = (
 				B883C2902281504B0094CC9D /* NetworkMock.swift in Sources */,
 				B883C28A22814DC60094CC9D /* RouterMock.swift in Sources */,
-				B883C1D52280FC180094CC9D /* Legere_iOSTests.swift in Sources */,
 				B883C297228154C80094CC9D /* LoginTests.swift in Sources */,
 				B883C28D22814FE40094CC9D /* CacheMock.swift in Sources */,
 				B883C293228153BF0094CC9D /* BaseSceneTests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B883C1D72280FC180094CC9D /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -937,11 +864,6 @@
 			isa = PBXTargetDependency;
 			target = B883C1BB2280FC170094CC9D /* Legere-iOS */;
 			targetProxy = B883C1D12280FC180094CC9D /* PBXContainerItemProxy */;
-		};
-		B883C1DD2280FC180094CC9D /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = B883C1BB2280FC170094CC9D /* Legere-iOS */;
-			targetProxy = B883C1DC2280FC180094CC9D /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1165,57 +1087,6 @@
 			};
 			name = Release;
 		};
-		B883C1EB2280FC180094CC9D /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
-				BUNDLE_LOADER = "";
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 969Y6REAB6;
-				INFOPLIST_FILE = "Legere-iOSUITests/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-					"$(FRAMEWORK_SEARCH_PATHS)",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.aramy23.Legere-iOSUITests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "Legere-iOSUITests/Legere-iOSUITests-Bridging-Header.h";
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 4.2;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-				TEST_TARGET_NAME = "Legere-iOS";
-			};
-			name = Debug;
-		};
-		B883C1EC2280FC180094CC9D /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
-				BUNDLE_LOADER = "";
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 969Y6REAB6;
-				INFOPLIST_FILE = "Legere-iOSUITests/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-					"$(FRAMEWORK_SEARCH_PATHS)",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.aramy23.Legere-iOSUITests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "Legere-iOSUITests/Legere-iOSUITests-Bridging-Header.h";
-				SWIFT_VERSION = 4.2;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-				TEST_TARGET_NAME = "Legere-iOS";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1242,15 +1113,6 @@
 			buildConfigurations = (
 				B883C1E82280FC180094CC9D /* Debug */,
 				B883C1E92280FC180094CC9D /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		B883C1EA2280FC180094CC9D /* Build configuration list for PBXNativeTarget "Legere-iOSUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				B883C1EB2280FC180094CC9D /* Debug */,
-				B883C1EC2280FC180094CC9D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

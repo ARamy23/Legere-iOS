@@ -8,6 +8,8 @@
 
 import XCTest
 
+@testable import Legere_iOS
+
 class BaseSceneTests: XCTestCase {
     
     var router: RouterMock!
@@ -18,6 +20,25 @@ class BaseSceneTests: XCTestCase {
         cache = CacheMock()
         router = RouterMock()
         network = NetworkMock()
+    }
+    
+    override func tearDown() {
+        super.tearDown()
+        Reachability.testingValue = nil
+    }
+    
+    func testBaseInteractorHandlesReachability() {
+        // Given
+        let interactor = BaseInteractor(network: network, cache: cache)
+        Reachability.testingValue = false
+        
+        // When
+        do {
+         try interactor.validate()
+        } catch let error {
+            let expectedError = ValidationError.unreachable.localizedDescription
+            XCTAssertEqual(error.localizedDescription, expectedError)
+        }
     }
     
     func assertRouterError(_ error: Error) {
