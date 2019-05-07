@@ -25,8 +25,3 @@ target 'Legere-iOSTests' do
     inherit! :search_paths
     import_pods
 end
-
-target 'Legere-iOSUITests' do
-    inherit! :search_paths
-    import_pods
-end
