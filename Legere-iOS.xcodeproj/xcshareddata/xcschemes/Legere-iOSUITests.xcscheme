@@ -24,6 +24,15 @@
             </BuildableReference>
          </TestableReference>
       </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "B883C1BB2280FC170094CC9D"
+            BuildableName = "Legere-iOS.app"
+            BlueprintName = "Legere-iOS"
+            ReferencedContainer = "container:Legere-iOS.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
@@ -37,6 +46,16 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "B883C1BB2280FC170094CC9D"
+            BuildableName = "Legere-iOS.app"
+            BlueprintName = "Legere-iOS"
+            ReferencedContainer = "container:Legere-iOS.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -46,6 +65,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "B883C1BB2280FC170094CC9D"
+            BuildableName = "Legere-iOS.app"
+            BlueprintName = "Legere-iOS"
+            ReferencedContainer = "container:Legere-iOS.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

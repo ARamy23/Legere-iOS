@@ -12,7 +12,6 @@
 		B883C1C02280FC170094CC9D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1BF2280FC170094CC9D /* AppDelegate.swift */; };
 		B883C1CA2280FC180094CC9D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B883C1C82280FC180094CC9D /* LaunchScreen.storyboard */; };
 		B883C1D52280FC180094CC9D /* Legere_iOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1D42280FC180094CC9D /* Legere_iOSTests.swift */; };
-		B883C1E02280FC180094CC9D /* Legere_iOSUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1DF2280FC180094CC9D /* Legere_iOSUITests.swift */; };
 		B883C2462280FC5A0094CC9D /* ArticleCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1F02280FC580094CC9D /* ArticleCollectionViewCell.swift */; };
 		B883C2472280FC5A0094CC9D /* ArticleSearchbarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1F12280FC580094CC9D /* ArticleSearchbarView.swift */; };
 		B883C2482280FC5A0094CC9D /* ArticleSearchbarView.xib in Resources */ = {isa = PBXBuildFile; fileRef = B883C1F22280FC580094CC9D /* ArticleSearchbarView.xib */; };
@@ -74,6 +73,8 @@
 		B883C2902281504B0094CC9D /* NetworkMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C28F2281504B0094CC9D /* NetworkMock.swift */; };
 		B883C293228153BF0094CC9D /* BaseSceneTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C292228153BF0094CC9D /* BaseSceneTests.swift */; };
 		B883C297228154C80094CC9D /* LoginTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C296228154C80094CC9D /* LoginTests.swift */; };
+		B8D2C03B2281DDD3006F5255 /* Pods_Legere_iOSUITests.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = EF539B022807F4C5DFFF3F23 /* Pods_Legere_iOSUITests.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		B8D2C03E2281DE01006F5255 /* OpenAppUITest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8D2C03D2281DE01006F5255 /* OpenAppUITest.swift */; };
 		CB754117910EA7C43EC77708 /* Pods_Legere_iOSTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BEAD3B65874BC679AA4E75C /* Pods_Legere_iOSTests.framework */; };
 /* End PBXBuildFile section */
 
@@ -94,6 +95,19 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		B8D2C03A2281DD93006F5255 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+				B8D2C03B2281DDD3006F5255 /* Pods_Legere_iOSUITests.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		5BEAD3B65874BC679AA4E75C /* Pods_Legere_iOSTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Legere_iOSTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		707CC434DF865C85A21A383A /* Pods-Legere-iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOS.release.xcconfig"; path = "Target Support Files/Pods-Legere-iOS/Pods-Legere-iOS.release.xcconfig"; sourceTree = "<group>"; };
@@ -106,7 +120,6 @@
 		B883C1D42280FC180094CC9D /* Legere_iOSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Legere_iOSTests.swift; sourceTree = "<group>"; };
 		B883C1D62280FC180094CC9D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B883C1DB2280FC180094CC9D /* Legere-iOSUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Legere-iOSUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		B883C1DF2280FC180094CC9D /* Legere_iOSUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Legere_iOSUITests.swift; sourceTree = "<group>"; };
 		B883C1E12280FC180094CC9D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B883C1F02280FC580094CC9D /* ArticleCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArticleCollectionViewCell.swift; sourceTree = "<group>"; };
 		B883C1F12280FC580094CC9D /* ArticleSearchbarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArticleSearchbarView.swift; sourceTree = "<group>"; };
@@ -169,6 +182,8 @@
 		B883C28F2281504B0094CC9D /* NetworkMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMock.swift; sourceTree = "<group>"; };
 		B883C292228153BF0094CC9D /* BaseSceneTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseSceneTests.swift; sourceTree = "<group>"; };
 		B883C296228154C80094CC9D /* LoginTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginTests.swift; sourceTree = "<group>"; };
+		B8D2C03C2281DE00006F5255 /* Legere-iOSUITests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Legere-iOSUITests-Bridging-Header.h"; sourceTree = "<group>"; };
+		B8D2C03D2281DE01006F5255 /* OpenAppUITest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAppUITest.swift; sourceTree = "<group>"; };
 		BA205B9FFF702B1339E976A3 /* Pods-Legere-iOSUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSUITests.debug.xcconfig"; path = "Target Support Files/Pods-Legere-iOSUITests/Pods-Legere-iOSUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		BD3F748BC0C840D845749DEA /* Pods-Legere-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOS.debug.xcconfig"; path = "Target Support Files/Pods-Legere-iOS/Pods-Legere-iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		D10945DE0B2B91F0BC7BB041 /* Pods-Legere-iOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSTests.release.xcconfig"; path = "Target Support Files/Pods-Legere-iOSTests/Pods-Legere-iOSTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -277,8 +292,9 @@
 		B883C1DE2280FC180094CC9D /* Legere-iOSUITests */ = {
 			isa = PBXGroup;
 			children = (
-				B883C1DF2280FC180094CC9D /* Legere_iOSUITests.swift */,
 				B883C1E12280FC180094CC9D /* Info.plist */,
+				B8D2C03D2281DE01006F5255 /* OpenAppUITest.swift */,
+				B8D2C03C2281DE00006F5255 /* Legere-iOSUITests-Bridging-Header.h */,
 			);
 			path = "Legere-iOSUITests";
 			sourceTree = "<group>";
@@ -630,6 +646,7 @@
 				B883C1D82280FC180094CC9D /* Frameworks */,
 				B883C1D92280FC180094CC9D /* Resources */,
 				CA9429B0B360C2587035F4FA /* [CP] Embed Pods Frameworks */,
+				B8D2C03A2281DD93006F5255 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -660,6 +677,7 @@
 					};
 					B883C1DA2280FC180094CC9D = {
 						CreatedOnToolsVersion = 10.1;
+						LastSwiftMigration = 1010;
 						TestTargetID = B883C1BB2280FC170094CC9D;
 					};
 				};
@@ -1004,7 +1022,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B883C1E02280FC180094CC9D /* Legere_iOSUITests.swift in Sources */,
+				B8D2C03E2281DE01006F5255 /* OpenAppUITest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1247,7 +1265,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = BA205B9FFF702B1339E976A3 /* Pods-Legere-iOSUITests.debug.xcconfig */;
 			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Legere-iOS.app/Legere-iOS";
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				BUNDLE_LOADER = "";
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 969Y6REAB6;
 				INFOPLIST_FILE = "Legere-iOSUITests/Info.plist";
@@ -1255,10 +1275,12 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
-					"$(FRAMEWORK_SEARCH_PATHS)\n$(FRAMEWORK_SEARCH_PATHS)",
+					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.aramy23.Legere-iOSUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Legere-iOSUITests/Legere-iOSUITests-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUNDLE_LOADER)";
@@ -1270,7 +1292,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7E1A33CFA21D9E46BF73EB86 /* Pods-Legere-iOSUITests.release.xcconfig */;
 			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Legere-iOS.app/Legere-iOS";
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				BUNDLE_LOADER = "";
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 969Y6REAB6;
 				INFOPLIST_FILE = "Legere-iOSUITests/Info.plist";
@@ -1278,10 +1302,11 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
-					"$(FRAMEWORK_SEARCH_PATHS)\n$(FRAMEWORK_SEARCH_PATHS)",
+					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.aramy23.Legere-iOSUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Legere-iOSUITests/Legere-iOSUITests-Bridging-Header.h";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUNDLE_LOADER)";
