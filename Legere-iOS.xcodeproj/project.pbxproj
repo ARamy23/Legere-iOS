@@ -1138,6 +1138,7 @@
 				INFOPLIST_FILE = "Legere-iOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(FRAMEWORK_SEARCH_PATHS)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
@@ -1160,6 +1161,7 @@
 				INFOPLIST_FILE = "Legere-iOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(FRAMEWORK_SEARCH_PATHS)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
