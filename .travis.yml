@@ -4,3 +4,5 @@ os: osx
 xcode_project: Legere-iOS.xcodeproj
 xcode_scheme: Legere-iOS
 xcode_destination: platform=iOS Simulator,OS=12.1,name=iPhone 8
+before_install:
+- pod install
