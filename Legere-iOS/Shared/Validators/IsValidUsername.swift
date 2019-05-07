@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import SwifterSwift
 
 final class IsValidUsername: BaseValidator {
     
