@@ -23,7 +23,7 @@ enum RoutingAction: Equatable {
     
     static public func ==(lhs: RoutingAction, rhs: RoutingAction) -> Bool {
         switch (lhs, rhs) {
-        case let (.present(a), .present(b)): return a == b
+        case let (.present(a), .present(b)): return "\(type(of: a))" == "\(type(of: b))"
         case let (.alert(a), .alert(b)): return a == b
         case let (.toast(a), .toast(b)): return a == b
         case let (.segue(a, b), .segue(c, d)): return a == c && b == d

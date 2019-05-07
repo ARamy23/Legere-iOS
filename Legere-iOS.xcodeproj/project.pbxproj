@@ -77,6 +77,8 @@
 		B883C28A22814DC60094CC9D /* RouterMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C28922814DC60094CC9D /* RouterMock.swift */; };
 		B883C28D22814FE40094CC9D /* CacheMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C28C22814FE40094CC9D /* CacheMock.swift */; };
 		B883C2902281504B0094CC9D /* NetworkMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C28F2281504B0094CC9D /* NetworkMock.swift */; };
+		B883C293228153BF0094CC9D /* BaseSceneTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C292228153BF0094CC9D /* BaseSceneTests.swift */; };
+		B883C297228154C80094CC9D /* LoginTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C296228154C80094CC9D /* LoginTests.swift */; };
 		CB754117910EA7C43EC77708 /* Pods_Legere_iOSTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BEAD3B65874BC679AA4E75C /* Pods_Legere_iOSTests.framework */; };
 /* End PBXBuildFile section */
 
@@ -175,6 +177,8 @@
 		B883C28922814DC60094CC9D /* RouterMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouterMock.swift; sourceTree = "<group>"; };
 		B883C28C22814FE40094CC9D /* CacheMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheMock.swift; sourceTree = "<group>"; };
 		B883C28F2281504B0094CC9D /* NetworkMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMock.swift; sourceTree = "<group>"; };
+		B883C292228153BF0094CC9D /* BaseSceneTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseSceneTests.swift; sourceTree = "<group>"; };
+		B883C296228154C80094CC9D /* LoginTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginTests.swift; sourceTree = "<group>"; };
 		BA205B9FFF702B1339E976A3 /* Pods-Legere-iOSUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSUITests.debug.xcconfig"; path = "Target Support Files/Pods-Legere-iOSUITests/Pods-Legere-iOSUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		BD3F748BC0C840D845749DEA /* Pods-Legere-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOS.debug.xcconfig"; path = "Target Support Files/Pods-Legere-iOS/Pods-Legere-iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		D10945DE0B2B91F0BC7BB041 /* Pods-Legere-iOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSTests.release.xcconfig"; path = "Target Support Files/Pods-Legere-iOSTests/Pods-Legere-iOSTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -272,6 +276,7 @@
 		B883C1D32280FC180094CC9D /* Legere-iOSTests */ = {
 			isa = PBXGroup;
 			children = (
+				B883C291228153950094CC9D /* Scenes */,
 				B883C28822814DBB0094CC9D /* Mocks */,
 				B883C1D42280FC180094CC9D /* Legere_iOSTests.swift */,
 				B883C1D62280FC180094CC9D /* Info.plist */,
@@ -578,6 +583,23 @@
 				B883C28F2281504B0094CC9D /* NetworkMock.swift */,
 			);
 			path = Mocks;
+			sourceTree = "<group>";
+		};
+		B883C291228153950094CC9D /* Scenes */ = {
+			isa = PBXGroup;
+			children = (
+				B883C294228154910094CC9D /* Welcome */,
+				B883C292228153BF0094CC9D /* BaseSceneTests.swift */,
+			);
+			path = Scenes;
+			sourceTree = "<group>";
+		};
+		B883C294228154910094CC9D /* Welcome */ = {
+			isa = PBXGroup;
+			children = (
+				B883C296228154C80094CC9D /* LoginTests.swift */,
+			);
+			path = Welcome;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -902,7 +924,9 @@
 				B883C2902281504B0094CC9D /* NetworkMock.swift in Sources */,
 				B883C28A22814DC60094CC9D /* RouterMock.swift in Sources */,
 				B883C1D52280FC180094CC9D /* Legere_iOSTests.swift in Sources */,
+				B883C297228154C80094CC9D /* LoginTests.swift in Sources */,
 				B883C28D22814FE40094CC9D /* CacheMock.swift in Sources */,
+				B883C293228153BF0094CC9D /* BaseSceneTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

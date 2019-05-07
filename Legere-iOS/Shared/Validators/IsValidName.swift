@@ -19,9 +19,9 @@ final class IsValidName: BaseValidator {
     func orThrow() throws {
         if let value = value {
             if value.isAlphaNumeric {
-                throw ValidationError.notValid(reason: "Names doesn't contain numbers now, do they? 🤔")
+                throw ValidationError.notValid(reason: .nameContainsNumbers)
             } else if value.containEmoji {
-                throw ValidationError.notValid(reason: "No you can't have emojis in your name 🌚")
+                throw ValidationError.notValid(reason: .nameContainsEmojis)
             }
         }
     }
