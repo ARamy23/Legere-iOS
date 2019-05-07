@@ -98,7 +98,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "2C151F04B59B8F54B4FE20EB5533C28C"
+               BlueprintIdentifier = "E97548606391FB91AC4C38A505C2EBAD"
                BuildableName = "Pods_Legere_iOSTests.framework"
                BlueprintName = "Pods-Legere-iOSTests"
                ReferencedContainer = "container:Pods/Pods.xcodeproj">
@@ -112,7 +112,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "C292DBF7B24D70F3EDBC51A939DEADDB"
+               BlueprintIdentifier = "9FEC1F5C0A4CBC2DDBDE73B986C4238A"
                BuildableName = "Pods_Legere_iOSUITests.framework"
                BlueprintName = "Pods-Legere-iOSUITests"
                ReferencedContainer = "container:Pods/Pods.xcodeproj">
