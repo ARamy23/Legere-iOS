@@ -1,7 +1,7 @@
 PODS:
   - Alamofire (4.8.2)
-  - AlamofireNetworkActivityLogger (2.4.0):
-    - Alamofire (~> 4.8)
+  - AlamofireNetworkActivityLogger (2.3.0):
+    - Alamofire (~> 4.6)
   - Hero (1.4.0)
   - Moya/Core (12.0.1):
     - Alamofire (~> 4.1)
@@ -42,7 +42,7 @@ PODS:
   - SwiftMessages/App (6.0.2)
 
 DEPENDENCIES:
-  - AlamofireNetworkActivityLogger (~> 2.4.0)
+  - AlamofireNetworkActivityLogger (~> 2.3.0)
   - Hero (~> 1.4.0)
   - Moya/RxSwift (~> 12.0.1)
   - PromisesSwift (~> 1.2.7)
@@ -72,7 +72,7 @@ SPEC REPOS:
 
 SPEC CHECKSUMS:
   Alamofire: ae5c501addb7afdbb13687d7f2f722c78734c2d3
-  AlamofireNetworkActivityLogger: 6d3398c692d2c5d83b0c58793537860aca1e383d
+  AlamofireNetworkActivityLogger: 6f3076652ab7fa6c819b59be08ea038d339e36d8
   Hero: bac92350d7201a1a940003e0767c7b52ce7c99a1
   Moya: cf730b3cd9e005401ef37a85143aa141a12fd38f
   PromisesObjC: 7b28ddd1e78cce8f80f1ada927d2217663a9c672
@@ -86,6 +86,6 @@ SPEC CHECKSUMS:
   SwifterSwift: 812ffec6f301922f5430e75be3f2939ea3a80024
   SwiftMessages: 8b3cc68dba2f1c91aac1a74c90b10287aac35371
 
-PODFILE CHECKSUM: e726b6acf4c95e69770007fc28390e7bc4a53161
+PODFILE CHECKSUM: b916489ca8fcff39891f33bf397007612af1cf5d
 
 COCOAPODS: 1.6.1

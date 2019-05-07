@@ -7,8 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1F772F649607B536725ACB17 /* Pods_Legere_iOSUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C4AEF919775CA3A8CD440B6 /* Pods_Legere_iOSUITests.framework */; };
-		60797FED71FCD5B5A7BD40C4 /* Pods_Legere_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E2068C2071F605A1B07A2713 /* Pods_Legere_iOS.framework */; };
+		48F8C262A46F2D1B3DE99BB9 /* Pods_Legere_iOSUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CA53356C016119DE2AA97FA2 /* Pods_Legere_iOSUITests.framework */; };
+		926CE11F41F26F87C5D3818F /* Pods_Legere_iOSTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04165710D906F79442B3C145 /* Pods_Legere_iOSTests.framework */; };
+		99FB8BA7A4E7C013754BDD92 /* Pods_Legere_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E2E904429D1681B8F2636EE /* Pods_Legere_iOS.framework */; };
 		B883C1C02280FC170094CC9D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1BF2280FC170094CC9D /* AppDelegate.swift */; };
 		B883C1CA2280FC180094CC9D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B883C1C82280FC180094CC9D /* LaunchScreen.storyboard */; };
 		B883C1D52280FC180094CC9D /* Legere_iOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1D42280FC180094CC9D /* Legere_iOSTests.swift */; };
@@ -72,7 +73,6 @@
 		B883C27F2280FC5A0094CC9D /* BaseCustomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C2422280FC5A0094CC9D /* BaseCustomView.swift */; };
 		B883C2802280FC5A0094CC9D /* LETextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C2442280FC5A0094CC9D /* LETextField.swift */; };
 		B883C2812280FC5A0094CC9D /* LETextField.xib in Resources */ = {isa = PBXBuildFile; fileRef = B883C2452280FC5A0094CC9D /* LETextField.xib */; };
-		E19BA454EE8E2B7965E48103 /* Pods_Legere_iOSTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53AFC98038E54C1E84A6174C /* Pods_Legere_iOSTests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -93,12 +93,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		06BEF831A7DEA0D34E1B1D3E /* Pods-Legere-iOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSTests.release.xcconfig"; path = "Target Support Files/Pods-Legere-iOSTests/Pods-Legere-iOSTests.release.xcconfig"; sourceTree = "<group>"; };
-		1B9DFF2A4559E2184058ACED /* Pods-Legere-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOS.debug.xcconfig"; path = "Target Support Files/Pods-Legere-iOS/Pods-Legere-iOS.debug.xcconfig"; sourceTree = "<group>"; };
-		4C4AEF919775CA3A8CD440B6 /* Pods_Legere_iOSUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Legere_iOSUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		53AFC98038E54C1E84A6174C /* Pods_Legere_iOSTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Legere_iOSTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		63096362F9A37356FCA92680 /* Pods-Legere-iOSUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSUITests.debug.xcconfig"; path = "Target Support Files/Pods-Legere-iOSUITests/Pods-Legere-iOSUITests.debug.xcconfig"; sourceTree = "<group>"; };
-		B7E9E094EECC96564465FAA3 /* Pods-Legere-iOSUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSUITests.release.xcconfig"; path = "Target Support Files/Pods-Legere-iOSUITests/Pods-Legere-iOSUITests.release.xcconfig"; sourceTree = "<group>"; };
+		04165710D906F79442B3C145 /* Pods_Legere_iOSTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Legere_iOSTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		1DD2A4B78B8D63B9D10593AA /* Pods-Legere-iOSUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSUITests.release.xcconfig"; path = "Target Support Files/Pods-Legere-iOSUITests/Pods-Legere-iOSUITests.release.xcconfig"; sourceTree = "<group>"; };
+		3E2E904429D1681B8F2636EE /* Pods_Legere_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Legere_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		58BF3812D7DA74C6B19C2E9E /* Pods-Legere-iOSUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSUITests.debug.xcconfig"; path = "Target Support Files/Pods-Legere-iOSUITests/Pods-Legere-iOSUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		6C58E465B72591D6DAF9C1A3 /* Pods-Legere-iOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSTests.release.xcconfig"; path = "Target Support Files/Pods-Legere-iOSTests/Pods-Legere-iOSTests.release.xcconfig"; sourceTree = "<group>"; };
+		926A57E73A5A71E14E55E238 /* Pods-Legere-iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOS.release.xcconfig"; path = "Target Support Files/Pods-Legere-iOS/Pods-Legere-iOS.release.xcconfig"; sourceTree = "<group>"; };
+		B508075186D05A4B76C7FEAC /* Pods-Legere-iOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSTests.debug.xcconfig"; path = "Target Support Files/Pods-Legere-iOSTests/Pods-Legere-iOSTests.debug.xcconfig"; sourceTree = "<group>"; };
 		B883C1BC2280FC170094CC9D /* Legere-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Legere-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B883C1BF2280FC170094CC9D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B883C1C92280FC180094CC9D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -168,9 +169,8 @@
 		B883C2422280FC5A0094CC9D /* BaseCustomView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseCustomView.swift; sourceTree = "<group>"; };
 		B883C2442280FC5A0094CC9D /* LETextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LETextField.swift; sourceTree = "<group>"; };
 		B883C2452280FC5A0094CC9D /* LETextField.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LETextField.xib; sourceTree = "<group>"; };
-		C2763BB53D7375B314470655 /* Pods-Legere-iOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSTests.debug.xcconfig"; path = "Target Support Files/Pods-Legere-iOSTests/Pods-Legere-iOSTests.debug.xcconfig"; sourceTree = "<group>"; };
-		E2068C2071F605A1B07A2713 /* Pods_Legere_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Legere_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		FF8D61BAE9753ACA087C9ACC /* Pods-Legere-iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOS.release.xcconfig"; path = "Target Support Files/Pods-Legere-iOS/Pods-Legere-iOS.release.xcconfig"; sourceTree = "<group>"; };
+		CA53356C016119DE2AA97FA2 /* Pods_Legere_iOSUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Legere_iOSUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DA1861F0A9C7442EBB1BE61E /* Pods-Legere-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOS.debug.xcconfig"; path = "Target Support Files/Pods-Legere-iOS/Pods-Legere-iOS.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -178,7 +178,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				60797FED71FCD5B5A7BD40C4 /* Pods_Legere_iOS.framework in Frameworks */,
+				99FB8BA7A4E7C013754BDD92 /* Pods_Legere_iOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -186,7 +186,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E19BA454EE8E2B7965E48103 /* Pods_Legere_iOSTests.framework in Frameworks */,
+				926CE11F41F26F87C5D3818F /* Pods_Legere_iOSTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -194,22 +194,32 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1F772F649607B536725ACB17 /* Pods_Legere_iOSUITests.framework in Frameworks */,
+				48F8C262A46F2D1B3DE99BB9 /* Pods_Legere_iOSUITests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2AD9623620C52002DA962244 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				3E2E904429D1681B8F2636EE /* Pods_Legere_iOS.framework */,
+				04165710D906F79442B3C145 /* Pods_Legere_iOSTests.framework */,
+				CA53356C016119DE2AA97FA2 /* Pods_Legere_iOSUITests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		B836FE1165D758BE9D586DD1 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				1B9DFF2A4559E2184058ACED /* Pods-Legere-iOS.debug.xcconfig */,
-				FF8D61BAE9753ACA087C9ACC /* Pods-Legere-iOS.release.xcconfig */,
-				C2763BB53D7375B314470655 /* Pods-Legere-iOSTests.debug.xcconfig */,
-				06BEF831A7DEA0D34E1B1D3E /* Pods-Legere-iOSTests.release.xcconfig */,
-				63096362F9A37356FCA92680 /* Pods-Legere-iOSUITests.debug.xcconfig */,
-				B7E9E094EECC96564465FAA3 /* Pods-Legere-iOSUITests.release.xcconfig */,
+				DA1861F0A9C7442EBB1BE61E /* Pods-Legere-iOS.debug.xcconfig */,
+				926A57E73A5A71E14E55E238 /* Pods-Legere-iOS.release.xcconfig */,
+				B508075186D05A4B76C7FEAC /* Pods-Legere-iOSTests.debug.xcconfig */,
+				6C58E465B72591D6DAF9C1A3 /* Pods-Legere-iOSTests.release.xcconfig */,
+				58BF3812D7DA74C6B19C2E9E /* Pods-Legere-iOSUITests.debug.xcconfig */,
+				1DD2A4B78B8D63B9D10593AA /* Pods-Legere-iOSUITests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -222,7 +232,7 @@
 				B883C1DE2280FC180094CC9D /* Legere-iOSUITests */,
 				B883C1BD2280FC170094CC9D /* Products */,
 				B836FE1165D758BE9D586DD1 /* Pods */,
-				CC00E079B2AE81C7376722E2 /* Frameworks */,
+				2AD9623620C52002DA962244 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -547,16 +557,6 @@
 			path = Textfield;
 			sourceTree = "<group>";
 		};
-		CC00E079B2AE81C7376722E2 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				E2068C2071F605A1B07A2713 /* Pods_Legere_iOS.framework */,
-				53AFC98038E54C1E84A6174C /* Pods_Legere_iOSTests.framework */,
-				4C4AEF919775CA3A8CD440B6 /* Pods_Legere_iOSUITests.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -564,11 +564,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = B883C1E42280FC180094CC9D /* Build configuration list for PBXNativeTarget "Legere-iOS" */;
 			buildPhases = (
-				DA58812121FC4BECD93F58DD /* [CP] Check Pods Manifest.lock */,
+				86B0ADC522A359B132C1B605 /* [CP] Check Pods Manifest.lock */,
 				B883C1B82280FC170094CC9D /* Sources */,
 				B883C1B92280FC170094CC9D /* Frameworks */,
 				B883C1BA2280FC170094CC9D /* Resources */,
-				24E25720DAEC6B1383EC46F2 /* [CP] Embed Pods Frameworks */,
+				052A5AD1B29DB0B331513658 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -583,7 +583,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = B883C1E72280FC180094CC9D /* Build configuration list for PBXNativeTarget "Legere-iOSTests" */;
 			buildPhases = (
-				BAB77DF7BF111345131FB65C /* [CP] Check Pods Manifest.lock */,
+				8609F2D5A39CC75BE260BC77 /* [CP] Check Pods Manifest.lock */,
 				B883C1CC2280FC180094CC9D /* Sources */,
 				B883C1CD2280FC180094CC9D /* Frameworks */,
 				B883C1CE2280FC180094CC9D /* Resources */,
@@ -602,7 +602,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = B883C1EA2280FC180094CC9D /* Build configuration list for PBXNativeTarget "Legere-iOSUITests" */;
 			buildPhases = (
-				8CA4F9FF025222D1914FAB56 /* [CP] Check Pods Manifest.lock */,
+				6361F6DD1807F8400A41AFA1 /* [CP] Check Pods Manifest.lock */,
 				B883C1D72280FC180094CC9D /* Sources */,
 				B883C1D82280FC180094CC9D /* Frameworks */,
 				B883C1D92280FC180094CC9D /* Resources */,
@@ -695,7 +695,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		24E25720DAEC6B1383EC46F2 /* [CP] Embed Pods Frameworks */ = {
+		052A5AD1B29DB0B331513658 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -743,7 +743,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Legere-iOS/Pods-Legere-iOS-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		8CA4F9FF025222D1914FAB56 /* [CP] Check Pods Manifest.lock */ = {
+		6361F6DD1807F8400A41AFA1 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -765,7 +765,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		BAB77DF7BF111345131FB65C /* [CP] Check Pods Manifest.lock */ = {
+		8609F2D5A39CC75BE260BC77 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -787,7 +787,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		DA58812121FC4BECD93F58DD /* [CP] Check Pods Manifest.lock */ = {
+		86B0ADC522A359B132C1B605 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1039,7 +1039,7 @@
 		};
 		B883C1E52280FC180094CC9D /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1B9DFF2A4559E2184058ACED /* Pods-Legere-iOS.debug.xcconfig */;
+			baseConfigurationReference = DA1861F0A9C7442EBB1BE61E /* Pods-Legere-iOS.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
@@ -1058,7 +1058,7 @@
 		};
 		B883C1E62280FC180094CC9D /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = FF8D61BAE9753ACA087C9ACC /* Pods-Legere-iOS.release.xcconfig */;
+			baseConfigurationReference = 926A57E73A5A71E14E55E238 /* Pods-Legere-iOS.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
@@ -1077,7 +1077,7 @@
 		};
 		B883C1E82280FC180094CC9D /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C2763BB53D7375B314470655 /* Pods-Legere-iOSTests.debug.xcconfig */;
+			baseConfigurationReference = B508075186D05A4B76C7FEAC /* Pods-Legere-iOSTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -1099,7 +1099,7 @@
 		};
 		B883C1E92280FC180094CC9D /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 06BEF831A7DEA0D34E1B1D3E /* Pods-Legere-iOSTests.release.xcconfig */;
+			baseConfigurationReference = 6C58E465B72591D6DAF9C1A3 /* Pods-Legere-iOSTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -1121,7 +1121,7 @@
 		};
 		B883C1EB2280FC180094CC9D /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 63096362F9A37356FCA92680 /* Pods-Legere-iOSUITests.debug.xcconfig */;
+			baseConfigurationReference = 58BF3812D7DA74C6B19C2E9E /* Pods-Legere-iOSUITests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
@@ -1142,7 +1142,7 @@
 		};
 		B883C1EC2280FC180094CC9D /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B7E9E094EECC96564465FAA3 /* Pods-Legere-iOSUITests.release.xcconfig */;
+			baseConfigurationReference = 1DD2A4B78B8D63B9D10593AA /* Pods-Legere-iOSUITests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
