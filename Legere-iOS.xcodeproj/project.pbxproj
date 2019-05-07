@@ -1229,7 +1229,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = FAFE179623A28BD96C55AA30 /* Pods-Legere-iOSTests.debug.xcconfig */;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 969Y6REAB6;
 				INFOPLIST_FILE = "Legere-iOSTests/Info.plist";
@@ -1251,7 +1250,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D10945DE0B2B91F0BC7BB041 /* Pods-Legere-iOSTests.release.xcconfig */;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 969Y6REAB6;
 				INFOPLIST_FILE = "Legere-iOSTests/Info.plist";
