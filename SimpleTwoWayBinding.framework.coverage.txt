@@ -1,0 +1,255 @@
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/SimpleTwoWayBinding/Sources/Bindable.swift:
+    1|       |//
+    2|       |//  Bindable.swift
+    3|       |//  SimpleTwoWayBinding
+    4|       |//
+    5|       |//  Created by Manish Katoch on 11/26/17.
+    6|       |//
+    7|       |
+    8|       |import Foundation
+    9|       |import UIKit
+   10|       |
+   11|       |public protocol Bindable: NSObjectProtocol {
+   12|       |    associatedtype BindingType: Equatable
+   13|       |    func observingValue() -> BindingType?
+   14|       |    func updateValue(with value: BindingType)
+   15|       |    func bind(with observable: Observable<BindingType>)
+   16|       |}
+   17|       |
+   18|       |fileprivate struct AssociatedKeys {
+   19|       |    static var binder: UInt8 = 0
+   20|       |}
+   21|       |
+   22|       |extension Bindable where Self: NSObject {
+   23|       |
+   24|       |    private var binder: Observable<BindingType> {
+   25|      0|        get {
+   26|      0|            guard let value = objc_getAssociatedObject(self, &AssociatedKeys.binder) as? Observable<BindingType> else {
+   27|      0|                let newValue = Observable<BindingType>()
+   28|      0|                objc_setAssociatedObject(self, &AssociatedKeys.binder, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+   29|      0|                return newValue
+   30|      0|            }
+   31|      0|            return value
+   32|      0|        }
+   33|      6|        set(newValue) {
+   34|      6|             objc_setAssociatedObject(self, &AssociatedKeys.binder, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+   35|      6|        }
+   36|       |    }
+   37|       |    
+   38|      0|    func getBinderValue() -> BindingType? {
+   39|      0|        return binder.value
+   40|      0|    }
+   41|       |    
+   42|      0|    func setBinderValue(with value: BindingType?) {
+   43|      0|        binder.value = value
+   44|      0|    }
+   45|       |    
+   46|      0|    func register(for observable: Observable<BindingType>) {
+   47|      0|        binder = observable
+   48|      0|    }
+   49|       |    
+   50|      0|    func valueChanged() {
+   51|      0|        if binder.value != self.observingValue() {
+   52|      0|            setBinderValue(with: self.observingValue())
+   53|      0|        }
+   54|      0|    }
+   55|       |
+   56|      6|    public func bind(with observable: Observable<BindingType>) {
+   57|      6|        if let _self = self as? UIControl {
+   58|      6|            _self.addTarget(Selector, action: Selector{ self.valueChanged() }, for: [.editingChanged, .valueChanged])
+   59|      6|        }
+   60|      6|        self.binder = observable
+   61|      6|        if let val = observable.value {
+   62|      0|            self.updateValue(with: val)
+   63|      6|        }
+   64|      6|        self.observe(for: observable) { (value) in
+   65|      0|            self.updateValue(with: value)
+   66|      0|        }
+   67|      6|    }
+   68|       |    
+   69|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/SimpleTwoWayBinding/Sources/BlockBasedSelector/BlockBasedSelector.m:
+    1|       |//
+    2|       |//  BlockBasedSelector.m
+    3|       |//
+    4|       |//  Created by Charlton Provatas on 11/2/17.
+    5|       |//  Copyright © 2017 CharltonProvatas. All rights reserved.
+    6|       |//
+    7|       |
+    8|       |#import "BlockBasedSelector.h"
+    9|       |#import <objc/runtime.h>
+   10|       |
+   11|       |@implementation BlockBasedSelector
+   12|       |@end
+   13|       |
+   14|       |void class_addMethodWithBlock(Class class, SEL newSelector, OBJCBlock block)
+   15|      6|{
+   16|      6|    IMP newImplementation = imp_implementationWithBlock(block);
+   17|      6|    Method method = class_getInstanceMethod(class, newSelector);
+   18|      6|    class_addMethod(class, newSelector, newImplementation,  method_getTypeEncoding(method));
+   19|      6|}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/SimpleTwoWayBinding/Sources/BlockBasedSelector/BlockBasedSelector.swift:
+    1|       |//
+    2|       |//  BlockBasedSelector.swift
+    3|       |//
+    4|       |//  Created by Charlton Provatas on 11/2/17.
+    5|       |//  Copyright © 2017 CharltonProvatas. All rights reserved.
+    6|       |
+    7|       |import Foundation
+    8|       |import UIKit
+    9|       |
+   10|      6|func Selector(_ block: @escaping () -> Void) -> Selector {
+   11|      6|    let selector = NSSelectorFromString("\(CACurrentMediaTime())")
+   12|      6|    class_addMethodWithBlock(_Selector.self, selector) { (_) in block() }
+   13|      6|    return selector
+   14|      6|}
+   15|       |
+   16|       |let Selector = _Selector.shared
+   17|       |@objc class _Selector: NSObject {
+   18|       |    static let shared = _Selector()
+   19|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/SimpleTwoWayBinding/Sources/NSObject+Observable.swift:
+    1|       |//
+    2|       |//  NSObject+Observable.swift
+    3|       |//  SimpleTwoWayBinding
+    4|       |//
+    5|       |//  Created by Manish Katoch on 11/26/17.
+    6|       |//
+    7|       |
+    8|       |import Foundation
+    9|       |
+   10|       |extension NSObject {
+   11|      6|    public func observe<T>(for observable: Observable<T>, with: @escaping (T) -> ()) {
+   12|      6|        observable.bind { observable, value  in
+   13|      0|            DispatchQueue.main.async {
+   14|      0|                with(value)
+   15|      0|            }
+   16|      0|        }
+   17|      6|    }
+   18|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/SimpleTwoWayBinding/Sources/Observable.swift:
+    1|       |//
+    2|       |//  Observable.swift
+    3|       |//  SimpleTwoWayBinding
+    4|       |//
+    5|       |//  Created by Manish Katoch on 11/26/17.
+    6|       |//
+    7|       |
+    8|       |import Foundation
+    9|       |
+   10|       |public class Observable<ObservedType> {
+   11|       |    public typealias Observer = (_ observable: Observable<ObservedType>, ObservedType) -> Void
+   12|       |    
+   13|       |    private var observers: [Observer]
+   14|       |    
+   15|       |    public var value: ObservedType? {
+   16|     43|        didSet {
+   17|     43|            if let value = value {
+   18|     43|                notifyObservers(value)
+   19|     43|            }
+   20|     43|        }
+   21|       |    }
+   22|       |    
+   23|     82|    public init(_ value: ObservedType? = nil) {
+   24|     82|        self.value = value
+   25|     82|        observers = []
+   26|     82|    }
+   27|       |    
+   28|      6|    public func bind(observer: @escaping Observer) {
+   29|      6|        self.observers.append(observer)
+   30|      6|    }
+   31|       |    
+   32|     43|    private func notifyObservers(_ value: ObservedType) {
+   33|     43|        self.observers.forEach { [unowned self](observer) in
+   34|      0|            observer(self, value)
+   35|      0|        }
+   36|     43|    }
+   37|       |}
+   38|       |
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/SimpleTwoWayBinding/Sources/UIControls+Bindable.swift:
+    1|       |//
+    2|       |//  UIControls+Bindable.swift
+    3|       |//  SimpleTwoWayBinding
+    4|       |//
+    5|       |//  Created by Manish Katoch on 11/26/17.
+    6|       |//
+    7|       |
+    8|       |import Foundation
+    9|       |
+   10|       |extension UITextField : Bindable {
+   11|       |    public typealias BindingType = String
+   12|       |    
+   13|      0|    public func observingValue() -> String? {
+   14|      0|        return self.text
+   15|      0|    }
+   16|       |    
+   17|      0|    public func updateValue(with value: String) {
+   18|      0|        self.text = value
+   19|      0|    }
+   20|       |}
+   21|       |
+   22|       |extension UISwitch : Bindable {
+   23|       |    public typealias BindingType = Bool
+   24|       |    
+   25|      0|    public func observingValue() -> Bool? {
+   26|      0|        return self.isOn
+   27|      0|    }
+   28|       |    
+   29|      0|    public func updateValue(with value: Bool) {
+   30|      0|        self.isOn = value
+   31|      0|    }
+   32|       |}
+   33|       |
+   34|       |extension UISlider : Bindable {
+   35|       |    public typealias BindingType = Float
+   36|       |    
+   37|      0|    public func observingValue() -> Float? {
+   38|      0|        return self.value
+   39|      0|    }
+   40|       |    
+   41|      0|    public func updateValue(with value: Float) {
+   42|      0|        self.value = value
+   43|      0|    }
+   44|       |}
+   45|       |
+   46|       |extension UIStepper : Bindable {
+   47|       |    public typealias BindingType = Double
+   48|       |    
+   49|      0|    public func observingValue() -> Double? {
+   50|      0|        return self.value
+   51|      0|    }
+   52|       |    
+   53|      0|    public func updateValue(with value: Double) {
+   54|      0|        self.value = value
+   55|      0|    }
+   56|       |}
+   57|       |
+   58|       |public class BindableTextView: UITextView, Bindable, UITextViewDelegate {
+   59|       |    public typealias BindingType = String
+   60|       |    
+   61|      0|    public func observingValue() -> String? {
+   62|      0|        return self.text
+   63|      0|    }
+   64|       |    
+   65|      0|    public func updateValue(with value: String) {
+   66|      0|        self.text = value
+   67|      0|    }
+   68|       |    
+   69|      0|    public func bind(with observable: Observable<String>) {
+   70|      0|        self.delegate = self
+   71|      0|        self.register(for: observable)
+   72|      0|        self.observe(for: observable) { (value) in
+   73|      0|            self.updateValue(with: value)
+   74|      0|        }
+   75|      0|    }
+   76|       |    
+   77|      0|    public func textViewDidChange(_ textView: UITextView) {
+   78|      0|        self.valueChanged()
+   79|      0|    }
+   80|       |}
+

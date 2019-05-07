@@ -1,0 +1,1871 @@
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/Moya/Sources/Moya/AnyEncodable.swift:
+    1|       |import Foundation
+    2|       |
+    3|       |struct AnyEncodable: Encodable {
+    4|       |
+    5|       |    private let encodable: Encodable
+    6|       |
+    7|      0|    public init(_ encodable: Encodable) {
+    8|      0|        self.encodable = encodable
+    9|      0|    }
+   10|       |
+   11|      0|    func encode(to encoder: Encoder) throws {
+   12|      0|        try encodable.encode(to: encoder)
+   13|      0|    }
+   14|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/Moya/Sources/Moya/Cancellable.swift:
+    1|       |/// Protocol to define the opaque type returned from a request.
+    2|       |public protocol Cancellable {
+    3|       |
+    4|       |    /// A Boolean value stating whether a request is cancelled.
+    5|       |    var isCancelled: Bool { get }
+    6|       |
+    7|       |    /// Cancels the represented request.
+    8|       |    func cancel()
+    9|       |}
+   10|       |
+   11|       |internal class CancellableWrapper: Cancellable {
+   12|       |    internal var innerCancellable: Cancellable = SimpleCancellable()
+   13|       |
+   14|      0|    var isCancelled: Bool { return innerCancellable.isCancelled }
+   15|       |
+   16|      0|    internal func cancel() {
+   17|      0|        innerCancellable.cancel()
+   18|      0|    }
+   19|       |}
+   20|       |
+   21|       |internal class SimpleCancellable: Cancellable {
+   22|       |    var isCancelled = false
+   23|      0|    func cancel() {
+   24|      0|        isCancelled = true
+   25|      0|    }
+   26|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/Moya/Sources/Moya/Endpoint.swift:
+    1|       |import Foundation
+    2|       |
+    3|       |/// Used for stubbing responses.
+    4|       |public enum EndpointSampleResponse {
+    5|       |
+    6|       |    /// The network returned a response, including status code and data.
+    7|       |    case networkResponse(Int, Data)
+    8|       |
+    9|       |    /// The network returned response which can be fully customized.
+   10|       |    case response(HTTPURLResponse, Data)
+   11|       |
+   12|       |    /// The network failed to send the request, or failed to retrieve a response (eg a timeout).
+   13|       |    case networkError(NSError)
+   14|       |}
+   15|       |
+   16|       |/// Class for reifying a target of the `Target` enum unto a concrete `Endpoint`.
+   17|       |/// - Note: As of Moya 11.0.0 Endpoint is no longer generic.
+   18|       |///   Existing code should work as is after removing the generic.
+   19|       |///   See #1529 and #1524 for the discussion.
+   20|       |open class Endpoint {
+   21|       |    public typealias SampleResponseClosure = () -> EndpointSampleResponse
+   22|       |
+   23|       |    /// A string representation of the URL for the request.
+   24|       |    public let url: String
+   25|       |
+   26|       |    /// A closure responsible for returning an `EndpointSampleResponse`.
+   27|       |    public let sampleResponseClosure: SampleResponseClosure
+   28|       |
+   29|       |    /// The HTTP method for the request.
+   30|       |    public let method: Moya.Method
+   31|       |
+   32|       |    /// The `Task` for the request.
+   33|       |    public let task: Task
+   34|       |
+   35|       |    /// The HTTP header fields for the request.
+   36|       |    public let httpHeaderFields: [String: String]?
+   37|       |
+   38|       |    public init(url: String,
+   39|       |                sampleResponseClosure: @escaping SampleResponseClosure,
+   40|       |                method: Moya.Method,
+   41|       |                task: Task,
+   42|      0|                httpHeaderFields: [String: String]?) {
+   43|      0|
+   44|      0|        self.url = url
+   45|      0|        self.sampleResponseClosure = sampleResponseClosure
+   46|      0|        self.method = method
+   47|      0|        self.task = task
+   48|      0|        self.httpHeaderFields = httpHeaderFields
+   49|      0|    }
+   50|       |
+   51|       |    /// Convenience method for creating a new `Endpoint` with the same properties as the receiver, but with added HTTP header fields.
+   52|      0|    open func adding(newHTTPHeaderFields: [String: String]) -> Endpoint {
+   53|      0|        return Endpoint(url: url, sampleResponseClosure: sampleResponseClosure, method: method, task: task, httpHeaderFields: add(httpHeaderFields: newHTTPHeaderFields))
+   54|      0|    }
+   55|       |
+   56|       |    /// Convenience method for creating a new `Endpoint` with the same properties as the receiver, but with replaced `task` parameter.
+   57|      0|    open func replacing(task: Task) -> Endpoint {
+   58|      0|        return Endpoint(url: url, sampleResponseClosure: sampleResponseClosure, method: method, task: task, httpHeaderFields: httpHeaderFields)
+   59|      0|    }
+   60|       |
+   61|      0|    fileprivate func add(httpHeaderFields headers: [String: String]?) -> [String: String]? {
+   62|      0|        guard let unwrappedHeaders = headers, unwrappedHeaders.isEmpty == false else {
+   63|      0|            return self.httpHeaderFields
+   64|      0|        }
+   65|      0|
+   66|      0|        var newHTTPHeaderFields = self.httpHeaderFields ?? [:]
+   67|      0|        unwrappedHeaders.forEach { key, value in
+   68|      0|            newHTTPHeaderFields[key] = value
+   69|      0|        }
+   70|      0|        return newHTTPHeaderFields
+   71|      0|    }
+   72|       |}
+   73|       |
+   74|       |/// Extension for converting an `Endpoint` into a `URLRequest`.
+   75|       |extension Endpoint {
+   76|       |    // swiftlint:disable cyclomatic_complexity
+   77|       |    /// Returns the `Endpoint` converted to a `URLRequest` if valid. Throws an error otherwise.
+   78|      0|    public func urlRequest() throws -> URLRequest {
+   79|      0|        guard let requestURL = Foundation.URL(string: url) else {
+   80|      0|            throw MoyaError.requestMapping(url)
+   81|      0|        }
+   82|      0|
+   83|      0|        var request = URLRequest(url: requestURL)
+   84|      0|        request.httpMethod = method.rawValue
+   85|      0|        request.allHTTPHeaderFields = httpHeaderFields
+   86|      0|
+   87|      0|        switch task {
+   88|      0|        case .requestPlain, .uploadFile, .uploadMultipart, .downloadDestination:
+   89|      0|            return request
+   90|      0|        case .requestData(let data):
+   91|      0|            request.httpBody = data
+   92|      0|            return request
+   93|      0|        case let .requestJSONEncodable(encodable):
+   94|      0|            return try request.encoded(encodable: encodable)
+   95|      0|        case let .requestCustomJSONEncodable(encodable, encoder: encoder):
+   96|      0|            return try request.encoded(encodable: encodable, encoder: encoder)
+   97|      0|        case let .requestParameters(parameters, parameterEncoding):
+   98|      0|            return try request.encoded(parameters: parameters, parameterEncoding: parameterEncoding)
+   99|      0|        case let .uploadCompositeMultipart(_, urlParameters):
+  100|      0|            let parameterEncoding = URLEncoding(destination: .queryString)
+  101|      0|            return try request.encoded(parameters: urlParameters, parameterEncoding: parameterEncoding)
+  102|      0|        case let .downloadParameters(parameters, parameterEncoding, _):
+  103|      0|            return try request.encoded(parameters: parameters, parameterEncoding: parameterEncoding)
+  104|      0|        case let .requestCompositeData(bodyData: bodyData, urlParameters: urlParameters):
+  105|      0|            request.httpBody = bodyData
+  106|      0|            let parameterEncoding = URLEncoding(destination: .queryString)
+  107|      0|            return try request.encoded(parameters: urlParameters, parameterEncoding: parameterEncoding)
+  108|      0|        case let .requestCompositeParameters(bodyParameters: bodyParameters, bodyEncoding: bodyParameterEncoding, urlParameters: urlParameters):
+  109|      0|            if let bodyParameterEncoding = bodyParameterEncoding as? URLEncoding, bodyParameterEncoding.destination != .httpBody {
+  110|      0|                fatalError("Only URLEncoding that `bodyEncoding` accepts is URLEncoding.httpBody. Others like `default`, `queryString` or `methodDependent` are prohibited - if you want to use them, add your parameters to `urlParameters` instead.")
+  111|      0|            }
+  112|      0|            let bodyfulRequest = try request.encoded(parameters: bodyParameters, parameterEncoding: bodyParameterEncoding)
+  113|      0|            let urlEncoding = URLEncoding(destination: .queryString)
+  114|      0|            return try bodyfulRequest.encoded(parameters: urlParameters, parameterEncoding: urlEncoding)
+  115|      0|        }
+  116|      0|    }
+  117|       |    // swiftlint:enable cyclomatic_complexity
+  118|       |}
+  119|       |
+  120|       |/// Required for using `Endpoint` as a key type in a `Dictionary`.
+  121|       |extension Endpoint: Equatable, Hashable {
+  122|      0|    public var hashValue: Int {
+  123|      0|        let request = try? urlRequest()
+  124|      0|        return request?.hashValue ?? url.hashValue
+  125|      0|    }
+  126|       |
+  127|       |    /// Note: If both Endpoints fail to produce a URLRequest the comparison will
+  128|       |    /// fall back to comparing each Endpoint's hashValue.
+  129|      0|    public static func == (lhs: Endpoint, rhs: Endpoint) -> Bool {
+  130|      0|        let lhsRequest = try? lhs.urlRequest()
+  131|      0|        let rhsRequest = try? rhs.urlRequest()
+  132|      0|        if lhsRequest != nil, rhsRequest == nil { return false }
+  133|      0|        if lhsRequest == nil, rhsRequest != nil { return false }
+  134|      0|        if lhsRequest == nil, rhsRequest == nil { return lhs.hashValue == rhs.hashValue }
+  135|      0|        return (lhsRequest == rhsRequest)
+  136|      0|    }
+  137|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/Moya/Sources/Moya/Moya+Alamofire.swift:
+    1|       |import Foundation
+    2|       |import Alamofire
+    3|       |
+    4|       |public typealias Manager = Alamofire.SessionManager
+    5|       |internal typealias Request = Alamofire.Request
+    6|       |internal typealias DownloadRequest = Alamofire.DownloadRequest
+    7|       |internal typealias UploadRequest = Alamofire.UploadRequest
+    8|       |internal typealias DataRequest = Alamofire.DataRequest
+    9|       |
+   10|       |internal typealias URLRequestConvertible = Alamofire.URLRequestConvertible
+   11|       |
+   12|       |/// Represents an HTTP method.
+   13|       |public typealias Method = Alamofire.HTTPMethod
+   14|       |
+   15|       |/// Choice of parameter encoding.
+   16|       |public typealias ParameterEncoding = Alamofire.ParameterEncoding
+   17|       |public typealias JSONEncoding = Alamofire.JSONEncoding
+   18|       |public typealias URLEncoding = Alamofire.URLEncoding
+   19|       |public typealias PropertyListEncoding = Alamofire.PropertyListEncoding
+   20|       |
+   21|       |/// Multipart form.
+   22|       |public typealias RequestMultipartFormData = Alamofire.MultipartFormData
+   23|       |
+   24|       |/// Multipart form data encoding result.
+   25|       |public typealias MultipartFormDataEncodingResult = Manager.MultipartFormDataEncodingResult
+   26|       |public typealias DownloadDestination = Alamofire.DownloadRequest.DownloadFileDestination
+   27|       |
+   28|       |/// Make the Alamofire Request type conform to our type, to prevent leaking Alamofire to plugins.
+   29|       |extension Request: RequestType { }
+   30|       |
+   31|       |/// Internal token that can be used to cancel requests
+   32|       |public final class CancellableToken: Cancellable, CustomDebugStringConvertible {
+   33|       |    let cancelAction: () -> Void
+   34|       |    let request: Request?
+   35|       |
+   36|       |    public fileprivate(set) var isCancelled = false
+   37|       |
+   38|       |    fileprivate var lock: DispatchSemaphore = DispatchSemaphore(value: 1)
+   39|       |
+   40|      0|    public func cancel() {
+   41|      0|        _ = lock.wait(timeout: DispatchTime.distantFuture)
+   42|      0|        defer { lock.signal() }
+   43|      0|        guard !isCancelled else { return }
+   44|      0|        isCancelled = true
+   45|      0|        cancelAction()
+   46|      0|    }
+   47|       |
+   48|      0|    public init(action: @escaping () -> Void) {
+   49|      0|        self.cancelAction = action
+   50|      0|        self.request = nil
+   51|      0|    }
+   52|       |
+   53|      0|    init(request: Request) {
+   54|      0|        self.request = request
+   55|      0|        self.cancelAction = {
+   56|      0|            request.cancel()
+   57|      0|        }
+   58|      0|    }
+   59|       |
+   60|       |    /// A textual representation of this instance, suitable for debugging.
+   61|      0|    public var debugDescription: String {
+   62|      0|        guard let request = self.request else {
+   63|      0|            return "Empty Request"
+   64|      0|        }
+   65|      0|        return request.debugDescription
+   66|      0|    }
+   67|       |
+   68|       |}
+   69|       |
+   70|       |internal typealias RequestableCompletion = (HTTPURLResponse?, URLRequest?, Data?, Swift.Error?) -> Void
+   71|       |
+   72|       |internal protocol Requestable {
+   73|       |    func response(callbackQueue: DispatchQueue?, completionHandler: @escaping RequestableCompletion) -> Self
+   74|       |}
+   75|       |
+   76|       |extension DataRequest: Requestable {
+   77|      0|    internal func response(callbackQueue: DispatchQueue?, completionHandler: @escaping RequestableCompletion) -> Self {
+   78|      0|        return response(queue: callbackQueue) { handler  in
+   79|      0|            completionHandler(handler.response, handler.request, handler.data, handler.error)
+   80|      0|        }
+   81|      0|    }
+   82|       |}
+   83|       |
+   84|       |extension DownloadRequest: Requestable {
+   85|      0|    internal func response(callbackQueue: DispatchQueue?, completionHandler: @escaping RequestableCompletion) -> Self {
+   86|      0|        return response(queue: callbackQueue) { handler  in
+   87|      0|            completionHandler(handler.response, handler.request, nil, handler.error)
+   88|      0|        }
+   89|      0|    }
+   90|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/Moya/Sources/Moya/MoyaError.swift:
+    1|       |import Foundation
+    2|       |
+    3|       |/// A type representing possible errors Moya can throw.
+    4|       |public enum MoyaError: Swift.Error {
+    5|       |
+    6|       |    /// Indicates a response failed to map to an image.
+    7|       |    case imageMapping(Response)
+    8|       |
+    9|       |    /// Indicates a response failed to map to a JSON structure.
+   10|       |    case jsonMapping(Response)
+   11|       |
+   12|       |    /// Indicates a response failed to map to a String.
+   13|       |    case stringMapping(Response)
+   14|       |
+   15|       |    /// Indicates a response failed to map to a Decodable object.
+   16|       |    case objectMapping(Swift.Error, Response)
+   17|       |
+   18|       |    /// Indicates that Encodable couldn't be encoded into Data
+   19|       |    case encodableMapping(Swift.Error)
+   20|       |
+   21|       |    /// Indicates a response failed with an invalid HTTP status code.
+   22|       |    case statusCode(Response)
+   23|       |
+   24|       |    /// Indicates a response failed due to an underlying `Error`.
+   25|       |    case underlying(Swift.Error, Response?)
+   26|       |
+   27|       |    /// Indicates that an `Endpoint` failed to map to a `URLRequest`.
+   28|       |    case requestMapping(String)
+   29|       |
+   30|       |    /// Indicates that an `Endpoint` failed to encode the parameters for the `URLRequest`.
+   31|       |    case parameterEncoding(Swift.Error)
+   32|       |}
+   33|       |
+   34|       |public extension MoyaError {
+   35|       |    /// Depending on error type, returns a `Response` object.
+   36|      0|    var response: Moya.Response? {
+   37|      0|        switch self {
+   38|      0|        case .imageMapping(let response): return response
+   39|      0|        case .jsonMapping(let response): return response
+   40|      0|        case .stringMapping(let response): return response
+   41|      0|        case .objectMapping(_, let response): return response
+   42|      0|        case .statusCode(let response): return response
+   43|      0|        case .underlying(_, let response): return response
+   44|      0|        case .encodableMapping: return nil
+   45|      0|        case .requestMapping: return nil
+   46|      0|        case .parameterEncoding: return nil
+   47|      0|        }
+   48|      0|    }
+   49|       |}
+   50|       |
+   51|       |// MARK: - Error Descriptions
+   52|       |
+   53|       |extension MoyaError: LocalizedError {
+   54|      0|    public var errorDescription: String? {
+   55|      0|        switch self {
+   56|      0|        case .imageMapping:
+   57|      0|            return "Failed to map data to an Image."
+   58|      0|        case .jsonMapping:
+   59|      0|            return "Failed to map data to JSON."
+   60|      0|        case .stringMapping:
+   61|      0|            return "Failed to map data to a String."
+   62|      0|        case .objectMapping:
+   63|      0|            return "Failed to map data to a Decodable object."
+   64|      0|        case .encodableMapping:
+   65|      0|            return "Failed to encode Encodable object into data."
+   66|      0|        case .statusCode:
+   67|      0|            return "Status code didn't fall within the given range."
+   68|      0|        case .requestMapping:
+   69|      0|            return "Failed to map Endpoint to a URLRequest."
+   70|      0|        case .parameterEncoding(let error):
+   71|      0|            return "Failed to encode parameters for URLRequest. \(error.localizedDescription)"
+   72|      0|        case .underlying(let error, _):
+   73|      0|            return error.localizedDescription
+   74|      0|        }
+   75|      0|    }
+   76|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/Moya/Sources/Moya/MoyaProvider+Defaults.swift:
+    1|       |import Foundation
+    2|       |
+    3|       |/// These functions are default mappings to `MoyaProvider`'s properties: endpoints, requests, manager, etc.
+    4|       |public extension MoyaProvider {
+    5|      0|    public final class func defaultEndpointMapping(for target: Target) -> Endpoint {
+    6|      0|        return Endpoint(
+    7|      0|            url: URL(target: target).absoluteString,
+    8|      0|            sampleResponseClosure: { .networkResponse(200, target.sampleData) },
+    9|      0|            method: target.method,
+   10|      0|            task: target.task,
+   11|      0|            httpHeaderFields: target.headers
+   12|      0|        )
+   13|      0|    }
+   14|       |
+   15|      0|    public final class func defaultRequestMapping(for endpoint: Endpoint, closure: RequestResultClosure) {
+   16|      0|        do {
+   17|      0|            let urlRequest = try endpoint.urlRequest()
+   18|      0|            closure(.success(urlRequest))
+   19|      0|        } catch MoyaError.requestMapping(let url) {
+   20|      0|            closure(.failure(MoyaError.requestMapping(url)))
+   21|      0|        } catch MoyaError.parameterEncoding(let error) {
+   22|      0|            closure(.failure(MoyaError.parameterEncoding(error)))
+   23|      0|        } catch {
+   24|      0|            closure(.failure(MoyaError.underlying(error, nil)))
+   25|      0|        }
+   26|      0|    }
+   27|       |
+   28|      0|    public final class func defaultAlamofireManager() -> Manager {
+   29|      0|        let configuration = URLSessionConfiguration.default
+   30|      0|        configuration.httpAdditionalHeaders = Manager.defaultHTTPHeaders
+   31|      0|
+   32|      0|        let manager = Manager(configuration: configuration)
+   33|      0|        manager.startRequestsImmediately = false
+   34|      0|        return manager
+   35|      0|    }
+   36|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/Moya/Sources/Moya/MoyaProvider+Internal.swift:
+    1|       |import Foundation
+    2|       |import Result
+    3|       |
+    4|       |// MARK: - Method
+    5|       |
+    6|       |extension Method {
+    7|       |    /// A Boolean value determining whether the request supports multipart.
+    8|      0|    public var supportsMultipart: Bool {
+    9|      0|        switch self {
+   10|      0|        case .post, .put, .patch, .connect:
+   11|      0|            return true
+   12|      0|        case .get, .delete, .head, .options, .trace:
+   13|      0|            return false
+   14|      0|        }
+   15|      0|    }
+   16|       |}
+   17|       |
+   18|       |// MARK: - MoyaProvider
+   19|       |
+   20|       |/// Internal extension to keep the inner-workings outside the main Moya.swift file.
+   21|       |public extension MoyaProvider {
+   22|       |    /// Performs normal requests.
+   23|      0|    func requestNormal(_ target: Target, callbackQueue: DispatchQueue?, progress: Moya.ProgressBlock?, completion: @escaping Moya.Completion) -> Cancellable {
+   24|      0|        let endpoint = self.endpoint(target)
+   25|      0|        let stubBehavior = self.stubClosure(target)
+   26|      0|        let cancellableToken = CancellableWrapper()
+   27|      0|
+   28|      0|        // Allow plugins to modify response
+   29|      0|        let pluginsWithCompletion: Moya.Completion = { result in
+   30|      0|            let processedResult = self.plugins.reduce(result) { $1.process($0, target: target) }
+   31|      0|            completion(processedResult)
+   32|      0|        }
+   33|      0|
+   34|      0|        if trackInflights {
+   35|      0|            objc_sync_enter(self)
+   36|      0|            var inflightCompletionBlocks = self.inflightRequests[endpoint]
+   37|      0|            inflightCompletionBlocks?.append(pluginsWithCompletion)
+   38|      0|            self.inflightRequests[endpoint] = inflightCompletionBlocks
+   39|      0|            objc_sync_exit(self)
+   40|      0|
+   41|      0|            if inflightCompletionBlocks != nil {
+   42|      0|                return cancellableToken
+   43|      0|            } else {
+   44|      0|                objc_sync_enter(self)
+   45|      0|                self.inflightRequests[endpoint] = [pluginsWithCompletion]
+   46|      0|                objc_sync_exit(self)
+   47|      0|            }
+   48|      0|        }
+   49|      0|
+   50|      0|        let performNetworking = { (requestResult: Result<URLRequest, MoyaError>) in
+   51|      0|            if cancellableToken.isCancelled {
+   52|      0|                self.cancelCompletion(pluginsWithCompletion, target: target)
+   53|      0|                return
+   54|      0|            }
+   55|      0|
+   56|      0|            var request: URLRequest!
+   57|      0|
+   58|      0|            switch requestResult {
+   59|      0|            case .success(let urlRequest):
+   60|      0|                request = urlRequest
+   61|      0|            case .failure(let error):
+   62|      0|                pluginsWithCompletion(.failure(error))
+   63|      0|                return
+   64|      0|            }
+   65|      0|
+   66|      0|            // Allow plugins to modify request
+   67|      0|            let preparedRequest = self.plugins.reduce(request) { $1.prepare($0, target: target) }
+   68|      0|
+   69|      0|            let networkCompletion: Moya.Completion = { result in
+   70|      0|              if self.trackInflights {
+   71|      0|                self.inflightRequests[endpoint]?.forEach { $0(result) }
+   72|      0|
+   73|      0|                objc_sync_enter(self)
+   74|      0|                self.inflightRequests.removeValue(forKey: endpoint)
+   75|      0|                objc_sync_exit(self)
+   76|      0|              } else {
+   77|      0|                pluginsWithCompletion(result)
+   78|      0|              }
+   79|      0|            }
+   80|      0|
+   81|      0|            cancellableToken.innerCancellable = self.performRequest(target, request: preparedRequest, callbackQueue: callbackQueue, progress: progress, completion: networkCompletion, endpoint: endpoint, stubBehavior: stubBehavior)
+   82|      0|        }
+   83|      0|
+   84|      0|        requestClosure(endpoint, performNetworking)
+   85|      0|
+   86|      0|        return cancellableToken
+   87|      0|    }
+   88|       |
+   89|       |    // swiftlint:disable:next function_parameter_count
+   90|       |    private func performRequest(_ target: Target, request: URLRequest, callbackQueue: DispatchQueue?, progress: Moya.ProgressBlock?, completion: @escaping Moya.Completion, endpoint: Endpoint, stubBehavior: Moya.StubBehavior) -> Cancellable {
+   91|       |        switch stubBehavior {
+   92|       |        case .never:
+   93|       |            switch endpoint.task {
+   94|       |            case .requestPlain, .requestData, .requestJSONEncodable, .requestCustomJSONEncodable, .requestParameters, .requestCompositeData, .requestCompositeParameters:
+   95|       |                return self.sendRequest(target, request: request, callbackQueue: callbackQueue, progress: progress, completion: completion)
+   96|       |            case .uploadFile(let file):
+   97|       |                return self.sendUploadFile(target, request: request, callbackQueue: callbackQueue, file: file, progress: progress, completion: completion)
+   98|       |            case .uploadMultipart(let multipartBody), .uploadCompositeMultipart(let multipartBody, _):
+   99|       |                guard !multipartBody.isEmpty && endpoint.method.supportsMultipart else {
+  100|       |                    fatalError("\(target) is not a multipart upload target.")
+  101|       |                }
+  102|       |                return self.sendUploadMultipart(target, request: request, callbackQueue: callbackQueue, multipartBody: multipartBody, progress: progress, completion: completion)
+  103|       |            case .downloadDestination(let destination), .downloadParameters(_, _, let destination):
+  104|       |                return self.sendDownloadRequest(target, request: request, callbackQueue: callbackQueue, destination: destination, progress: progress, completion: completion)
+  105|       |            }
+  106|       |        default:
+  107|       |            return self.stubRequest(target, request: request, callbackQueue: callbackQueue, completion: completion, endpoint: endpoint, stubBehavior: stubBehavior)
+  108|       |        }
+  109|       |    }
+  110|       |
+  111|       |    func cancelCompletion(_ completion: Moya.Completion, target: Target) {
+  112|       |        let error = MoyaError.underlying(NSError(domain: NSURLErrorDomain, code: NSURLErrorCancelled, userInfo: nil), nil)
+  113|      0|        plugins.forEach { $0.didReceive(.failure(error), target: target) }
+  114|       |        completion(.failure(error))
+  115|       |    }
+  116|       |
+  117|       |    /// Creates a function which, when called, executes the appropriate stubbing behavior for the given parameters.
+  118|      0|    public final func createStubFunction(_ token: CancellableToken, forTarget target: Target, withCompletion completion: @escaping Moya.Completion, endpoint: Endpoint, plugins: [PluginType], request: URLRequest) -> (() -> Void) { // swiftlint:disable:this function_parameter_count
+  119|      0|        return {
+  120|      0|            if token.isCancelled {
+  121|      0|                self.cancelCompletion(completion, target: target)
+  122|      0|                return
+  123|      0|            }
+  124|      0|
+  125|      0|            let validate = { (response: Moya.Response) -> Result<Moya.Response, MoyaError> in
+  126|      0|                let validCodes = target.validationType.statusCodes
+  127|      0|                guard !validCodes.isEmpty else { return .success(response) }
+  128|      0|                if validCodes.contains(response.statusCode) {
+  129|      0|                    return .success(response)
+  130|      0|                } else {
+  131|      0|                    let statusError = MoyaError.statusCode(response)
+  132|      0|                    let error = MoyaError.underlying(statusError, response)
+  133|      0|                    return .failure(error)
+  134|      0|                }
+  135|      0|            }
+  136|      0|
+  137|      0|            switch endpoint.sampleResponseClosure() {
+  138|      0|            case .networkResponse(let statusCode, let data):
+  139|      0|                let response = Moya.Response(statusCode: statusCode, data: data, request: request, response: nil)
+  140|      0|                let result = validate(response)
+  141|      0|                plugins.forEach { $0.didReceive(result, target: target) }
+  142|      0|                completion(result)
+  143|      0|            case .response(let customResponse, let data):
+  144|      0|                let response = Moya.Response(statusCode: customResponse.statusCode, data: data, request: request, response: customResponse)
+  145|      0|                let result = validate(response)
+  146|      0|                plugins.forEach { $0.didReceive(result, target: target) }
+  147|      0|                completion(result)
+  148|      0|            case .networkError(let error):
+  149|      0|                let error = MoyaError.underlying(error, nil)
+  150|      0|                plugins.forEach { $0.didReceive(.failure(error), target: target) }
+  151|      0|                completion(.failure(error))
+  152|      0|            }
+  153|      0|        }
+  154|      0|    }
+  155|       |
+  156|       |    /// Notify all plugins that a stub is about to be performed. You must call this if overriding `stubRequest`.
+  157|      0|    final func notifyPluginsOfImpendingStub(for request: URLRequest, target: Target) {
+  158|      0|        let alamoRequest = manager.request(request as URLRequestConvertible)
+  159|      0|        plugins.forEach { $0.willSend(alamoRequest, target: target) }
+  160|      0|        alamoRequest.cancel()
+  161|      0|    }
+  162|       |}
+  163|       |
+  164|       |private extension MoyaProvider {
+  165|       |    func sendUploadMultipart(_ target: Target, request: URLRequest, callbackQueue: DispatchQueue?, multipartBody: [MultipartFormData], progress: Moya.ProgressBlock? = nil, completion: @escaping Moya.Completion) -> CancellableWrapper {
+  166|       |        let cancellable = CancellableWrapper()
+  167|       |
+  168|      0|        let multipartFormData: (RequestMultipartFormData) -> Void = { form in
+  169|      0|            form.applyMoyaMultipartFormData(multipartBody)
+  170|      0|        }
+  171|       |
+  172|      0|        manager.upload(multipartFormData: multipartFormData, with: request) { result in
+  173|      0|            switch result {
+  174|      0|            case .success(let alamoRequest, _, _):
+  175|      0|                if cancellable.isCancelled {
+  176|      0|                    self.cancelCompletion(completion, target: target)
+  177|      0|                    return
+  178|      0|                }
+  179|      0|                let validationCodes = target.validationType.statusCodes
+  180|      0|                let validatedRequest = validationCodes.isEmpty ? alamoRequest : alamoRequest.validate(statusCode: validationCodes)
+  181|      0|                cancellable.innerCancellable = self.sendAlamofireRequest(validatedRequest, target: target, callbackQueue: callbackQueue, progress: progress, completion: completion)
+  182|      0|            case .failure(let error):
+  183|      0|                completion(.failure(MoyaError.underlying(error as NSError, nil)))
+  184|      0|            }
+  185|      0|        }
+  186|       |
+  187|       |        return cancellable
+  188|       |    }
+  189|       |
+  190|       |    func sendUploadFile(_ target: Target, request: URLRequest, callbackQueue: DispatchQueue?, file: URL, progress: ProgressBlock? = nil, completion: @escaping Completion) -> CancellableToken {
+  191|       |        let uploadRequest = manager.upload(file, with: request)
+  192|       |        let validationCodes = target.validationType.statusCodes
+  193|       |        let alamoRequest = validationCodes.isEmpty ? uploadRequest : uploadRequest.validate(statusCode: validationCodes)
+  194|       |        return self.sendAlamofireRequest(alamoRequest, target: target, callbackQueue: callbackQueue, progress: progress, completion: completion)
+  195|       |    }
+  196|       |
+  197|       |    func sendDownloadRequest(_ target: Target, request: URLRequest, callbackQueue: DispatchQueue?, destination: @escaping DownloadDestination, progress: ProgressBlock? = nil, completion: @escaping Completion) -> CancellableToken {
+  198|       |        let downloadRequest = manager.download(request, to: destination)
+  199|       |        let validationCodes = target.validationType.statusCodes
+  200|       |        let alamoRequest = validationCodes.isEmpty ? downloadRequest : downloadRequest.validate(statusCode: validationCodes)
+  201|       |        return self.sendAlamofireRequest(alamoRequest, target: target, callbackQueue: callbackQueue, progress: progress, completion: completion)
+  202|       |    }
+  203|       |
+  204|       |    func sendRequest(_ target: Target, request: URLRequest, callbackQueue: DispatchQueue?, progress: Moya.ProgressBlock?, completion: @escaping Moya.Completion) -> CancellableToken {
+  205|       |        let initialRequest = manager.request(request as URLRequestConvertible)
+  206|       |        let validationCodes = target.validationType.statusCodes
+  207|       |        let alamoRequest = validationCodes.isEmpty ? initialRequest : initialRequest.validate(statusCode: validationCodes)
+  208|       |        return sendAlamofireRequest(alamoRequest, target: target, callbackQueue: callbackQueue, progress: progress, completion: completion)
+  209|       |    }
+  210|       |
+  211|       |    // swiftlint:disable:next cyclomatic_complexity
+  212|       |    func sendAlamofireRequest<T>(_ alamoRequest: T, target: Target, callbackQueue: DispatchQueue?, progress progressCompletion: Moya.ProgressBlock?, completion: @escaping Moya.Completion) -> CancellableToken where T: Requestable, T: Request {
+  213|       |        // Give plugins the chance to alter the outgoing request
+  214|       |        let plugins = self.plugins
+  215|      0|        plugins.forEach { $0.willSend(alamoRequest, target: target) }
+  216|       |
+  217|       |        var progressAlamoRequest = alamoRequest
+  218|      0|        let progressClosure: (Progress) -> Void = { progress in
+  219|      0|            let sendProgress: () -> Void = {
+  220|      0|                progressCompletion?(ProgressResponse(progress: progress))
+  221|      0|            }
+  222|      0|
+  223|      0|            if let callbackQueue = callbackQueue {
+  224|      0|                callbackQueue.async(execute: sendProgress)
+  225|      0|            } else {
+  226|      0|                sendProgress()
+  227|      0|            }
+  228|      0|        }
+  229|       |
+  230|       |        // Perform the actual request
+  231|       |        if progressCompletion != nil {
+  232|       |            switch progressAlamoRequest {
+  233|       |            case let downloadRequest as DownloadRequest:
+  234|       |                if let downloadRequest = downloadRequest.downloadProgress(closure: progressClosure) as? T {
+  235|       |                    progressAlamoRequest = downloadRequest
+  236|       |                }
+  237|       |            case let uploadRequest as UploadRequest:
+  238|       |                if let uploadRequest = uploadRequest.uploadProgress(closure: progressClosure) as? T {
+  239|       |                    progressAlamoRequest = uploadRequest
+  240|       |                }
+  241|       |            case let dataRequest as DataRequest:
+  242|       |                if let dataRequest = dataRequest.downloadProgress(closure: progressClosure) as? T {
+  243|       |                    progressAlamoRequest = dataRequest
+  244|       |                }
+  245|       |            default: break
+  246|       |            }
+  247|       |        }
+  248|       |
+  249|      0|        let completionHandler: RequestableCompletion = { response, request, data, error in
+  250|      0|            let result = convertResponseToResult(response, request: request, data: data, error: error)
+  251|      0|            // Inform all plugins about the response
+  252|      0|            plugins.forEach { $0.didReceive(result, target: target) }
+  253|      0|            if let progressCompletion = progressCompletion {
+  254|      0|                switch progressAlamoRequest {
+  255|      0|                case let downloadRequest as DownloadRequest:
+  256|      0|                    progressCompletion(ProgressResponse(progress: downloadRequest.progress, response: result.value))
+  257|      0|                case let uploadRequest as UploadRequest:
+  258|      0|                    progressCompletion(ProgressResponse(progress: uploadRequest.uploadProgress, response: result.value))
+  259|      0|                case let dataRequest as DataRequest:
+  260|      0|                    progressCompletion(ProgressResponse(progress: dataRequest.progress, response: result.value))
+  261|      0|                default:
+  262|      0|                    progressCompletion(ProgressResponse(response: result.value))
+  263|      0|                }
+  264|      0|            }
+  265|      0|            completion(result)
+  266|      0|        }
+  267|       |
+  268|       |        progressAlamoRequest = progressAlamoRequest.response(callbackQueue: callbackQueue, completionHandler: completionHandler)
+  269|       |
+  270|       |        progressAlamoRequest.resume()
+  271|       |
+  272|       |        return CancellableToken(request: progressAlamoRequest)
+  273|       |    }
+  274|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/Moya/Sources/Moya/MoyaProvider.swift:
+    1|       |import Foundation
+    2|       |import Result
+    3|       |
+    4|       |/// Closure to be executed when a request has completed.
+    5|       |public typealias Completion = (_ result: Result<Moya.Response, MoyaError>) -> Void
+    6|       |
+    7|       |/// Closure to be executed when progress changes.
+    8|       |public typealias ProgressBlock = (_ progress: ProgressResponse) -> Void
+    9|       |
+   10|       |/// A type representing the progress of a request.
+   11|       |public struct ProgressResponse {
+   12|       |
+   13|       |    /// The optional response of the request.
+   14|       |    public let response: Response?
+   15|       |
+   16|       |    /// An object that conveys ongoing progress for a given request.
+   17|       |    public let progressObject: Progress?
+   18|       |
+   19|       |    /// Initializes a `ProgressResponse`.
+   20|      0|    public init(progress: Progress? = nil, response: Response? = nil) {
+   21|      0|        self.progressObject = progress
+   22|      0|        self.response = response
+   23|      0|    }
+   24|       |
+   25|       |    /// The fraction of the overall work completed by the progress object.
+   26|      0|    public var progress: Double {
+   27|      0|        return progressObject?.fractionCompleted ?? 1.0
+   28|      0|    }
+   29|       |
+   30|       |    /// A Boolean value stating whether the request is completed.
+   31|      0|    public var completed: Bool {
+   32|      0|        return progress == 1.0 && response != nil
+   33|      0|    }
+   34|       |}
+   35|       |
+   36|       |/// A protocol representing a minimal interface for a MoyaProvider.
+   37|       |/// Used by the reactive provider extensions.
+   38|       |public protocol MoyaProviderType: AnyObject {
+   39|       |
+   40|       |    associatedtype Target: TargetType
+   41|       |
+   42|       |    /// Designated request-making method. Returns a `Cancellable` token to cancel the request later.
+   43|       |    func request(_ target: Target, callbackQueue: DispatchQueue?, progress: Moya.ProgressBlock?, completion: @escaping Moya.Completion) -> Cancellable
+   44|       |}
+   45|       |
+   46|       |/// Request provider class. Requests should be made through this class only.
+   47|       |open class MoyaProvider<Target: TargetType>: MoyaProviderType {
+   48|       |
+   49|       |    /// Closure that defines the endpoints for the provider.
+   50|       |    public typealias EndpointClosure = (Target) -> Endpoint
+   51|       |
+   52|       |    /// Closure that decides if and what request should be performed.
+   53|       |    public typealias RequestResultClosure = (Result<URLRequest, MoyaError>) -> Void
+   54|       |
+   55|       |    /// Closure that resolves an `Endpoint` into a `RequestResult`.
+   56|       |    public typealias RequestClosure = (Endpoint, @escaping RequestResultClosure) -> Void
+   57|       |
+   58|       |    /// Closure that decides if/how a request should be stubbed.
+   59|       |    public typealias StubClosure = (Target) -> Moya.StubBehavior
+   60|       |
+   61|       |    /// A closure responsible for mapping a `TargetType` to an `EndPoint`.
+   62|       |    public let endpointClosure: EndpointClosure
+   63|       |
+   64|       |    /// A closure deciding if and what request should be performed.
+   65|       |    public let requestClosure: RequestClosure
+   66|       |
+   67|       |    /// A closure responsible for determining the stubbing behavior
+   68|       |    /// of a request for a given `TargetType`.
+   69|       |    public let stubClosure: StubClosure
+   70|       |
+   71|       |    /// The manager for the session.
+   72|       |    public let manager: Manager
+   73|       |
+   74|       |    /// A list of plugins.
+   75|       |    /// e.g. for logging, network activity indicator or credentials.
+   76|       |    public let plugins: [PluginType]
+   77|       |
+   78|       |    public let trackInflights: Bool
+   79|       |
+   80|       |    open internal(set) var inflightRequests: [Endpoint: [Moya.Completion]] = [:]
+   81|       |
+   82|       |    /// Propagated to Alamofire as callback queue. If nil - the Alamofire default (as of their API in 2017 - the main queue) will be used.
+   83|       |    let callbackQueue: DispatchQueue?
+   84|       |
+   85|       |    /// Initializes a provider.
+   86|       |    public init(endpointClosure: @escaping EndpointClosure = MoyaProvider.defaultEndpointMapping,
+   87|       |                requestClosure: @escaping RequestClosure = MoyaProvider.defaultRequestMapping,
+   88|       |                stubClosure: @escaping StubClosure = MoyaProvider.neverStub,
+   89|       |                callbackQueue: DispatchQueue? = nil,
+   90|       |                manager: Manager = MoyaProvider<Target>.defaultAlamofireManager(),
+   91|       |                plugins: [PluginType] = [],
+   92|      0|                trackInflights: Bool = false) {
+   93|      0|
+   94|      0|        self.endpointClosure = endpointClosure
+   95|      0|        self.requestClosure = requestClosure
+   96|      0|        self.stubClosure = stubClosure
+   97|      0|        self.manager = manager
+   98|      0|        self.plugins = plugins
+   99|      0|        self.trackInflights = trackInflights
+  100|      0|        self.callbackQueue = callbackQueue
+  101|      0|    }
+  102|       |
+  103|       |    /// Returns an `Endpoint` based on the token, method, and parameters by invoking the `endpointClosure`.
+  104|      0|    open func endpoint(_ token: Target) -> Endpoint {
+  105|      0|        return endpointClosure(token)
+  106|      0|    }
+  107|       |
+  108|       |    /// Designated request-making method. Returns a `Cancellable` token to cancel the request later.
+  109|       |    @discardableResult
+  110|       |    open func request(_ target: Target,
+  111|       |                      callbackQueue: DispatchQueue? = .none,
+  112|       |                      progress: ProgressBlock? = .none,
+  113|      0|                      completion: @escaping Completion) -> Cancellable {
+  114|      0|
+  115|      0|        let callbackQueue = callbackQueue ?? self.callbackQueue
+  116|      0|        return requestNormal(target, callbackQueue: callbackQueue, progress: progress, completion: completion)
+  117|      0|    }
+  118|       |
+  119|       |    // swiftlint:disable function_parameter_count
+  120|       |    /// When overriding this method, take care to `notifyPluginsOfImpendingStub` and to perform the stub using the `createStubFunction` method.
+  121|       |    /// Note: this was previously in an extension, however it must be in the original class declaration to allow subclasses to override.
+  122|       |    @discardableResult
+  123|      0|    open func stubRequest(_ target: Target, request: URLRequest, callbackQueue: DispatchQueue?, completion: @escaping Moya.Completion, endpoint: Endpoint, stubBehavior: Moya.StubBehavior) -> CancellableToken {
+  124|      0|        let callbackQueue = callbackQueue ?? self.callbackQueue
+  125|      0|        let cancellableToken = CancellableToken { }
+  126|      0|        notifyPluginsOfImpendingStub(for: request, target: target)
+  127|      0|        let plugins = self.plugins
+  128|      0|        let stub: () -> Void = createStubFunction(cancellableToken, forTarget: target, withCompletion: completion, endpoint: endpoint, plugins: plugins, request: request)
+  129|      0|        switch stubBehavior {
+  130|      0|        case .immediate:
+  131|      0|            switch callbackQueue {
+  132|      0|            case .none:
+  133|      0|                stub()
+  134|      0|            case .some(let callbackQueue):
+  135|      0|                callbackQueue.async(execute: stub)
+  136|      0|            }
+  137|      0|        case .delayed(let delay):
+  138|      0|            let killTimeOffset = Int64(CDouble(delay) * CDouble(NSEC_PER_SEC))
+  139|      0|            let killTime = DispatchTime.now() + Double(killTimeOffset) / Double(NSEC_PER_SEC)
+  140|      0|            (callbackQueue ?? DispatchQueue.main).asyncAfter(deadline: killTime) {
+  141|      0|                stub()
+  142|      0|            }
+  143|      0|        case .never:
+  144|      0|            fatalError("Method called to stub request when stubbing is disabled.")
+  145|      0|        }
+  146|      0|
+  147|      0|        return cancellableToken
+  148|      0|    }
+  149|       |    // swiftlint:enable function_parameter_count
+  150|       |}
+  151|       |
+  152|       |/// Mark: Stubbing
+  153|       |
+  154|       |/// Controls how stub responses are returned.
+  155|       |public enum StubBehavior {
+  156|       |
+  157|       |    /// Do not stub.
+  158|       |    case never
+  159|       |
+  160|       |    /// Return a response immediately.
+  161|       |    case immediate
+  162|       |
+  163|       |    /// Return a response after a delay.
+  164|       |    case delayed(seconds: TimeInterval)
+  165|       |}
+  166|       |
+  167|       |public extension MoyaProvider {
+  168|       |
+  169|       |    // Swift won't let us put the StubBehavior enum inside the provider class, so we'll
+  170|       |    // at least add some class functions to allow easy access to common stubbing closures.
+  171|       |
+  172|       |    /// Do not stub.
+  173|       |    public final class func neverStub(_: Target) -> Moya.StubBehavior {
+  174|       |        return .never
+  175|       |    }
+  176|       |
+  177|       |    /// Return a response immediately.
+  178|      0|    public final class func immediatelyStub(_: Target) -> Moya.StubBehavior {
+  179|      0|        return .immediate
+  180|      0|    }
+  181|       |
+  182|       |    /// Return a response after a delay.
+  183|      0|    public final class func delayedStub(_ seconds: TimeInterval) -> (Target) -> Moya.StubBehavior {
+  184|      0|        return { _ in return .delayed(seconds: seconds) }
+  185|      0|    }
+  186|       |}
+  187|       |
+  188|       |/// A public function responsible for converting the result of a `URLRequest` to a Result<Moya.Response, MoyaError>.
+  189|       |public func convertResponseToResult(_ response: HTTPURLResponse?, request: URLRequest?, data: Data?, error: Swift.Error?) ->
+  190|      0|    Result<Moya.Response, MoyaError> {
+  191|      0|        switch (response, data, error) {
+  192|      0|        case let (.some(response), data, .none):
+  193|      0|            let response = Moya.Response(statusCode: response.statusCode, data: data ?? Data(), request: request, response: response)
+  194|      0|            return .success(response)
+  195|      0|        case let (.some(response), _, .some(error)):
+  196|      0|            let response = Moya.Response(statusCode: response.statusCode, data: data ?? Data(), request: request, response: response)
+  197|      0|            let error = MoyaError.underlying(error, response)
+  198|      0|            return .failure(error)
+  199|      0|        case let (_, _, .some(error)):
+  200|      0|            let error = MoyaError.underlying(error, nil)
+  201|      0|            return .failure(error)
+  202|      0|        default:
+  203|      0|            let error = MoyaError.underlying(NSError(domain: NSURLErrorDomain, code: NSURLErrorUnknown, userInfo: nil), nil)
+  204|      0|            return .failure(error)
+  205|      0|        }
+  206|      0|}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/Moya/Sources/Moya/MultiTarget.swift:
+    1|       |import Foundation
+    2|       |
+    3|       |/// A `TargetType` used to enable `MoyaProvider` to process multiple `TargetType`s.
+    4|       |public enum MultiTarget: TargetType {
+    5|       |    /// The embedded `TargetType`.
+    6|       |    case target(TargetType)
+    7|       |
+    8|       |    /// Initializes a `MultiTarget`.
+    9|      0|    public init(_ target: TargetType) {
+   10|      0|        self = MultiTarget.target(target)
+   11|      0|    }
+   12|       |
+   13|       |    /// The embedded target's base `URL`.
+   14|      0|    public var path: String {
+   15|      0|        return target.path
+   16|      0|    }
+   17|       |
+   18|       |    /// The baseURL of the embedded target.
+   19|      0|    public var baseURL: URL {
+   20|      0|        return target.baseURL
+   21|      0|    }
+   22|       |
+   23|       |    /// The HTTP method of the embedded target.
+   24|      0|    public var method: Moya.Method {
+   25|      0|        return target.method
+   26|      0|    }
+   27|       |
+   28|       |    /// The sampleData of the embedded target.
+   29|      0|    public var sampleData: Data {
+   30|      0|        return target.sampleData
+   31|      0|    }
+   32|       |
+   33|       |    /// The `Task` of the embedded target.
+   34|      0|    public var task: Task {
+   35|      0|        return target.task
+   36|      0|    }
+   37|       |
+   38|       |    /// The `ValidationType` of the embedded target.
+   39|      0|    public var validationType: ValidationType {
+   40|      0|        return target.validationType
+   41|      0|    }
+   42|       |
+   43|       |    /// The headers of the embedded target.
+   44|      0|    public var headers: [String: String]? {
+   45|      0|        return target.headers
+   46|      0|    }
+   47|       |
+   48|       |    /// The embedded `TargetType`.
+   49|       |    public var target: TargetType {
+   50|       |        switch self {
+   51|       |        case .target(let target): return target
+   52|       |        }
+   53|       |    }
+   54|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/Moya/Sources/Moya/MultipartFormData.swift:
+    1|       |import Foundation
+    2|       |import Alamofire
+    3|       |
+    4|       |/// Represents "multipart/form-data" for an upload.
+    5|       |public struct MultipartFormData {
+    6|       |
+    7|       |    /// Method to provide the form data.
+    8|       |    public enum FormDataProvider {
+    9|       |        case data(Foundation.Data)
+   10|       |        case file(URL)
+   11|       |        case stream(InputStream, UInt64)
+   12|       |    }
+   13|       |
+   14|      0|    public init(provider: FormDataProvider, name: String, fileName: String? = nil, mimeType: String? = nil) {
+   15|      0|        self.provider = provider
+   16|      0|        self.name = name
+   17|      0|        self.fileName = fileName
+   18|      0|        self.mimeType = mimeType
+   19|      0|    }
+   20|       |
+   21|       |    /// The method being used for providing form data.
+   22|       |    public let provider: FormDataProvider
+   23|       |
+   24|       |    /// The name.
+   25|       |    public let name: String
+   26|       |
+   27|       |    /// The file name.
+   28|       |    public let fileName: String?
+   29|       |
+   30|       |    /// The MIME type
+   31|       |    public let mimeType: String?
+   32|       |
+   33|       |}
+   34|       |
+   35|       |// MARK: RequestMultipartFormData appending
+   36|       |internal extension RequestMultipartFormData {
+   37|      0|    func append(data: Data, bodyPart: MultipartFormData) {
+   38|      0|        if let mimeType = bodyPart.mimeType {
+   39|      0|            if let fileName = bodyPart.fileName {
+   40|      0|                append(data, withName: bodyPart.name, fileName: fileName, mimeType: mimeType)
+   41|      0|            } else {
+   42|      0|                append(data, withName: bodyPart.name, mimeType: mimeType)
+   43|      0|            }
+   44|      0|        } else {
+   45|      0|            append(data, withName: bodyPart.name)
+   46|      0|        }
+   47|      0|    }
+   48|       |
+   49|      0|    func append(fileURL url: URL, bodyPart: MultipartFormData) {
+   50|      0|        if let fileName = bodyPart.fileName, let mimeType = bodyPart.mimeType {
+   51|      0|            append(url, withName: bodyPart.name, fileName: fileName, mimeType: mimeType)
+   52|      0|        } else {
+   53|      0|            append(url, withName: bodyPart.name)
+   54|      0|        }
+   55|      0|    }
+   56|       |
+   57|      0|    func append(stream: InputStream, length: UInt64, bodyPart: MultipartFormData) {
+   58|      0|        append(stream, withLength: length, name: bodyPart.name, fileName: bodyPart.fileName ?? "", mimeType: bodyPart.mimeType ?? "")
+   59|      0|    }
+   60|       |
+   61|      0|    func applyMoyaMultipartFormData(_ multipartBody: [Moya.MultipartFormData]) {
+   62|      0|        for bodyPart in multipartBody {
+   63|      0|            switch bodyPart.provider {
+   64|      0|            case .data(let data):
+   65|      0|                append(data: data, bodyPart: bodyPart)
+   66|      0|            case .file(let url):
+   67|      0|                append(fileURL: url, bodyPart: bodyPart)
+   68|      0|            case .stream(let stream, let length):
+   69|      0|                append(stream: stream, length: length, bodyPart: bodyPart)
+   70|      0|            }
+   71|      0|        }
+   72|      0|    }
+   73|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/Moya/Sources/Moya/Plugin.swift:
+    1|       |import Foundation
+    2|       |import Result
+    3|       |
+    4|       |/// A Moya Plugin receives callbacks to perform side effects wherever a request is sent or received.
+    5|       |///
+    6|       |/// for example, a plugin may be used to
+    7|       |///     - log network requests
+    8|       |///     - hide and show a network activity indicator
+    9|       |///     - inject additional information into a request
+   10|       |public protocol PluginType {
+   11|       |    /// Called to modify a request before sending.
+   12|       |    func prepare(_ request: URLRequest, target: TargetType) -> URLRequest
+   13|       |
+   14|       |    /// Called immediately before a request is sent over the network (or stubbed).
+   15|       |    func willSend(_ request: RequestType, target: TargetType)
+   16|       |
+   17|       |    /// Called after a response has been received, but before the MoyaProvider has invoked its completion handler.
+   18|       |    func didReceive(_ result: Result<Moya.Response, MoyaError>, target: TargetType)
+   19|       |
+   20|       |    /// Called to modify a result before completion.
+   21|       |    func process(_ result: Result<Moya.Response, MoyaError>, target: TargetType) -> Result<Moya.Response, MoyaError>
+   22|       |}
+   23|       |
+   24|       |public extension PluginType {
+   25|      0|    func prepare(_ request: URLRequest, target: TargetType) -> URLRequest { return request }
+   26|      0|    func willSend(_ request: RequestType, target: TargetType) { }
+   27|      0|    func didReceive(_ result: Result<Moya.Response, MoyaError>, target: TargetType) { }
+   28|      0|    func process(_ result: Result<Moya.Response, MoyaError>, target: TargetType) -> Result<Moya.Response, MoyaError> { return result }
+   29|       |}
+   30|       |
+   31|       |/// Request type used by `willSend` plugin function.
+   32|       |public protocol RequestType {
+   33|       |
+   34|       |    // Note:
+   35|       |    //
+   36|       |    // We use this protocol instead of the Alamofire request to avoid leaking that abstraction.
+   37|       |    // A plugin should not know about Alamofire at all.
+   38|       |
+   39|       |    /// Retrieve an `NSURLRequest` representation.
+   40|       |    var request: URLRequest? { get }
+   41|       |
+   42|       |    /// Authenticates the request with a username and password.
+   43|       |    func authenticate(user: String, password: String, persistence: URLCredential.Persistence) -> Self
+   44|       |
+   45|       |    /// Authenticates the request with an `NSURLCredential` instance.
+   46|       |    func authenticate(usingCredential credential: URLCredential) -> Self
+   47|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/Moya/Sources/Moya/Plugins/AccessTokenPlugin.swift:
+    1|       |import Foundation
+    2|       |import Result
+    3|       |
+    4|       |// MARK: - AccessTokenAuthorizable
+    5|       |
+    6|       |/// A protocol for controlling the behavior of `AccessTokenPlugin`.
+    7|       |public protocol AccessTokenAuthorizable {
+    8|       |
+    9|       |    /// Represents the authorization header to use for requests.
+   10|       |    var authorizationType: AuthorizationType { get }
+   11|       |}
+   12|       |
+   13|       |// MARK: - AuthorizationType
+   14|       |
+   15|       |/// An enum representing the header to use with an `AccessTokenPlugin`
+   16|       |public enum AuthorizationType {
+   17|       |    /// No header.
+   18|       |    case none
+   19|       |
+   20|       |    /// The `"Basic"` header.
+   21|       |    case basic
+   22|       |
+   23|       |    /// The `"Bearer"` header.
+   24|       |    case bearer
+   25|       |
+   26|       |    /// Custom header implementation.
+   27|       |    case custom(String)
+   28|       |
+   29|      0|    public var value: String? {
+   30|      0|        switch self {
+   31|      0|        case .none: return nil
+   32|      0|        case .basic: return "Basic"
+   33|      0|        case .bearer: return "Bearer"
+   34|      0|        case .custom(let customValue): return customValue
+   35|      0|        }
+   36|      0|    }
+   37|       |}
+   38|       |
+   39|       |// MARK: - AccessTokenPlugin
+   40|       |
+   41|       |/**
+   42|       | A plugin for adding basic or bearer-type authorization headers to requests. Example:
+   43|       |
+   44|       | ```
+   45|       | Authorization: Basic <token>
+   46|       | Authorization: Bearer <token>
+   47|       | Authorization: <Сustom> <token>
+   48|       | ```
+   49|       |
+   50|       |*/
+   51|       |public struct AccessTokenPlugin: PluginType {
+   52|       |
+   53|       |    /// A closure returning the access token to be applied in the header.
+   54|       |    public let tokenClosure: () -> String
+   55|       |
+   56|       |    /**
+   57|       |     Initialize a new `AccessTokenPlugin`.
+   58|       |
+   59|       |     - parameters:
+   60|       |       - tokenClosure: A closure returning the token to be applied in the pattern `Authorization: <AuthorizationType> <token>`
+   61|       |    */
+   62|      0|    public init(tokenClosure: @escaping () -> String) {
+   63|      0|        self.tokenClosure = tokenClosure
+   64|      0|    }
+   65|       |
+   66|       |    /**
+   67|       |     Prepare a request by adding an authorization header if necessary.
+   68|       |
+   69|       |     - parameters:
+   70|       |       - request: The request to modify.
+   71|       |       - target: The target of the request.
+   72|       |     - returns: The modified `URLRequest`.
+   73|       |    */
+   74|      0|    public func prepare(_ request: URLRequest, target: TargetType) -> URLRequest {
+   75|      0|
+   76|      0|        guard let authorizable = target as? AccessTokenAuthorizable else { return request }
+   77|      0|
+   78|      0|        let authorizationType = authorizable.authorizationType
+   79|      0|        var request = request
+   80|      0|
+   81|      0|        switch authorizationType {
+   82|      0|        case .basic, .bearer, .custom:
+   83|      0|            if let value = authorizationType.value {
+   84|      0|                let authValue = value + " " + tokenClosure()
+   85|      0|                request.addValue(authValue, forHTTPHeaderField: "Authorization")
+   86|      0|            }
+   87|      0|        case .none:
+   88|      0|            break
+   89|      0|        }
+   90|      0|
+   91|      0|        return request
+   92|      0|    }
+   93|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/Moya/Sources/Moya/Plugins/CredentialsPlugin.swift:
+    1|       |import Foundation
+    2|       |import Result
+    3|       |
+    4|       |/// Provides each request with optional URLCredentials.
+    5|       |public final class CredentialsPlugin: PluginType {
+    6|       |
+    7|       |    public typealias CredentialClosure = (TargetType) -> URLCredential?
+    8|       |    let credentialsClosure: CredentialClosure
+    9|       |
+   10|       |    /// Initializes a CredentialsPlugin.
+   11|      0|    public init(credentialsClosure: @escaping CredentialClosure) {
+   12|      0|        self.credentialsClosure = credentialsClosure
+   13|      0|    }
+   14|       |
+   15|       |    // MARK: Plugin
+   16|       |
+   17|      0|    public func willSend(_ request: RequestType, target: TargetType) {
+   18|      0|        if let credentials = credentialsClosure(target) {
+   19|      0|            _ = request.authenticate(usingCredential: credentials)
+   20|      0|        }
+   21|      0|    }
+   22|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/Moya/Sources/Moya/Plugins/NetworkActivityPlugin.swift:
+    1|       |import Foundation
+    2|       |import Result
+    3|       |
+    4|       |/// Network activity change notification type.
+    5|       |public enum NetworkActivityChangeType {
+    6|       |    case began, ended
+    7|       |}
+    8|       |
+    9|       |/// Notify a request's network activity changes (request begins or ends).
+   10|       |public final class NetworkActivityPlugin: PluginType {
+   11|       |
+   12|       |    public typealias NetworkActivityClosure = (_ change: NetworkActivityChangeType, _ target: TargetType) -> Void
+   13|       |    let networkActivityClosure: NetworkActivityClosure
+   14|       |
+   15|       |    /// Initializes a NetworkActivityPlugin.
+   16|      0|    public init(networkActivityClosure: @escaping NetworkActivityClosure) {
+   17|      0|        self.networkActivityClosure = networkActivityClosure
+   18|      0|    }
+   19|       |
+   20|       |    // MARK: Plugin
+   21|       |
+   22|       |    /// Called by the provider as soon as the request is about to start
+   23|      0|    public func willSend(_ request: RequestType, target: TargetType) {
+   24|      0|        networkActivityClosure(.began, target)
+   25|      0|    }
+   26|       |
+   27|       |    /// Called by the provider as soon as a response arrives, even if the request is canceled.
+   28|      0|    public func didReceive(_ result: Result<Moya.Response, MoyaError>, target: TargetType) {
+   29|      0|        networkActivityClosure(.ended, target)
+   30|      0|    }
+   31|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/Moya/Sources/Moya/Plugins/NetworkLoggerPlugin.swift:
+    1|       |import Foundation
+    2|       |import Result
+    3|       |
+    4|       |/// Logs network activity (outgoing requests and incoming responses).
+    5|       |public final class NetworkLoggerPlugin: PluginType {
+    6|       |    fileprivate let loggerId = "Moya_Logger"
+    7|       |    fileprivate let dateFormatString = "dd/MM/yyyy HH:mm:ss"
+    8|       |    fileprivate let dateFormatter = DateFormatter()
+    9|       |    fileprivate let separator = ", "
+   10|       |    fileprivate let terminator = "\n"
+   11|       |    fileprivate let cURLTerminator = "\\\n"
+   12|       |    fileprivate let output: (_ separator: String, _ terminator: String, _ items: Any...) -> Void
+   13|       |    fileprivate let requestDataFormatter: ((Data) -> (String))?
+   14|       |    fileprivate let responseDataFormatter: ((Data) -> (Data))?
+   15|       |
+   16|       |    /// A Boolean value determing whether response body data should be logged.
+   17|       |    public let isVerbose: Bool
+   18|       |    public let cURL: Bool
+   19|       |
+   20|       |    /// Initializes a NetworkLoggerPlugin.
+   21|      0|    public init(verbose: Bool = false, cURL: Bool = false, output: ((_ separator: String, _ terminator: String, _ items: Any...) -> Void)? = nil, requestDataFormatter: ((Data) -> (String))? = nil, responseDataFormatter: ((Data) -> (Data))? = nil) {
+   22|      0|        self.cURL = cURL
+   23|      0|        self.isVerbose = verbose
+   24|      0|        self.output = output ?? NetworkLoggerPlugin.reversedPrint
+   25|      0|        self.requestDataFormatter = requestDataFormatter
+   26|      0|        self.responseDataFormatter = responseDataFormatter
+   27|      0|    }
+   28|       |
+   29|      0|    public func willSend(_ request: RequestType, target: TargetType) {
+   30|      0|        if let request = request as? CustomDebugStringConvertible, cURL {
+   31|      0|            output(separator, terminator, request.debugDescription)
+   32|      0|            return
+   33|      0|        }
+   34|      0|        outputItems(logNetworkRequest(request.request as URLRequest?))
+   35|      0|    }
+   36|       |
+   37|      0|    public func didReceive(_ result: Result<Moya.Response, MoyaError>, target: TargetType) {
+   38|      0|        if case .success(let response) = result {
+   39|      0|            outputItems(logNetworkResponse(response.response, data: response.data, target: target))
+   40|      0|        } else {
+   41|      0|            outputItems(logNetworkResponse(nil, data: nil, target: target))
+   42|      0|        }
+   43|      0|    }
+   44|       |
+   45|       |    fileprivate func outputItems(_ items: [String]) {
+   46|       |        if isVerbose {
+   47|      0|            items.forEach { output(separator, terminator, $0) }
+   48|       |        } else {
+   49|       |            output(separator, terminator, items)
+   50|       |        }
+   51|       |    }
+   52|       |}
+   53|       |
+   54|       |private extension NetworkLoggerPlugin {
+   55|       |
+   56|      0|    var date: String {
+   57|      0|        dateFormatter.dateFormat = dateFormatString
+   58|      0|        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+   59|      0|        return dateFormatter.string(from: Date())
+   60|      0|    }
+   61|       |
+   62|      0|    func format(_ loggerId: String, date: String, identifier: String, message: String) -> String {
+   63|      0|        return "\(loggerId): [\(date)] \(identifier): \(message)"
+   64|      0|    }
+   65|       |
+   66|       |    func logNetworkRequest(_ request: URLRequest?) -> [String] {
+   67|       |
+   68|       |        var output = [String]()
+   69|       |
+   70|       |        output += [format(loggerId, date: date, identifier: "Request", message: request?.description ?? "(invalid request)")]
+   71|       |
+   72|       |        if let headers = request?.allHTTPHeaderFields {
+   73|       |            output += [format(loggerId, date: date, identifier: "Request Headers", message: headers.description)]
+   74|       |        }
+   75|       |
+   76|       |        if let bodyStream = request?.httpBodyStream {
+   77|       |            output += [format(loggerId, date: date, identifier: "Request Body Stream", message: bodyStream.description)]
+   78|       |        }
+   79|       |
+   80|       |        if let httpMethod = request?.httpMethod {
+   81|       |            output += [format(loggerId, date: date, identifier: "HTTP Request Method", message: httpMethod)]
+   82|       |        }
+   83|       |
+   84|       |        if let body = request?.httpBody, let stringOutput = requestDataFormatter?(body) ?? String(data: body, encoding: .utf8), isVerbose {
+   85|       |            output += [format(loggerId, date: date, identifier: "Request Body", message: stringOutput)]
+   86|       |        }
+   87|       |
+   88|       |        return output
+   89|       |    }
+   90|       |
+   91|       |    func logNetworkResponse(_ response: HTTPURLResponse?, data: Data?, target: TargetType) -> [String] {
+   92|       |        guard let response = response else {
+   93|       |           return [format(loggerId, date: date, identifier: "Response", message: "Received empty network response for \(target).")]
+   94|       |        }
+   95|       |
+   96|       |        var output = [String]()
+   97|       |
+   98|       |        output += [format(loggerId, date: date, identifier: "Response", message: response.description)]
+   99|       |
+  100|       |        if let data = data, let stringData = String(data: responseDataFormatter?(data) ?? data, encoding: String.Encoding.utf8), isVerbose {
+  101|       |            output += [stringData]
+  102|       |        }
+  103|       |
+  104|       |        return output
+  105|       |    }
+  106|       |}
+  107|       |
+  108|       |fileprivate extension NetworkLoggerPlugin {
+  109|       |    static func reversedPrint(_ separator: String, terminator: String, items: Any...) {
+  110|       |        for item in items {
+  111|       |            print(item, separator: separator, terminator: terminator)
+  112|       |        }
+  113|       |    }
+  114|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/Moya/Sources/Moya/Response.swift:
+    1|       |import Foundation
+    2|       |
+    3|       |/// Represents a response to a `MoyaProvider.request`.
+    4|       |public final class Response: CustomDebugStringConvertible, Equatable {
+    5|       |
+    6|       |    /// The status code of the response.
+    7|       |    public let statusCode: Int
+    8|       |
+    9|       |    /// The response data.
+   10|       |    public let data: Data
+   11|       |
+   12|       |    /// The original URLRequest for the response.
+   13|       |    public let request: URLRequest?
+   14|       |
+   15|       |    /// The HTTPURLResponse object.
+   16|       |    public let response: HTTPURLResponse?
+   17|       |
+   18|      0|    public init(statusCode: Int, data: Data, request: URLRequest? = nil, response: HTTPURLResponse? = nil) {
+   19|      0|        self.statusCode = statusCode
+   20|      0|        self.data = data
+   21|      0|        self.request = request
+   22|      0|        self.response = response
+   23|      0|    }
+   24|       |
+   25|       |    /// A text description of the `Response`.
+   26|      0|    public var description: String {
+   27|      0|        return "Status Code: \(statusCode), Data Length: \(data.count)"
+   28|      0|    }
+   29|       |
+   30|       |    /// A text description of the `Response`. Suitable for debugging.
+   31|      0|    public var debugDescription: String {
+   32|      0|        return description
+   33|      0|    }
+   34|       |
+   35|      0|    public static func == (lhs: Response, rhs: Response) -> Bool {
+   36|      0|        return lhs.statusCode == rhs.statusCode
+   37|      0|            && lhs.data == rhs.data
+   38|      0|            && lhs.response == rhs.response
+   39|      0|    }
+   40|       |}
+   41|       |
+   42|       |public extension Response {
+   43|       |
+   44|       |    /**
+   45|       |     Returns the `Response` if the `statusCode` falls within the specified range.
+   46|       |
+   47|       |     - parameters:
+   48|       |        - statusCodes: The range of acceptable status codes.
+   49|       |     - throws: `MoyaError.statusCode` when others are encountered.
+   50|       |    */
+   51|      0|    public func filter<R: RangeExpression>(statusCodes: R) throws -> Response where R.Bound == Int {
+   52|      0|        guard statusCodes.contains(statusCode) else {
+   53|      0|            throw MoyaError.statusCode(self)
+   54|      0|        }
+   55|      0|        return self
+   56|      0|    }
+   57|       |
+   58|       |    /**
+   59|       |     Returns the `Response` if it has the specified `statusCode`.
+   60|       |
+   61|       |     - parameters:
+   62|       |        - statusCode: The acceptable status code.
+   63|       |     - throws: `MoyaError.statusCode` when others are encountered.
+   64|       |    */
+   65|      0|    public func filter(statusCode: Int) throws -> Response {
+   66|      0|        return try filter(statusCodes: statusCode...statusCode)
+   67|      0|    }
+   68|       |
+   69|       |    /**
+   70|       |     Returns the `Response` if the `statusCode` falls within the range 200 - 299.
+   71|       |
+   72|       |     - throws: `MoyaError.statusCode` when others are encountered.
+   73|       |    */
+   74|      0|    public func filterSuccessfulStatusCodes() throws -> Response {
+   75|      0|        return try filter(statusCodes: 200...299)
+   76|      0|    }
+   77|       |
+   78|       |    /**
+   79|       |     Returns the `Response` if the `statusCode` falls within the range 200 - 399.
+   80|       |
+   81|       |     - throws: `MoyaError.statusCode` when others are encountered.
+   82|       |    */
+   83|      0|    public func filterSuccessfulStatusAndRedirectCodes() throws -> Response {
+   84|      0|        return try filter(statusCodes: 200...399)
+   85|      0|    }
+   86|       |
+   87|       |    /// Maps data received from the signal into an Image.
+   88|      0|    func mapImage() throws -> Image {
+   89|      0|        guard let image = Image(data: data) else {
+   90|      0|            throw MoyaError.imageMapping(self)
+   91|      0|        }
+   92|      0|        return image
+   93|      0|    }
+   94|       |
+   95|       |    /// Maps data received from the signal into a JSON object.
+   96|       |    ///
+   97|       |    /// - parameter failsOnEmptyData: A Boolean value determining
+   98|       |    /// whether the mapping should fail if the data is empty.
+   99|      0|    func mapJSON(failsOnEmptyData: Bool = true) throws -> Any {
+  100|      0|        do {
+  101|      0|            return try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+  102|      0|        } catch {
+  103|      0|            if data.count < 1 && !failsOnEmptyData {
+  104|      0|                return NSNull()
+  105|      0|            }
+  106|      0|            throw MoyaError.jsonMapping(self)
+  107|      0|        }
+  108|      0|    }
+  109|       |
+  110|       |    /// Maps data received from the signal into a String.
+  111|       |    ///
+  112|       |    /// - parameter atKeyPath: Optional key path at which to parse string.
+  113|      0|    public func mapString(atKeyPath keyPath: String? = nil) throws -> String {
+  114|      0|        if let keyPath = keyPath {
+  115|      0|            // Key path was provided, try to parse string at key path
+  116|      0|            guard let jsonDictionary = try mapJSON() as? NSDictionary,
+  117|      0|                let string = jsonDictionary.value(forKeyPath: keyPath) as? String else {
+  118|      0|                    throw MoyaError.stringMapping(self)
+  119|      0|            }
+  120|      0|            return string
+  121|      0|        } else {
+  122|      0|            // Key path was not provided, parse entire response as string
+  123|      0|            guard let string = String(data: data, encoding: .utf8) else {
+  124|      0|                throw MoyaError.stringMapping(self)
+  125|      0|            }
+  126|      0|            return string
+  127|      0|        }
+  128|      0|    }
+  129|       |
+  130|       |    /// Maps data received from the signal into a Decodable object.
+  131|       |    ///
+  132|       |    /// - parameter atKeyPath: Optional key path at which to parse object.
+  133|       |    /// - parameter using: A `JSONDecoder` instance which is used to decode data to an object.
+  134|      0|    func map<D: Decodable>(_ type: D.Type, atKeyPath keyPath: String? = nil, using decoder: JSONDecoder = JSONDecoder(), failsOnEmptyData: Bool = true) throws -> D {
+  135|      0|        let serializeToData: (Any) throws -> Data? = { (jsonObject) in
+  136|      0|            guard JSONSerialization.isValidJSONObject(jsonObject) else {
+  137|      0|                return nil
+  138|      0|            }
+  139|      0|            do {
+  140|      0|                return try JSONSerialization.data(withJSONObject: jsonObject)
+  141|      0|            } catch {
+  142|      0|                throw MoyaError.jsonMapping(self)
+  143|      0|            }
+  144|      0|        }
+  145|      0|        let jsonData: Data
+  146|      0|        keyPathCheck: if let keyPath = keyPath {
+  147|      0|            guard let jsonObject = (try mapJSON(failsOnEmptyData: failsOnEmptyData) as? NSDictionary)?.value(forKeyPath: keyPath) else {
+  148|      0|                if failsOnEmptyData {
+  149|      0|                    throw MoyaError.jsonMapping(self)
+  150|      0|                } else {
+  151|      0|                    jsonData = data
+  152|      0|                    break keyPathCheck
+  153|      0|                }
+  154|      0|            }
+  155|      0|
+  156|      0|            if let data = try serializeToData(jsonObject) {
+  157|      0|                jsonData = data
+  158|      0|            } else {
+  159|      0|                let wrappedJsonObject = ["value": jsonObject]
+  160|      0|                let wrappedJsonData: Data
+  161|      0|                if let data = try serializeToData(wrappedJsonObject) {
+  162|      0|                    wrappedJsonData = data
+  163|      0|                } else {
+  164|      0|                    throw MoyaError.jsonMapping(self)
+  165|      0|                }
+  166|      0|                do {
+  167|      0|                    return try decoder.decode(DecodableWrapper<D>.self, from: wrappedJsonData).value
+  168|      0|                } catch let error {
+  169|      0|                    throw MoyaError.objectMapping(error, self)
+  170|      0|                }
+  171|      0|            }
+  172|      0|        } else {
+  173|      0|            jsonData = data
+  174|      0|        }
+  175|      0|        do {
+  176|      0|            if jsonData.count < 1 && !failsOnEmptyData {
+  177|      0|                if let emptyJSONObjectData = "{}".data(using: .utf8), let emptyDecodableValue = try? decoder.decode(D.self, from: emptyJSONObjectData) {
+  178|      0|                    return emptyDecodableValue
+  179|      0|                } else if let emptyJSONArrayData = "[{}]".data(using: .utf8), let emptyDecodableValue = try? decoder.decode(D.self, from: emptyJSONArrayData) {
+  180|      0|                    return emptyDecodableValue
+  181|      0|                }
+  182|      0|            }
+  183|      0|            return try decoder.decode(D.self, from: jsonData)
+  184|      0|        } catch let error {
+  185|      0|            throw MoyaError.objectMapping(error, self)
+  186|      0|        }
+  187|      0|    }
+  188|       |}
+  189|       |
+  190|       |private struct DecodableWrapper<T: Decodable>: Decodable {
+  191|       |    let value: T
+  192|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/Moya/Sources/Moya/TargetType.swift:
+    1|       |import Foundation
+    2|       |
+    3|       |/// The protocol used to define the specifications necessary for a `MoyaProvider`.
+    4|       |public protocol TargetType {
+    5|       |
+    6|       |    /// The target's base `URL`.
+    7|       |    var baseURL: URL { get }
+    8|       |
+    9|       |    /// The path to be appended to `baseURL` to form the full `URL`.
+   10|       |    var path: String { get }
+   11|       |
+   12|       |    /// The HTTP method used in the request.
+   13|       |    var method: Moya.Method { get }
+   14|       |
+   15|       |    /// Provides stub data for use in testing.
+   16|       |    var sampleData: Data { get }
+   17|       |
+   18|       |    /// The type of HTTP task to be performed.
+   19|       |    var task: Task { get }
+   20|       |
+   21|       |    /// The type of validation to perform on the request. Default is `.none`.
+   22|       |    var validationType: ValidationType { get }
+   23|       |
+   24|       |    /// The headers to be used in the request.
+   25|       |    var headers: [String: String]? { get }
+   26|       |}
+   27|       |
+   28|       |public extension TargetType {
+   29|       |
+   30|       |    /// The type of validation to perform on the request. Default is `.none`.
+   31|      0|    var validationType: ValidationType {
+   32|      0|        return .none
+   33|      0|    }
+   34|       |}
+   35|       |
+   36|       |// MARK: - Deprecated
+   37|       |
+   38|       |extension TargetType {
+   39|       |    @available(*, deprecated: 11.0, message:
+   40|       |    "TargetType's validate property has been deprecated in 11.0. Please use validationType: ValidationType.")
+   41|      0|    var validate: Bool {
+   42|      0|        return false
+   43|      0|    }
+   44|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/Moya/Sources/Moya/URL+Moya.swift:
+    1|       |import Foundation
+    2|       |
+    3|       |public extension URL {
+    4|       |
+    5|       |    /// Initialize URL from Moya's `TargetType`.
+    6|      0|    init<T: TargetType>(target: T) {
+    7|      0|        // When a TargetType's path is empty, URL.appendingPathComponent may introduce trailing /, which may not be wanted in some cases
+    8|      0|        // See: https://github.com/Moya/Moya/pull/1053
+    9|      0|        // And: https://github.com/Moya/Moya/issues/1049
+   10|      0|        if target.path.isEmpty {
+   11|      0|            self = target.baseURL
+   12|      0|        } else {
+   13|      0|            self = target.baseURL.appendingPathComponent(target.path)
+   14|      0|        }
+   15|      0|    }
+   16|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/Moya/Sources/Moya/URLRequest+Encoding.swift:
+    1|       |import Foundation
+    2|       |
+    3|       |internal extension URLRequest {
+    4|       |
+    5|      0|    mutating func encoded(encodable: Encodable, encoder: JSONEncoder = JSONEncoder()) throws -> URLRequest {
+    6|      0|        do {
+    7|      0|            let encodable = AnyEncodable(encodable)
+    8|      0|            httpBody = try encoder.encode(encodable)
+    9|      0|
+   10|      0|            let contentTypeHeaderName = "Content-Type"
+   11|      0|            if value(forHTTPHeaderField: contentTypeHeaderName) == nil {
+   12|      0|                setValue("application/json", forHTTPHeaderField: contentTypeHeaderName)
+   13|      0|            }
+   14|      0|
+   15|      0|            return self
+   16|      0|        } catch {
+   17|      0|            throw MoyaError.encodableMapping(error)
+   18|      0|        }
+   19|      0|    }
+   20|       |
+   21|      0|    func encoded(parameters: [String: Any], parameterEncoding: ParameterEncoding) throws -> URLRequest {
+   22|      0|        do {
+   23|      0|            return try parameterEncoding.encode(self, with: parameters)
+   24|      0|        } catch {
+   25|      0|            throw MoyaError.parameterEncoding(error)
+   26|      0|        }
+   27|      0|    }
+   28|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/Moya/Sources/Moya/ValidationType.swift:
+    1|       |import Foundation
+    2|       |
+    3|       |/// Represents the status codes to validate through Alamofire.
+    4|       |public enum ValidationType {
+    5|       |
+    6|       |    /// No validation.
+    7|       |    case none
+    8|       |
+    9|       |    /// Validate success codes (only 2xx).
+   10|       |    case successCodes
+   11|       |
+   12|       |    /// Validate success codes and redirection codes (only 2xx and 3xx).
+   13|       |    case successAndRedirectCodes
+   14|       |
+   15|       |    /// Validate only the given status codes.
+   16|       |    case customCodes([Int])
+   17|       |
+   18|       |    /// The list of HTTP status codes to validate.
+   19|      0|    var statusCodes: [Int] {
+   20|      0|        switch self {
+   21|      0|        case .successCodes:
+   22|      0|            return Array(200..<300)
+   23|      0|        case .successAndRedirectCodes:
+   24|      0|            return Array(200..<400)
+   25|      0|        case .customCodes(let codes):
+   26|      0|            return codes
+   27|      0|        case .none:
+   28|      0|            return []
+   29|      0|        }
+   30|      0|    }
+   31|       |}
+   32|       |
+   33|       |extension ValidationType: Equatable {
+   34|       |
+   35|      0|    public static func == (lhs: ValidationType, rhs: ValidationType) -> Bool {
+   36|      0|        switch (lhs, rhs) {
+   37|      0|        case (.none, .none),
+   38|      0|             (.successCodes, .successCodes),
+   39|      0|             (.successAndRedirectCodes, .successAndRedirectCodes):
+   40|      0|            return true
+   41|      0|        case (.customCodes(let code1), .customCodes(let code2)):
+   42|      0|            return code1 == code2
+   43|      0|        default:
+   44|      0|            return false
+   45|      0|        }
+   46|      0|    }
+   47|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/Moya/Sources/RxMoya/MoyaProvider+Rx.swift:
+    1|       |import Foundation
+    2|       |import RxSwift
+    3|       |#if !COCOAPODS
+    4|       |import Moya
+    5|       |#endif
+    6|       |
+    7|       |extension MoyaProvider: ReactiveCompatible {}
+    8|       |
+    9|       |public extension Reactive where Base: MoyaProviderType {
+   10|       |
+   11|       |    /// Designated request-making method.
+   12|       |    ///
+   13|       |    /// - Parameters:
+   14|       |    ///   - token: Entity, which provides specifications necessary for a `MoyaProvider`.
+   15|       |    ///   - callbackQueue: Callback queue. If nil - queue from provider initializer will be used.
+   16|       |    /// - Returns: Single response object.
+   17|      0|    public func request(_ token: Base.Target, callbackQueue: DispatchQueue? = nil) -> Single<Response> {
+   18|      0|        return Single.create { [weak base] single in
+   19|      0|            let cancellableToken = base?.request(token, callbackQueue: callbackQueue, progress: nil) { result in
+   20|      0|                switch result {
+   21|      0|                case let .success(response):
+   22|      0|                    single(.success(response))
+   23|      0|                case let .failure(error):
+   24|      0|                    single(.error(error))
+   25|      0|                }
+   26|      0|            }
+   27|      0|
+   28|      0|            return Disposables.create {
+   29|      0|                cancellableToken?.cancel()
+   30|      0|            }
+   31|      0|        }
+   32|      0|    }
+   33|       |
+   34|       |    /// Designated request-making method with progress.
+   35|      0|    public func requestWithProgress(_ token: Base.Target, callbackQueue: DispatchQueue? = nil) -> Observable<ProgressResponse> {
+   36|      0|        let progressBlock: (AnyObserver) -> (ProgressResponse) -> Void = { observer in
+   37|      0|            return { progress in
+   38|      0|                observer.onNext(progress)
+   39|      0|            }
+   40|      0|        }
+   41|      0|
+   42|      0|        let response: Observable<ProgressResponse> = Observable.create { [weak base] observer in
+   43|      0|            let cancellableToken = base?.request(token, callbackQueue: callbackQueue, progress: progressBlock(observer)) { result in
+   44|      0|                switch result {
+   45|      0|                case .success:
+   46|      0|                    observer.onCompleted()
+   47|      0|                case let .failure(error):
+   48|      0|                    observer.onError(error)
+   49|      0|                }
+   50|      0|            }
+   51|      0|
+   52|      0|            return Disposables.create {
+   53|      0|                cancellableToken?.cancel()
+   54|      0|            }
+   55|      0|        }
+   56|      0|
+   57|      0|        // Accumulate all progress and combine them when the result comes
+   58|      0|        return response.scan(ProgressResponse()) { last, progress in
+   59|      0|            let progressObject = progress.progressObject ?? last.progressObject
+   60|      0|            let response = progress.response ?? last.response
+   61|      0|            return ProgressResponse(progress: progressObject, response: response)
+   62|      0|        }
+   63|      0|    }
+   64|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/Moya/Sources/RxMoya/Observable+Response.swift:
+    1|       |import Foundation
+    2|       |import RxSwift
+    3|       |#if !COCOAPODS
+    4|       |import Moya
+    5|       |#endif
+    6|       |
+    7|       |// just to try if this fixes the build
+    8|       |#if os(iOS) || os(watchOS) || os(tvOS)
+    9|       |import UIKit.UIImage
+   10|       |#elseif os(macOS)
+   11|       |import AppKit.NSImage
+   12|       |#endif
+   13|       |
+   14|       |/// Extension for processing raw NSData generated by network access.
+   15|       |extension ObservableType where E == Response {
+   16|       |
+   17|       |    /// Filters out responses that don't fall within the given range, generating errors when others are encountered.
+   18|      0|    public func filter<R: RangeExpression>(statusCodes: R) -> Observable<E> where R.Bound == Int {
+   19|      0|        return flatMap { Observable.just(try $0.filter(statusCodes: statusCodes)) }
+   20|      0|    }
+   21|       |
+   22|       |    /// Filters out responses that has the specified `statusCode`.
+   23|      0|    public func filter(statusCode: Int) -> Observable<E> {
+   24|      0|        return flatMap { Observable.just(try $0.filter(statusCode: statusCode)) }
+   25|      0|    }
+   26|       |
+   27|       |    /// Filters out responses where `statusCode` falls within the range 200 - 299.
+   28|      0|    public func filterSuccessfulStatusCodes() -> Observable<E> {
+   29|      0|        return flatMap { Observable.just(try $0.filterSuccessfulStatusCodes()) }
+   30|      0|    }
+   31|       |
+   32|       |    /// Filters out responses where `statusCode` falls within the range 200 - 399
+   33|      0|    public func filterSuccessfulStatusAndRedirectCodes() -> Observable<E> {
+   34|      0|        return flatMap { Observable.just(try $0.filterSuccessfulStatusAndRedirectCodes()) }
+   35|      0|    }
+   36|       |
+   37|       |    /// Maps data received from the signal into an Image. If the conversion fails, the signal errors.
+   38|      0|    public func mapImage() -> Observable<Image?> {
+   39|      0|        return flatMap { Observable.just(try $0.mapImage()) }
+   40|      0|    }
+   41|       |
+   42|       |    /// Maps data received from the signal into a JSON object. If the conversion fails, the signal errors.
+   43|      0|    public func mapJSON(failsOnEmptyData: Bool = true) -> Observable<Any> {
+   44|      0|        return flatMap { Observable.just(try $0.mapJSON(failsOnEmptyData: failsOnEmptyData)) }
+   45|      0|    }
+   46|       |
+   47|       |    /// Maps received data at key path into a String. If the conversion fails, the signal errors.
+   48|      0|    public func mapString(atKeyPath keyPath: String? = nil) -> Observable<String> {
+   49|      0|        return flatMap { Observable.just(try $0.mapString(atKeyPath: keyPath)) }
+   50|      0|    }
+   51|       |
+   52|       |    /// Maps received data at key path into a Decodable object. If the conversion fails, the signal errors.
+   53|      0|    public func map<D: Decodable>(_ type: D.Type, atKeyPath keyPath: String? = nil, using decoder: JSONDecoder = JSONDecoder(), failsOnEmptyData: Bool = true) -> Observable<D> {
+   54|      0|        return flatMap { Observable.just(try $0.map(type, atKeyPath: keyPath, using: decoder, failsOnEmptyData: failsOnEmptyData)) }
+   55|      0|    }
+   56|       |}
+   57|       |
+   58|       |extension ObservableType where E == ProgressResponse {
+   59|       |
+   60|       |    /**
+   61|       |     Filter completed progress response and maps to actual response
+   62|       |
+   63|       |     - returns: response associated with ProgressResponse object
+   64|       |     */
+   65|      0|    public func filterCompleted() -> Observable<Response> {
+   66|      0|        return self
+   67|      0|            .filter { $0.completed }
+   68|      0|            .flatMap { progress -> Observable<Response> in
+   69|      0|                // Just a formatlity to satisfy the compiler (completed progresses have responses).
+   70|      0|                switch progress.response {
+   71|      0|                case .some(let response): return .just(response)
+   72|      0|                case .none: return .empty()
+   73|      0|                }
+   74|      0|            }
+   75|      0|    }
+   76|       |
+   77|       |    /**
+   78|       |     Filter progress events of current ProgressResponse
+   79|       |
+   80|       |     - returns: observable of progress events
+   81|       |     */
+   82|      0|    public func filterProgress() -> Observable<Double> {
+   83|      0|        return self.filter { !$0.completed }.map { $0.progress }
+   84|      0|    }
+   85|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/Moya/Sources/RxMoya/Single+Response.swift:
+    1|       |import Foundation
+    2|       |import RxSwift
+    3|       |#if !COCOAPODS
+    4|       |    import Moya
+    5|       |#endif
+    6|       |
+    7|       |// just to try if this fixes the build
+    8|       |#if os(iOS) || os(watchOS) || os(tvOS)
+    9|       |import UIKit.UIImage
+   10|       |#elseif os(macOS)
+   11|       |import AppKit.NSImage
+   12|       |#endif
+   13|       |
+   14|       |/// Extension for processing raw NSData generated by network access.
+   15|       |extension PrimitiveSequence where TraitType == SingleTrait, ElementType == Response {
+   16|       |
+   17|       |    /// Filters out responses that don't fall within the given closed range, generating errors when others are encountered.
+   18|      0|    public func filter<R: RangeExpression>(statusCodes: R) -> Single<ElementType> where R.Bound == Int {
+   19|      0|        return flatMap { .just(try $0.filter(statusCodes: statusCodes)) }
+   20|      0|    }
+   21|       |
+   22|       |    /// Filters out responses that have the specified `statusCode`.
+   23|      0|    public func filter(statusCode: Int) -> Single<ElementType> {
+   24|      0|        return flatMap { .just(try $0.filter(statusCode: statusCode)) }
+   25|      0|    }
+   26|       |
+   27|       |    /// Filters out responses where `statusCode` falls within the range 200 - 299.
+   28|      0|    public func filterSuccessfulStatusCodes() -> Single<ElementType> {
+   29|      0|        return flatMap { .just(try $0.filterSuccessfulStatusCodes()) }
+   30|      0|    }
+   31|       |
+   32|       |    /// Filters out responses where `statusCode` falls within the range 200 - 399
+   33|      0|    public func filterSuccessfulStatusAndRedirectCodes() -> Single<ElementType> {
+   34|      0|        return flatMap { .just(try $0.filterSuccessfulStatusAndRedirectCodes()) }
+   35|      0|    }
+   36|       |
+   37|       |    /// Maps data received from the signal into an Image. If the conversion fails, the signal errors.
+   38|      0|    public func mapImage() -> Single<Image?> {
+   39|      0|        return flatMap { .just(try $0.mapImage()) }
+   40|      0|    }
+   41|       |
+   42|       |    /// Maps data received from the signal into a JSON object. If the conversion fails, the signal errors.
+   43|      0|    public func mapJSON(failsOnEmptyData: Bool = true) -> Single<Any> {
+   44|      0|        return flatMap { .just(try $0.mapJSON(failsOnEmptyData: failsOnEmptyData)) }
+   45|      0|    }
+   46|       |
+   47|       |    /// Maps received data at key path into a String. If the conversion fails, the signal errors.
+   48|      0|    public func mapString(atKeyPath keyPath: String? = nil) -> Single<String> {
+   49|      0|        return flatMap { .just(try $0.mapString(atKeyPath: keyPath)) }
+   50|      0|    }
+   51|       |
+   52|       |    /// Maps received data at key path into a Decodable object. If the conversion fails, the signal errors.
+   53|      0|    public func map<D: Decodable>(_ type: D.Type, atKeyPath keyPath: String? = nil, using decoder: JSONDecoder = JSONDecoder(), failsOnEmptyData: Bool = true) -> Single<D> {
+   54|      0|        return flatMap { .just(try $0.map(type, atKeyPath: keyPath, using: decoder, failsOnEmptyData: failsOnEmptyData)) }
+   55|      0|    }
+   56|       |}
+

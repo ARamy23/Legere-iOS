@@ -1,0 +1,228 @@
+    1|       |//
+    2|       |//  NetworkActivityLogger.swift
+    3|       |//  AlamofireNetworkActivityLogger
+    4|       |//
+    5|       |//  The MIT License (MIT)
+    6|       |//
+    7|       |//  Copyright (c) 2016 Konstantin Kabanov
+    8|       |//
+    9|       |//  Permission is hereby granted, free of charge, to any person obtaining a copy
+   10|       |//  of this software and associated documentation files (the "Software"), to deal
+   11|       |//  in the Software without restriction, including without limitation the rights
+   12|       |//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   13|       |//  copies of the Software, and to permit persons to whom the Software is
+   14|       |//  furnished to do so, subject to the following conditions:
+   15|       |//
+   16|       |//  The above copyright notice and this permission notice shall be included in all
+   17|       |//  copies or substantial portions of the Software.
+   18|       |//
+   19|       |//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   20|       |//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   21|       |//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   22|       |//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   23|       |//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   24|       |//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   25|       |//  SOFTWARE.
+   26|       |
+   27|       |import Alamofire
+   28|       |import Foundation
+   29|       |
+   30|       |/// The level of logging detail.
+   31|       |public enum NetworkActivityLoggerLevel {
+   32|       |    /// Do not log requests or responses.
+   33|       |    case off
+   34|       |    
+   35|       |    /// Logs HTTP method, URL, header fields, & request body for requests, and status code, URL, header fields, response string, & elapsed time for responses.
+   36|       |    case debug
+   37|       |    
+   38|       |    /// Logs HTTP method & URL for requests, and status code, URL, & elapsed time for responses.
+   39|       |    case info
+   40|       |    
+   41|       |    /// Logs HTTP method & URL for requests, and status code, URL, & elapsed time for responses, but only for failed requests.
+   42|       |    case warn
+   43|       |    
+   44|       |    /// Equivalent to `.warn`
+   45|       |    case error
+   46|       |    
+   47|       |    /// Equivalent to `.off`
+   48|       |    case fatal
+   49|       |}
+   50|       |
+   51|       |/// `NetworkActivityLogger` logs requests and responses made by Alamofire.SessionManager, with an adjustable level of detail.
+   52|       |public class NetworkActivityLogger {
+   53|       |    // MARK: - Properties
+   54|       |    
+   55|       |    /// The shared network activity logger for the system.
+   56|       |    public static let shared = NetworkActivityLogger()
+   57|       |    
+   58|       |    /// The level of logging detail. See NetworkActivityLoggerLevel enum for possible values. .info by default.
+   59|       |    public var level: NetworkActivityLoggerLevel
+   60|       |    
+   61|       |    /// Omit requests which match the specified predicate, if provided.
+   62|       |    public var filterPredicate: NSPredicate?
+   63|       |    
+   64|       |    private var startDates: [URLSessionTask: Date]
+   65|       |    
+   66|       |    // MARK: - Internal - Initialization
+   67|       |    
+   68|      0|    init() {
+   69|      0|        level = .info
+   70|      0|        startDates = [URLSessionTask: Date]()
+   71|      0|    }
+   72|       |    
+   73|      0|    deinit {
+   74|      0|        stopLogging()
+   75|      0|    }
+   76|       |    
+   77|       |    // MARK: - Logging
+   78|       |    
+   79|       |    /// Start logging requests and responses.
+   80|      0|    public func startLogging() {
+   81|      0|        stopLogging()
+   82|      0|        
+   83|      0|        let notificationCenter = NotificationCenter.default
+   84|      0|        
+   85|      0|        notificationCenter.addObserver(
+   86|      0|            self,
+   87|      0|            selector: #selector(NetworkActivityLogger.networkRequestDidStart(notification:)),
+   88|      0|            name: Notification.Name.Task.DidResume,
+   89|      0|            object: nil
+   90|      0|        )
+   91|      0|        
+   92|      0|        notificationCenter.addObserver(
+   93|      0|            self,
+   94|      0|            selector: #selector(NetworkActivityLogger.networkRequestDidComplete(notification:)),
+   95|      0|            name: Notification.Name.Task.DidComplete,
+   96|      0|            object: nil
+   97|      0|        )
+   98|      0|    }
+   99|       |    
+  100|       |    /// Stop logging requests and responses.
+  101|      0|    public func stopLogging() {
+  102|      0|        NotificationCenter.default.removeObserver(self)
+  103|      0|    }
+  104|       |    
+  105|       |    // MARK: - Private - Notifications
+  106|       |    
+  107|      0|    @objc private func networkRequestDidStart(notification: Notification) {
+  108|      0|        guard let userInfo = notification.userInfo,
+  109|      0|            let task = userInfo[Notification.Key.Task] as? URLSessionTask,
+  110|      0|            let request = task.originalRequest,
+  111|      0|            let httpMethod = request.httpMethod,
+  112|      0|            let requestURL = request.url
+  113|      0|            else {
+  114|      0|                return
+  115|      0|        }
+  116|      0|        
+  117|      0|        if let filterPredicate = filterPredicate, filterPredicate.evaluate(with: request) {
+  118|      0|            return
+  119|      0|        }
+  120|      0|        
+  121|      0|        startDates[task] = Date()
+  122|      0|        
+  123|      0|        switch level {
+  124|      0|        case .debug:
+  125|      0|            logDivider()
+  126|      0|            
+  127|      0|            print("\(httpMethod) '\(requestURL.absoluteString)':")
+  128|      0|            
+  129|      0|            if let httpHeadersFields = request.allHTTPHeaderFields {
+  130|      0|                logHeaders(headers: httpHeadersFields)
+  131|      0|            }
+  132|      0|            
+  133|      0|            if let httpBody = request.httpBody, let httpBodyString = String(data: httpBody, encoding: .utf8) {
+  134|      0|                print(httpBodyString)
+  135|      0|            }
+  136|      0|        case .info:
+  137|      0|            logDivider()
+  138|      0|            
+  139|      0|            print("\(httpMethod) '\(requestURL.absoluteString)'")
+  140|      0|        default:
+  141|      0|            break
+  142|      0|        }
+  143|      0|    }
+  144|       |    
+  145|      0|    @objc private func networkRequestDidComplete(notification: Notification) {
+  146|      0|        guard let sessionDelegate = notification.object as? SessionDelegate,
+  147|      0|            let userInfo = notification.userInfo,
+  148|      0|            let task = userInfo[Notification.Key.Task] as? URLSessionTask,
+  149|      0|            let request = task.originalRequest,
+  150|      0|            let httpMethod = request.httpMethod,
+  151|      0|            let requestURL = request.url
+  152|      0|            else {
+  153|      0|                return
+  154|      0|        }
+  155|      0|        
+  156|      0|        if let filterPredicate = filterPredicate, filterPredicate.evaluate(with: request) {
+  157|      0|            return
+  158|      0|        }
+  159|      0|        
+  160|      0|        var elapsedTime: TimeInterval = 0.0
+  161|      0|        
+  162|      0|        if let startDate = startDates[task] {
+  163|      0|            elapsedTime = Date().timeIntervalSince(startDate)
+  164|      0|            startDates[task] = nil
+  165|      0|        }
+  166|      0|        
+  167|      0|        if let error = task.error {
+  168|      0|            switch level {
+  169|      0|            case .debug, .info, .warn, .error:
+  170|      0|                logDivider()
+  171|      0|                
+  172|      0|                print("[Error] \(httpMethod) '\(requestURL.absoluteString)' [\(String(format: "%.04f", elapsedTime)) s]:")
+  173|      0|                print(error)
+  174|      0|            default:
+  175|      0|                break
+  176|      0|            }
+  177|      0|        } else {
+  178|      0|            guard let response = task.response as? HTTPURLResponse else {
+  179|      0|                return
+  180|      0|            }
+  181|      0|            
+  182|      0|            switch level {
+  183|      0|            case .debug:
+  184|      0|                logDivider()
+  185|      0|                
+  186|      0|                print("\(String(response.statusCode)) '\(requestURL.absoluteString)' [\(String(format: "%.04f", elapsedTime)) s]:")
+  187|      0|                
+  188|      0|                logHeaders(headers: response.allHeaderFields)
+  189|      0|                
+  190|      0|                guard let data = sessionDelegate[task]?.delegate.data else { break }
+  191|      0|                    
+  192|      0|                do {
+  193|      0|                    let jsonObject = try JSONSerialization.jsonObject(with: data, options: .mutableContainers)
+  194|      0|                    let prettyData = try JSONSerialization.data(withJSONObject: jsonObject, options: .prettyPrinted)
+  195|      0|                    
+  196|      0|                    if let prettyString = String(data: prettyData, encoding: .utf8) {
+  197|      0|                        print(prettyString)
+  198|      0|                    }
+  199|      0|                } catch {
+  200|      0|                    if let string = NSString(data: data, encoding: String.Encoding.utf8.rawValue) {
+  201|      0|                        print(string)
+  202|      0|                    }
+  203|      0|                }
+  204|      0|            case .info:
+  205|      0|                logDivider()
+  206|      0|                
+  207|      0|                print("\(String(response.statusCode)) '\(requestURL.absoluteString)' [\(String(format: "%.04f", elapsedTime)) s]")
+  208|      0|            default:
+  209|      0|                break
+  210|      0|            }
+  211|      0|        }
+  212|      0|    }
+  213|       |}
+  214|       |
+  215|       |private extension NetworkActivityLogger {
+  216|       |    func logDivider() {
+  217|       |        print("---------------------")
+  218|       |    }
+  219|       |    
+  220|       |    func logHeaders(headers: [AnyHashable : Any]) {
+  221|       |        print("Headers: [")
+  222|       |        for (key, value) in headers {
+  223|       |            print("  \(key) : \(value)")
+  224|       |        }
+  225|       |        print("]")
+  226|       |    }
+  227|       |}
+

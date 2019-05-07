@@ -1,0 +1,560 @@
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOSTests/Mocks/CacheMock.swift:
+    1|       |//
+    2|       |//  CacheMock.swift
+    3|       |//  Legere-iOSTests
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/7/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import Foundation
+   10|       |
+   11|       |@testable import Legere_iOS
+   12|       |
+   13|       |class CacheMock: CacheProtocol {
+   14|      2|    func getObject<T>(_ object: T.Type, key: CachingKey) -> T? where T : Decodable, T : Encodable {
+   15|      2|        return dataStorage[key] as? T
+   16|      2|    }
+   17|       |    
+   18|      0|    func getData(key: CachingKey) -> [Data]? {
+   19|      0|        return (dataStorage[key] as? Data).map({[$0]})
+   20|      0|    }
+   21|       |    
+   22|      0|    func saveData(_ data: Data?, key: CachingKey) {
+   23|      0|        dataStorage[key] = data
+   24|      0|    }
+   25|       |    
+   26|       |    var dataStorage: [CachingKey: Any] = [:]
+   27|       |    
+   28|      0|    func getObject<T>(_ object: T, key: CachingKey) -> T? {
+   29|      0|        return dataStorage[key] as? T
+   30|      0|    }
+   31|       |    
+   32|     12|    func saveObject<T>(_ object: T, key: CachingKey) {
+   33|     12|        dataStorage[key] = object
+   34|     12|    }
+   35|       |    
+   36|      0|    func removeObject(key: CachingKey) {
+   37|      0|        dataStorage.removeValue(forKey: key)
+   38|      0|    }
+   39|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOSTests/Mocks/NetworkMock.swift:
+    1|       |//
+    2|       |//  NetworkMock.swift
+    3|       |//  Legere-iOSTests
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/7/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import Foundation
+   10|       |import Promises
+   11|       |
+   12|       |@testable import Legere_iOS
+   13|       |
+   14|       |class NetworkMock: NetworkProtocol {
+   15|       |    
+   16|       |    var object: Codable?
+   17|       |    var error: NetworkError?
+   18|       |    
+   19|     22|    init() { }
+   20|       |    
+   21|      0|    init(error: NetworkError) {
+   22|      0|        self.error = error
+   23|      0|    }
+   24|       |    
+   25|      3|    init(object: Codable) {
+   26|      3|        self.object = object
+   27|      3|    }
+   28|       |    
+   29|     22|    func callModel<T, U>(model: T.Type, api: U) -> Promise<T>  where T : Decodable, T : Encodable, U : BaseTargetType {
+   30|     22|        return Promise<T>(on: .main) { fulfill, reject in
+   31|     22|            if let object = self.object as? T {
+   32|     12|                fulfill(object)
+   33|     22|            } else {
+   34|     10|                reject(self.error ?? NetworkError.networkFail(error: ""))
+   35|     22|            }
+   36|     22|        }
+   37|     22|    }
+   38|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOSTests/Mocks/RouterMock.swift:
+    1|       |//
+    2|       |//  RouterMock.swift
+    3|       |//  Legere-iOSTests
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/7/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import Foundation
+   10|       |import UIKit
+   11|       |
+   12|       |@testable import Legere_iOS
+   13|       |
+   14|       |enum RoutingAction: Equatable {
+   15|       |    case present(_ vc: UIViewController)
+   16|       |    case activityStart
+   17|       |    case activityStop
+   18|       |    case dismiss
+   19|       |    case pop
+   20|       |    case segue(_ storyboard: AppStoryboard, _ vc: UIViewController.Type)
+   21|       |    case alert(_ message: String)
+   22|       |    case toast(_ message: String)
+   23|       |    
+   24|     16|    static public func ==(lhs: RoutingAction, rhs: RoutingAction) -> Bool {
+   25|     16|        switch (lhs, rhs) {
+   26|     16|        case let (.present(a), .present(b)): return "\(type(of: a))" == "\(type(of: b))"
+   27|     16|        case let (.alert(a), .alert(b)): return a == b
+   28|     16|        case let (.toast(a), .toast(b)): return a == b
+   29|     16|        case let (.segue(a, b), .segue(c, d)): return a == c && b == d
+   30|     16|        case (.activityStart, .activityStart),
+   31|      0|             (.activityStop, .activityStop),
+   32|      0|             (.dismiss, .dismiss),
+   33|      0|             (.pop, .pop):
+   34|      0|            return true
+   35|     16|        default:
+   36|      0|            return false
+   37|     16|        }
+   38|     16|    }
+   39|       |}
+   40|       |
+   41|       |class RouterMock: RouterProtocol {
+   42|       |    var presentedView: BaseViewController!
+   43|       |    
+   44|       |    var actions: [RoutingAction] = []
+   45|       |    
+   46|     11|    func present(view: UIViewController) {
+   47|     11|        actions.append(.present(view))
+   48|     11|    }
+   49|       |    
+   50|      0|    func segue(storyboard: AppStoryboard, vc: UIViewController.Type) {
+   51|      0|        actions.append(.segue(storyboard, vc))
+   52|      0|    }
+   53|       |    
+   54|      0|    func alert(title: String, message: String, actions: [(title: String, style: UIAlertAction.Style)]) {
+   55|      0|        self.actions.append(.alert(message))
+   56|      0|    }
+   57|       |    
+   58|     25|    func toastError(title: String, message: String) {
+   59|     25|        self.actions.append(.toast(message))
+   60|     25|    }
+   61|       |    
+   62|      0|    func startActivityIndicator() {
+   63|      0|        actions.append(.activityStart)
+   64|      0|    }
+   65|       |    
+   66|      0|    func stopActivityIndicator() {
+   67|      0|        actions.append(.activityStop)
+   68|      0|    }
+   69|       |    
+   70|      0|    func dismiss() {
+   71|      0|        actions.append(.dismiss)
+   72|      0|    }
+   73|       |    
+   74|      0|    func pop() {
+   75|      0|        actions.append(.pop)
+   76|      0|    }
+   77|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOSTests/Scenes/BaseSceneTests.swift:
+    1|       |//
+    2|       |//  BaseSceneTests.swift
+    3|       |//  Legere-iOSTests
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/7/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import XCTest
+   10|       |
+   11|       |@testable import Legere_iOS
+   12|       |
+   13|       |class BaseSceneTests: XCTestCase {
+   14|       |    
+   15|       |    var router: RouterMock!
+   16|       |    var cache: CacheMock!
+   17|       |    var network: NetworkMock!
+   18|       |    
+   19|     22|    override func setUp() {
+   20|     22|        cache = CacheMock()
+   21|     22|        router = RouterMock()
+   22|     22|        network = NetworkMock()
+   23|     22|    }
+   24|       |    
+   25|     22|    override func tearDown() {
+   26|     22|        super.tearDown()
+   27|     22|        Reachability.testingValue = nil
+   28|     22|    }
+   29|       |    
+   30|      3|    func testBaseInteractorHandlesReachability() {
+   31|      3|        // Given
+   32|      3|        let interactor = BaseInteractor(network: network, cache: cache)
+   33|      3|        Reachability.testingValue = false
+   34|      3|        
+   35|      3|        // When
+   36|      3|        do {
+   37|      3|         try interactor.validate()
+   38|      3|        } catch let error {
+   39|      3|            let expectedError = ValidationError.unreachable.localizedDescription
+   40|      3|            XCTAssertEqual(error.localizedDescription, expectedError)
+   41|      3|        }
+   42|      0|    }
+   43|       |    
+   44|     13|    func assertRouterError(_ error: Error) {
+   45|     13|        let expectedError = error.localizedDescription
+   46|     13|        XCTAssertEqual(router.actions.count, 1)
+   47|     13|        XCTAssertEqual(router.actions[0], .toast(expectedError))
+   48|     13|    }
+   49|       |    
+   50|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOSTests/Scenes/Welcome/LoginTests.swift:
+    1|       |//
+    2|       |//  LoginTests.swift
+    3|       |//  Legere-iOSTests
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/7/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import XCTest
+   10|       |
+   11|       |@testable import Legere_iOS
+   12|       |@testable import Promises
+   13|       |
+   14|       |class LoginTests: BaseSceneTests {
+   15|       |
+   16|       |    var viewModel: LoginViewModel!
+   17|       |    
+   18|      8|    override func setUp() {
+   19|      8|        super.setUp()
+   20|      8|        initialize()
+   21|      8|    }
+   22|       |    
+   23|     10|    func initialize() {
+   24|     10|        viewModel = LoginViewModel(cache: cache, router: router, network: network)
+   25|     10|    }
+   26|       |
+   27|      8|    override func tearDown() {
+   28|      8|        super.tearDown()
+   29|      8|        viewModel = nil
+   30|      8|        Reachability.testingValue = nil
+   31|      8|    }
+   32|       |    
+   33|      1|    func testShowingToastErrorWhenNoInternet() {
+   34|      1|        // Given
+   35|      1|        Reachability.testingValue = false
+   36|      1|        
+   37|      1|        // When
+   38|      1|        viewModel.login()
+   39|      1|        _ = waitForPromises(timeout: 10)
+   40|      1|        
+   41|      1|        // Then
+   42|      1|        let expectedError = ValidationError.unreachable.localizedDescription
+   43|      1|        XCTAssertEqual(router.actions.count, 1)
+   44|      1|        XCTAssertEqual(router.actions[0], .toast(expectedError))
+   45|      1|    }
+   46|       |    
+   47|      1|    func testingLoginWithEmptyUsernameShouldAlertWithError() {
+   48|      1|        // Given nothing
+   49|      1|        
+   50|      1|        // When
+   51|      1|        viewModel.login()
+   52|      1|        _ = waitForPromises(timeout: 10)
+   53|      1|        
+   54|      1|        // Then
+   55|      1|        let expectedError = ValidationError.emptyValue(key: .usernameField)
+   56|      1|        assertRouterError(expectedError)
+   57|      1|    }
+   58|       |    
+   59|      1|    func testingLoginWithEmptyPasswordShouldAlertWithError() {
+   60|      1|        // Given
+   61|      1|        viewModel.username.value = "admin"
+   62|      1|        // When
+   63|      1|        viewModel.login()
+   64|      1|        _ = waitForPromises(timeout: 10)
+   65|      1|        
+   66|      1|        // Then
+   67|      1|        let expectedError = ValidationError.emptyValue(key: .passwordField)
+   68|      1|        assertRouterError(expectedError)
+   69|      1|    }
+   70|       |    
+   71|      1|    func testingLoginWithUsernameContainingSpaceShouldAlertWithError() {
+   72|      1|        // Given
+   73|      1|        viewModel.username.value = "م ش م ح ت ر م"
+   74|      1|        viewModel.password.value = "123456"
+   75|      1|        // When
+   76|      1|        viewModel.login()
+   77|      1|        _ = waitForPromises(timeout: 10)
+   78|      1|        
+   79|      1|        // Then
+   80|      1|        let expectedError = ValidationError.notValid(reason: .usernameContainsSpaces)
+   81|      1|        assertRouterError(expectedError)
+   82|      1|    }
+   83|       |    
+   84|      1|    func testingLoginWithPasswordLessThanSixCharacters() {
+   85|      1|        // Given
+   86|      1|        viewModel.username.value = "admin"
+   87|      1|        viewModel.password.value = "12345"
+   88|      1|        
+   89|      1|        // When
+   90|      1|        viewModel.login()
+   91|      1|        _ = waitForPromises(timeout: 10)
+   92|      1|        
+   93|      1|        // Then
+   94|      1|        let expectedError = ValidationError.notValid(reason: .passwordTooShort)
+   95|      1|        assertRouterError(expectedError)
+   96|      1|    }
+   97|       |    
+   98|      1|    func testingHappyScenario() {
+   99|      1|        // Given
+  100|      1|        let token = Token(id: "", token: "how you doin 😉", userID: "")
+  101|      1|        network = NetworkMock(object: token)
+  102|      1|        initialize()
+  103|      1|        viewModel.username.value = "admin"
+  104|      1|        viewModel.password.value = "123456"
+  105|      1|        
+  106|      1|        // When
+  107|      1|        viewModel.login()
+  108|      1|        _ = waitForPromises(timeout: 10)
+  109|      1|        
+  110|      1|        // Then
+  111|      1|        let cachedToken = cache.getObject(Token.self, key: .token)
+  112|      1|        XCTAssertEqual(cachedToken?.token ?? "", token.token ?? "nope")
+  113|      1|        
+  114|      1|        
+  115|      1|        XCTAssertEqual(router.actions[0], .present(UITabBarController()))
+  116|      1|    }
+  117|       |    
+  118|      1|    func testLoginFlowPerformance() {
+  119|      1|        let token = Token(id: "", token: "how you doin 😉", userID: "")
+  120|      1|        network = NetworkMock(object: token)
+  121|      1|        initialize()
+  122|      1|        viewModel.username.value = "admin"
+  123|      1|        viewModel.password.value = "123456"
+  124|      1|        
+  125|     10|        self.measure {
+  126|     10|            self.viewModel.login()
+  127|     10|            _ = waitForPromises(timeout: 10)
+  128|     10|        }
+  129|      1|    }
+  130|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOSTests/Scenes/Welcome/RegisterTests.swift:
+    1|       |//
+    2|       |//  RegisterTests.swift
+    3|       |//  Legere-iOSTests
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/7/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import XCTest
+   10|       |
+   11|       |@testable import Legere_iOS
+   12|       |@testable import Promises
+   13|       |
+   14|       |
+   15|       |class RegisterTests: BaseSceneTests {
+   16|       |
+   17|       |    var viewModel: RegisterViewModel!
+   18|       |    
+   19|     13|    override func setUp() {
+   20|     13|        super.setUp()
+   21|     13|        initialize()
+   22|     13|    }
+   23|       |
+   24|     13|    override func tearDown() {
+   25|     13|        super.tearDown()
+   26|     13|        viewModel = nil
+   27|     13|        Reachability.testingValue = nil
+   28|     13|    }
+   29|       |    
+   30|     14|    func initialize() {
+   31|     14|        viewModel = RegisterViewModel(cache: cache, router: router, network: network)
+   32|     14|    }
+   33|       |
+   34|      1|    func testShowToastErrorWhenNoInternet() {
+   35|      1|        // Given
+   36|      1|        Reachability.testingValue = false
+   37|      1|        
+   38|      1|        // When
+   39|      1|        viewModel.register()
+   40|      1|        _ = waitForPromises(timeout: 10)
+   41|      1|        
+   42|      1|        // Then
+   43|      1|        let expectedError = ValidationError.unreachable.localizedDescription
+   44|      1|        XCTAssertEqual(router.actions.count, 1)
+   45|      1|        XCTAssertEqual(router.actions[0], .toast(expectedError))
+   46|      1|    }
+   47|       |    
+   48|      1|    func testRegisterWithEmptyUsernameShouldAlertWithError() {
+   49|      1|        // Given nothing
+   50|      1|        
+   51|      1|        // When
+   52|      1|        viewModel.register()
+   53|      1|        _ = waitForPromises(timeout: 10)
+   54|      1|        
+   55|      1|        // Then
+   56|      1|        let expectedError = ValidationError.emptyValue(key: .usernameField)
+   57|      1|        assertRouterError(expectedError)
+   58|      1|    }
+   59|       |    
+   60|      1|    func testRegisterWithEmptyNameShouldAlertWithError() {
+   61|      1|        // Given
+   62|      1|        viewModel.username.value = "admin"
+   63|      1|        
+   64|      1|        // When
+   65|      1|        viewModel.register()
+   66|      1|        _ = waitForPromises(timeout: 10)
+   67|      1|        
+   68|      1|        // Then
+   69|      1|        let expectedError = ValidationError.emptyValue(key: .nameField)
+   70|      1|        assertRouterError(expectedError)
+   71|      1|    }
+   72|       |    
+   73|      1|    func testRegisterWithEmptyPasswordShouldAlertWithError() {
+   74|      1|        // Given
+   75|      1|        viewModel.username.value = "7amada"
+   76|      1|        viewModel.name.value = "Hamada"
+   77|      1|        
+   78|      1|        // When
+   79|      1|        viewModel.register()
+   80|      1|        _ = waitForPromises(timeout: 10)
+   81|      1|        
+   82|      1|        // Then
+   83|      1|        let expectedError = ValidationError.emptyValue(key: .passwordField)
+   84|      1|        assertRouterError(expectedError)
+   85|      1|    }
+   86|       |    
+   87|      1|    func testRegisterWithEmptyConfirmPasswordShouldAlertWithError() {
+   88|      1|        // Given
+   89|      1|        viewModel.username.value = "7amada"
+   90|      1|        viewModel.name.value = "Hamada"
+   91|      1|        viewModel.password.value = "123456"
+   92|      1|        
+   93|      1|        // When
+   94|      1|        viewModel.register()
+   95|      1|        _ = waitForPromises(timeout: 10)
+   96|      1|        
+   97|      1|        // Then
+   98|      1|        let expectedError = ValidationError.emptyValue(key: .confirmPasswordField)
+   99|      1|        assertRouterError(expectedError)
+  100|      1|    }
+  101|       |    
+  102|      1|    func testRegisterWithUsernameThatContainsSpacesShouldAlertWithError() {
+  103|      1|        // Given
+  104|      1|        viewModel.username.value = "م ش م ح ت ر م"
+  105|      1|        viewModel.name.value = "Hamada"
+  106|      1|        viewModel.password.value = "123456"
+  107|      1|        viewModel.confirmPassword.value = "123456"
+  108|      1|        
+  109|      1|        // When
+  110|      1|        viewModel.register()
+  111|      1|        _ = waitForPromises(timeout: 10)
+  112|      1|        
+  113|      1|        // Then
+  114|      1|        let expectedError = ValidationError.notValid(reason: .usernameContainsSpaces)
+  115|      1|        assertRouterError(expectedError)
+  116|      1|    }
+  117|       |    
+  118|      1|    func testRegsiterWithNameThatContainsNumbersShouldAlertWithError() {
+  119|      1|        // Given
+  120|      1|        viewModel.username.value = "7amada"
+  121|      1|        viewModel.name.value = "7amada"
+  122|      1|        viewModel.password.value = "123456"
+  123|      1|        viewModel.confirmPassword.value = "123456"
+  124|      1|        
+  125|      1|        // When
+  126|      1|        viewModel.register()
+  127|      1|        _ = waitForPromises(timeout: 10)
+  128|      1|        
+  129|      1|        // Then
+  130|      1|        let expectedError = ValidationError.notValid(reason: .nameContainsNumbers)
+  131|      1|        assertRouterError(expectedError)
+  132|      1|    }
+  133|       |    
+  134|      1|    func testRegisterWithNameThatContainsEmojisShouldAlertWithError() {
+  135|      1|        // Given
+  136|      1|        viewModel.username.value = "7amada"
+  137|      1|        viewModel.name.value = "🤔"
+  138|      1|        viewModel.password.value = "123456"
+  139|      1|        viewModel.confirmPassword.value = "123456"
+  140|      1|        
+  141|      1|        // When
+  142|      1|        viewModel.register()
+  143|      1|        _ = waitForPromises(timeout: 10)
+  144|      1|        
+  145|      1|        // Then
+  146|      1|        let expectedError = ValidationError.notValid(reason: .nameContainsEmojis)
+  147|      1|        assertRouterError(expectedError)
+  148|      1|    }
+  149|       |    
+  150|      1|    func testRegisterWithPasswordShorterThanSixCharactersShouldAlertWithError() {
+  151|      1|        // Given
+  152|      1|        viewModel.username.value = "7amada"
+  153|      1|        viewModel.name.value = "Hamada"
+  154|      1|        viewModel.password.value = "1234"
+  155|      1|        viewModel.confirmPassword.value = "1234"
+  156|      1|        
+  157|      1|        // When
+  158|      1|        viewModel.register()
+  159|      1|        _ = waitForPromises(timeout: 10)
+  160|      1|        
+  161|      1|        // Then
+  162|      1|        let expectedError = ValidationError.notValid(reason: .passwordTooShort)
+  163|      1|        assertRouterError(expectedError)
+  164|      1|    }
+  165|       |    
+  166|      1|    func testRegisterWithPasswordsThatDoesntMatchEachOtherShouldAlertWithError() {
+  167|      1|        // Given
+  168|      1|        viewModel.username.value = "7amada"
+  169|      1|        viewModel.name.value = "Hamada"
+  170|      1|        viewModel.password.value = "123456"
+  171|      1|        viewModel.confirmPassword.value = "654321"
+  172|      1|        
+  173|      1|        // When
+  174|      1|        viewModel.register()
+  175|      1|        _ = waitForPromises(timeout: 10)
+  176|      1|        
+  177|      1|        // Then
+  178|      1|        let expectedError = ValidationError.notValid(reason: .passwordsNotMatching)
+  179|      1|        assertRouterError(expectedError)
+  180|      1|    }
+  181|       |    
+  182|      1|    func testRegisterHappyScenario() {
+  183|      1|        // Given
+  184|      1|        let user = User(id: UUID(uuidString: ""), name: "Hamada", username: "7amada")
+  185|      1|        network = NetworkMock(object: user)
+  186|      1|        initialize()
+  187|      1|        viewModel.username.value = "7amada"
+  188|      1|        viewModel.name.value = "Hamada"
+  189|      1|        viewModel.password.value = "123456"
+  190|      1|        viewModel.confirmPassword.value = "123456"
+  191|      1|        
+  192|      1|        // When
+  193|      1|        viewModel.register()
+  194|      1|        _ = waitForPromises(timeout: 10)
+  195|      1|        
+  196|      1|        // Then
+  197|      1|        let cachedUser = cache.getObject(User.self, key: .user)
+  198|      1|        XCTAssertEqual(cachedUser?.username, user.username)
+  199|      1|        
+  200|      1|        XCTAssertEqual(router.actions.count, 0) // no errors
+  201|      1|    }
+  202|       |
+  203|      1|    func testRegisterFlowPerformance() {
+  204|      1|        viewModel.username.value = "7amada"
+  205|      1|        viewModel.name.value = "Hamada"
+  206|      1|        viewModel.password.value = "123456"
+  207|      1|        viewModel.confirmPassword.value = "123456"
+  208|     10|        self.measure {
+  209|     10|            viewModel.register()
+  210|     10|            _ = waitForPromises(timeout: 10)
+  211|     10|        }
+  212|      1|    }
+  213|       |
+  214|       |}
+

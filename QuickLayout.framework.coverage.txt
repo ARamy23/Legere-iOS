@@ -1,0 +1,722 @@
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/QuickLayout/QuickLayout/QLUtils.swift:
+    1|       |//
+    2|       |//  QLUtils.swift
+    3|       |//  QuickLayout
+    4|       |//
+    5|       |//  Created by Daniel Huri on 11/21/17.
+    6|       |//
+    7|       |
+    8|       |import Foundation
+    9|       |#if os(OSX)
+   10|       |import AppKit
+   11|       |#else
+   12|       |import UIKit
+   13|       |#endif
+   14|       |
+   15|       |/**
+   16|       | Typealias for dictionary that contains multiple constraints
+   17|       | */
+   18|       |public typealias QLMultipleConstraints = [QLAttribute: NSLayoutConstraint]
+   19|       |
+   20|       |/**
+   21|       | Extends layout priority to other readable types
+   22|       | */
+   23|       |public extension QLPriority {
+   24|       |    static let must = QLPriority(rawValue: 999)
+   25|       |    static let zero = QLPriority(rawValue: 0)
+   26|       |}
+   27|       |
+   28|       |/**
+   29|       | Represents pair of attributes
+   30|       | */
+   31|       |public struct QLAttributePair {
+   32|       |    public let first: QLAttribute
+   33|       |    public let second: QLAttribute
+   34|       |}
+   35|       |
+   36|       |/**
+   37|       | Represents size constraints
+   38|       | */
+   39|       |public struct QLSizeConstraints {
+   40|       |    public let width: NSLayoutConstraint
+   41|       |    public let height: NSLayoutConstraint
+   42|       |}
+   43|       |
+   44|       |/**
+   45|       | Represents center constraints
+   46|       | */
+   47|       |public struct QLCenterConstraints {
+   48|       |    public let x: NSLayoutConstraint
+   49|       |    public let y: NSLayoutConstraint
+   50|       |}
+   51|       |
+   52|       |/**
+   53|       | Represents axis constraints (might be .top and .bottom, .left and .right, .leading and .trailing)
+   54|       | */
+   55|       |public struct QLAxisConstraints {
+   56|       |    public let first: NSLayoutConstraint
+   57|       |    public let second: NSLayoutConstraint
+   58|       |}
+   59|       |
+   60|       |/**
+   61|       | Represents center and size constraints
+   62|       | */
+   63|       |public struct QLFillConstraints {
+   64|       |    public let center: QLCenterConstraints
+   65|       |    public let size: QLSizeConstraints
+   66|       |}
+   67|       |
+   68|       |/**
+   69|       | Represents pair of priorities
+   70|       | */
+   71|       |public struct QLPriorityPair {
+   72|       |    
+   73|       |    public let horizontal: QLPriority
+   74|       |    public let vertical: QLPriority
+   75|      0|    public static var required: QLPriorityPair {
+   76|      0|        return QLPriorityPair(.required, .required)
+   77|      0|    }
+   78|       |    
+   79|      0|    public static var must: QLPriorityPair {
+   80|      0|        return QLPriorityPair(.must, .must)
+   81|      0|    }
+   82|       |    
+   83|      0|    public init(_ horizontal: QLPriority, _ vertical: QLPriority) {
+   84|      0|        self.horizontal = horizontal
+   85|      0|        self.vertical = vertical
+   86|      0|    }
+   87|       |}
+   88|       |
+   89|       |/**
+   90|       | Represents axis description
+   91|       | */
+   92|       |public enum QLAxis {
+   93|       |    case horizontally
+   94|       |    case vertically
+   95|       |    
+   96|      0|    public var attributes: QLAttributePair {
+   97|      0|        
+   98|      0|        let first: QLAttribute
+   99|      0|        let second: QLAttribute
+  100|      0|        
+  101|      0|        switch self {
+  102|      0|        case .horizontally:
+  103|      0|            first = .left
+  104|      0|            second = .right
+  105|      0|        case .vertically:
+  106|      0|            first = .top
+  107|      0|            second = .bottom
+  108|      0|        }
+  109|      0|        return QLAttributePair(first: first, second: second)
+  110|      0|    }
+  111|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/QuickLayout/QuickLayout/UIView+QLContentWrap.swift:
+    1|       |//
+    2|       |//  QLView+QLContentWrap.swift
+    3|       |//  QuickLayout
+    4|       |//
+    5|       |//  Created by Daniel Huri on 11/21/17.
+    6|       |//
+    7|       |
+    8|       |import Foundation
+    9|       |#if os(OSX)
+   10|       |import AppKit
+   11|       |#else
+   12|       |import UIKit
+   13|       |#endif
+   14|       |
+   15|       |// MARK: Content Compression Resistance & Content Hugging Priority
+   16|       |public extension QLView {
+   17|       |
+   18|       |    /**
+   19|       |     Force hugging and compression resistance for the given axes, using variadic parameter.
+   20|       |     - parameter axes: The axes
+   21|       |     */
+   22|      0|    func forceContentWrap(_ axes: QLAxis...) {
+   23|      0|        if axes.contains(.vertically) {
+   24|      0|            verticalHuggingPriority = .required
+   25|      0|            verticalCompressionResistancePriority = .required
+   26|      0|        }
+   27|      0|        if axes.contains(.horizontally) {
+   28|      0|            horizontalHuggingPriority = .required
+   29|      0|            horizontalCompressionResistancePriority = .required
+   30|      0|        }
+   31|      0|    }
+   32|       |    
+   33|       |    /**
+   34|       |     Force hugging and compression resistance vertically and horizontally.
+   35|       |     */
+   36|      0|    func forceContentWrap() {
+   37|      0|        contentHuggingPriority = .required
+   38|      0|        contentCompressionResistancePriority = .required
+   39|      0|    }
+   40|       |    
+   41|       |    /**
+   42|       |     Vertical hugging priority
+   43|       |     */
+   44|       |    var verticalHuggingPriority: QLPriority {
+   45|       |        set {
+   46|       |            setContentHuggingPriority(newValue, for: .vertical)
+   47|       |        }
+   48|       |        get {
+   49|       |            return contentHuggingPriority(for: .vertical)
+   50|       |        }
+   51|       |    }
+   52|       |    
+   53|       |    /**
+   54|       |     Horizontal hugging priority
+   55|       |     */
+   56|       |    var horizontalHuggingPriority: QLPriority {
+   57|       |        set {
+   58|       |            setContentHuggingPriority(newValue, for: .horizontal)
+   59|       |        }
+   60|       |        get {
+   61|       |            return contentHuggingPriority(for: .horizontal)
+   62|       |        }
+   63|       |    }
+   64|       |    
+   65|       |    /**
+   66|       |     Content hugging priority (Vertical & Horizontal)
+   67|       |     */
+   68|       |    var contentHuggingPriority: QLPriorityPair {
+   69|       |        set {
+   70|       |            horizontalHuggingPriority = newValue.horizontal
+   71|       |            verticalHuggingPriority = newValue.vertical
+   72|       |        }
+   73|       |        get {
+   74|       |            return QLPriorityPair(horizontalHuggingPriority, verticalHuggingPriority)
+   75|       |        }
+   76|       |    }
+   77|       |    
+   78|       |    /**
+   79|       |     Vertical content compression resistance priority
+   80|       |     */
+   81|       |    var verticalCompressionResistancePriority: QLPriority {
+   82|       |        set {
+   83|       |            setContentCompressionResistancePriority(newValue, for: .vertical)
+   84|       |        }
+   85|       |        get {
+   86|       |            return contentCompressionResistancePriority(for: .vertical)
+   87|       |        }
+   88|       |    }
+   89|       |    
+   90|       |    /**
+   91|       |     Horizontal content compression resistance priority
+   92|       |     */
+   93|       |    var horizontalCompressionResistancePriority: QLPriority {
+   94|       |        set {
+   95|       |            setContentCompressionResistancePriority(newValue, for: .horizontal)
+   96|       |        }
+   97|       |        get {
+   98|       |            return contentCompressionResistancePriority(for: .horizontal)
+   99|       |        }
+  100|       |    }
+  101|       |    
+  102|       |    /**
+  103|       |    Content compression resistance priority (Vertical & Horizontal)
+  104|       |     */
+  105|       |    var contentCompressionResistancePriority: QLPriorityPair {
+  106|       |        set {
+  107|       |            horizontalCompressionResistancePriority = newValue.horizontal
+  108|       |            verticalCompressionResistancePriority = newValue.vertical
+  109|       |        }
+  110|       |        get {
+  111|       |            return QLPriorityPair(horizontalCompressionResistancePriority, verticalCompressionResistancePriority)
+  112|       |        }
+  113|       |    }
+  114|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/QuickLayout/QuickLayout/UIView+QuickLayout.swift:
+    1|       |//
+    2|       |//  QLView+QuickLayout.swift
+    3|       |//  QuickLayout
+    4|       |//
+    5|       |//  Created by Daniel Huri on 11/19/17.
+    6|       |//
+    7|       |
+    8|       |import Foundation
+    9|       |#if os(OSX)
+   10|       |import AppKit
+   11|       |#else
+   12|       |import UIKit
+   13|       |#endif
+   14|       |
+   15|       |public extension QLView {
+   16|       |    
+   17|       |    /**
+   18|       |     Set constant value of an edge.
+   19|       |     Should be used with *width* or *height*
+   20|       |     - parameter edge: Edge type.
+   21|       |     - parameter value: Edge size.
+   22|       |     - parameter relation: Relation to the given constant value (default is *.equal*).
+   23|       |     - parameter ratio: Ratio of the cconstant constraint to actual given value (default is *1*)
+   24|       |     - parameter priority: Constraint's priority (default is *.required*).
+   25|       |     - returns: The applied constraint (discardable).
+   26|       |     */
+   27|       |    @discardableResult
+   28|       |    func set(_ edge: QLAttribute, of value: CGFloat, relation: QLRelation = .equal,
+   29|      0|             ratio: CGFloat = 1.0, priority: QLPriority = .required) -> NSLayoutConstraint {
+   30|      0|        if translatesAutoresizingMaskIntoConstraints {
+   31|      0|            translatesAutoresizingMaskIntoConstraints = false
+   32|      0|        }
+   33|      0|        let constraint = NSLayoutConstraint(item: self, attribute: edge, relatedBy: relation, toItem: nil, attribute: .notAnAttribute, multiplier: ratio, constant: value)
+   34|      0|        constraint.priority = priority
+   35|      0|        addConstraint(constraint)
+   36|      0|        return constraint
+   37|      0|    }
+   38|       |    
+   39|       |    /**
+   40|       |     Set constant value for multiple edges simultaniously, using variadic parameter.
+   41|       |     Should be used with *width* or *height*
+   42|       |     - parameter edges: Edge types.
+   43|       |     - parameter value: Edges size.
+   44|       |     - parameter priority: Constraint's priority (default is *.required*).
+   45|       |     - returns: The applied constraints in QLMultipleConstraints - see definition (discardable).
+   46|       |     */
+   47|       |    @discardableResult
+   48|       |    func set(_ edges: QLAttribute..., of value: CGFloat, relation: QLRelation = .equal,
+   49|      0|             ratio: CGFloat = 1.0, priority: QLPriority = .required) -> QLMultipleConstraints {
+   50|      0|        return set(edges, to: value, relation: relation, ratio: ratio, priority: priority)
+   51|      0|    }
+   52|       |    
+   53|       |    /** **PRIVATELY USED** AS A REPLACEMENT for the variadic version for the method*/
+   54|       |    @discardableResult
+   55|       |    func set(_ edges: [QLAttribute], to value: CGFloat, relation: QLRelation = .equal,
+   56|       |             ratio: CGFloat = 1.0, priority: QLPriority = .required) -> QLMultipleConstraints {
+   57|       |        var constraints: QLMultipleConstraints = [:]
+   58|       |        let uniqueEdges = Set(edges)
+   59|       |        for edge in uniqueEdges {
+   60|       |            let constraint = set(edge, of: value, priority: priority)
+   61|       |            constraints[edge] = constraint
+   62|       |        }
+   63|       |        return constraints
+   64|       |    }
+   65|       |    
+   66|       |    /**
+   67|       |     Layout edge to another view's edge.
+   68|       |     - You can optionally define relation, ratio, constant and priority (each gets a default value)
+   69|       |     - For example - Can be used to align self *left* edge to the *right* of another view.
+   70|       |     - *self* and *view* must be directly connected (siblings / child-parent) in the view hierarchy.
+   71|       |     - *superview* must not be *nil*.
+   72|       |     - parameter edge: The edge of the first view. If not sent or *nil* - The function automatically assumes *edge* to be *otherEdge*
+   73|       |     - parameter otherEdge: The edge of the second view.
+   74|       |     - parameter view: The second view that self must be aligned with.
+   75|       |     - parameter relation: The relation of the first edge to the second edge (default is .equal)
+   76|       |     - parameter ratio: The ratio of the edge in relative to the superview edge (default is 1).
+   77|       |     - parameter offset: Additional offset which is applied to the constraint (default is 0).
+   78|       |     - parameter priority: Constraint's priority (default is *.required*).
+   79|       |     - returns: The instance of the constraint that was applied (discardable). nil if method failed to apply the constraint.
+   80|       |     */
+   81|       |    @discardableResult
+   82|       |    func layout(_ edge: QLAttribute? = nil, to otherEdge: QLAttribute, of view: QLView,
+   83|       |                relation: QLRelation = .equal, ratio: CGFloat = 1.0, offset: CGFloat = 0,
+   84|      0|                priority: QLPriority = .required) -> NSLayoutConstraint? {
+   85|      0|        guard isValidForQuickLayout else {
+   86|      0|            print("\(String(describing: self)) Error in func: \(#function)")
+   87|      0|            return nil
+   88|      0|        }
+   89|      0|        let constraint = NSLayoutConstraint(item: self, attribute: edge ?? otherEdge, relatedBy: relation, toItem: view, attribute: otherEdge, multiplier: ratio, constant: offset)
+   90|      0|        constraint.priority = priority
+   91|      0|        superview!.addConstraint(constraint)
+   92|      0|        return constraint
+   93|      0|    }
+   94|       |    
+   95|       |    /**
+   96|       |     Layout multiple edges of the view to the corresonding edges of another given view.
+   97|       |     - You can optionally define relation, ratio, constant and priority (each gets a default value)
+   98|       |     - For example - Can be used to align self *left* and *right* edges the same edge of another given view.
+   99|       |     - *self* and *view* must be directly connected (siblings / child-parent) in the view hierarchy.
+  100|       |     - *superview* must not be *nil*.
+  101|       |     - parameter edges: The view edges
+  102|       |     - parameter view: Another view that self must be aligned with.
+  103|       |     - parameter relation: The relation of the edges. Can be applied to *.width* or *height* for example. (default is *.equal*).
+  104|       |     - parameter ratio: The ratio of the edges to the other view edges (default is 1).
+  105|       |     - parameter offset: Additional offset which is applied to each of the constraints (default is 0).
+  106|       |     - parameter priority: Constraints' priority (default is *.required*).
+  107|       |     - returns: The instance of the constraint that was applied (discardable). *nil* if the method failed to apply the constraint.
+  108|       |     */
+  109|       |    @discardableResult
+  110|       |    func layout(_ edges: QLAttribute..., to view: QLView, relation: QLRelation = .equal,
+  111|       |                ratio: CGFloat = 1.0, offset: CGFloat = 0,
+  112|      0|                priority: QLPriority = .required) -> QLMultipleConstraints {
+  113|      0|        var constraints: QLMultipleConstraints = [:]
+  114|      0|        guard isValidForQuickLayout else {
+  115|      0|            print("\(String(describing: self)) Error in func: \(#function)")
+  116|      0|            return constraints
+  117|      0|        }
+  118|      0|        let uniqueEdges = Set(edges)
+  119|      0|        for edge in uniqueEdges {
+  120|      0|            let constraint = NSLayoutConstraint(item: self, attribute: edge, relatedBy: relation, toItem: view, attribute: edge, multiplier: ratio, constant: offset)
+  121|      0|            constraint.priority = priority
+  122|      0|            superview!.addConstraint(constraint)
+  123|      0|            constraints[edge] = constraint
+  124|      0|        }
+  125|      0|        return constraints
+  126|      0|    }
+  127|       |    
+  128|       |    /**
+  129|       |     Layout edge to the same edge of superview.
+  130|       |     - Example of usage: *view.layoutToSuperview(.top)* makes *view* cling to the *top* of it's *superview*.
+  131|       |     - You can optionally define ratio, constant and priority (each gets a default value)
+  132|       |     - *superview* must not be *nil*.
+  133|       |     - parameter edge: The edge (.width, .height, .left, .right, .leading, .trailing, etc...)
+  134|       |     - parameter relation: The relation of the edge to the superview's corresponding edge (default is *.equal*)
+  135|       |     - parameter ratio: The ratio of the edge in relative to the superview edge (default is 1).
+  136|       |     - parameter offset: Additional offset from that can be applied to the constraint (default is 0).
+  137|       |     - parameter priority: Constraint's priority (default is *.required*).
+  138|       |     - returns: The instance of the constraint that was applied (discardable). Nil if method failed to apply constraint.
+  139|       |     */
+  140|       |    @discardableResult
+  141|       |    func layoutToSuperview(_ edge: QLAttribute, relation: QLRelation = .equal,
+  142|       |                           ratio: CGFloat = 1, offset: CGFloat = 0,
+  143|      0|                           priority: QLPriority = .required) -> NSLayoutConstraint? {
+  144|      0|        guard isValidForQuickLayout else {
+  145|      0|            print("\(String(describing: self)) Error in func: \(#function)")
+  146|      0|            return nil
+  147|      0|        }
+  148|      0|        let constraint = NSLayoutConstraint(item: self, attribute: edge, relatedBy: relation, toItem: superview, attribute: edge, multiplier: ratio, constant: offset)
+  149|      0|        constraint.priority = priority
+  150|      0|        superview!.addConstraint(constraint)
+  151|      0|        return constraint
+  152|      0|    }
+  153|       |    
+  154|       |    /**
+  155|       |     Layout multiple edges to the same edges as superview, using variadic parameter.
+  156|       |     Example for edges value:
+  157|       |     - You can optionally define ratio, constant and priority (each gets a default value)
+  158|       |     - *superview* must not be *nil*.
+  159|       |     - parameter edges: The edges (.width, .height, .left, .right, .leading, .trailing, etc...)
+  160|       |     - parameter relation: The relation of the edges to the superview's corresponding edges (default is *.equal*)
+  161|       |     - parameter ratio: The ratio of the edges in relative to the superview edge (default is 1).
+  162|       |     - parameter offset: Additional offset from that can be applied to the constraints (default is 0).
+  163|       |     - parameter priority: Constraints' priority (default is *.required*).
+  164|       |     - returns: The instance of QLMultipleConstraints - see type definition (discardable).
+  165|       |     */
+  166|       |    @discardableResult
+  167|       |    func layoutToSuperview(_ edges: QLAttribute..., relation: QLRelation = .equal,
+  168|       |                           ratio: CGFloat = 1, offset: CGFloat = 0,
+  169|      0|                           priority: QLPriority = .required) -> QLMultipleConstraints {
+  170|      0|        var constraints: QLMultipleConstraints = [:]
+  171|      0|        guard !edges.isEmpty && isValidForQuickLayout else {
+  172|      0|            return constraints
+  173|      0|        }
+  174|      0|        let uniqueEdges = Set(edges)
+  175|      0|        for edge in uniqueEdges {
+  176|      0|            let constraint = NSLayoutConstraint(item: self, attribute: edge, relatedBy: relation, toItem: superview, attribute: edge, multiplier: ratio, constant: offset)
+  177|      0|            constraint.priority = priority
+  178|      0|            superview!.addConstraint(constraint)
+  179|      0|            constraints[edge] = constraint
+  180|      0|        }
+  181|      0|        return constraints
+  182|      0|    }
+  183|       |    
+  184|       |    /**
+  185|       |     Layout to one of the superview's axes.
+  186|       |     - You can optionally define ratio, constant and priority (each gets a default value)
+  187|       |     - *superview* must not be *nil*.
+  188|       |     - parameter axis: The axis to which the view must be stretched (horizontally or vertically)
+  189|       |     - parameter offset: Represents an additional edge offset from that can be applied to the constraints (default is 0)
+  190|       |     - parameter priority: Represents constraint's priority (default is *.required*)
+  191|       |     - returns: The instance of the constraint that was applied (discardable).
+  192|       |     */
+  193|       |    @discardableResult
+  194|       |    func layoutToSuperview(axis: QLAxis, offset: CGFloat = 0,
+  195|      0|                           priority: QLPriority = .required) -> QLAxisConstraints? {
+  196|      0|        let attributes = axis.attributes
+  197|      0|        guard let first = layoutToSuperview(attributes.first, offset: offset, priority: priority) else {
+  198|      0|            return nil
+  199|      0|        }
+  200|      0|        guard let second = layoutToSuperview(attributes.second, offset: -offset, priority: priority) else {
+  201|      0|            return nil
+  202|      0|        }
+  203|      0|        return QLAxisConstraints(first: first, second: second)
+  204|      0|    }
+  205|       |    
+  206|       |    /**
+  207|       |     Size to superview with a given ratio and constant
+  208|       |     - *superview* must not be *nil*.
+  209|       |     - parameter ratio: The ratio of view to the size of superview.
+  210|       |     - parameter offset: Represents an additional edge offset from that can be applied to the size (default is 0)
+  211|       |     - parameter priority: Represents constraint's priority (default is *.required*)
+  212|       |     - returns: The instance of QLSizeConstraints - see definition (discardable).
+  213|       |     */
+  214|       |    @discardableResult
+  215|       |    func sizeToSuperview(withRatio ratio: CGFloat = 1, offset: CGFloat = 0,
+  216|      0|                         priority: QLPriority = .required) -> QLSizeConstraints? {
+  217|      0|        let size = layoutToSuperview(.width, .height, ratio: ratio, offset: offset, priority: priority)
+  218|      0|        guard !size.isEmpty else {
+  219|      0|            return nil
+  220|      0|        }
+  221|      0|        return QLSizeConstraints(width: size[.width]!, height: size[.height]!)
+  222|      0|    }
+  223|       |    
+  224|       |    /**
+  225|       |     Center in superview with an optional offset
+  226|       |     - *superview* must not be *nil*.
+  227|       |     - parameter offset: Represents an additional offset from the center (default is 0)
+  228|       |     - parameter priority: Represents constraint's priority (default is *.required*)
+  229|       |     - returns: The instance of QLCenterConstraints - see definition (discardable).
+  230|       |     */
+  231|       |    @discardableResult
+  232|      0|    func centerInSuperview(offset: CGFloat = 0, priority: QLPriority = .required) -> QLCenterConstraints? {
+  233|      0|        let center = layoutToSuperview(.centerX, .centerY, offset: offset)
+  234|      0|        guard !center.isEmpty else {
+  235|      0|            return nil
+  236|      0|        }
+  237|      0|        return QLCenterConstraints(x: center[.centerX]!, y: center[.centerY]!)
+  238|      0|    }
+  239|       |    
+  240|       |    /**
+  241|       |     Fill superview totally (center and size to superview)
+  242|       |     - *superview* must not be *nil*.
+  243|       |     - parameter ratio: Ratio to the superview's size (default is 1)
+  244|       |     - parameter offset: Offset from center (default is 0)
+  245|       |     - parameter priority: Represents constraint's priority (default is *.required*)
+  246|       |     - returns: The instance of QLFillConstraints - see definition (discardable).
+  247|       |     */
+  248|       |    @discardableResult
+  249|       |    func fillSuperview(withSizeRatio ratio: CGFloat = 1, offset: CGFloat = 0,
+  250|      0|                       priority: QLPriority = .required) -> QLFillConstraints? {
+  251|      0|        guard let center = centerInSuperview(priority: priority) else {
+  252|      0|            return nil
+  253|      0|        }
+  254|      0|        guard let size = sizeToSuperview(withRatio: ratio, offset: offset, priority: priority) else {
+  255|      0|            return nil
+  256|      0|        }
+  257|      0|        return QLFillConstraints(center: center, size: size)
+  258|      0|    }
+  259|       |    
+  260|       |    /** **PRIVATELY USED** to test for validation*/
+  261|       |    var isValidForQuickLayout: Bool {
+  262|       |        guard superview != nil else {
+  263|       |            print("\(String(describing: self)):\(#function) - superview is unexpectedly nullified")
+  264|       |            return false
+  265|       |        }
+  266|       |        if translatesAutoresizingMaskIntoConstraints {
+  267|       |            translatesAutoresizingMaskIntoConstraints = false
+  268|       |        }
+  269|       |        return true
+  270|       |    }
+  271|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/QuickLayout/QuickLayout/UIViewArray+QuickLayout.swift:
+    1|       |//
+    2|       |//  QLViewArray+QuickLayout.swift
+    3|       |//  QuickLayout
+    4|       |//
+    5|       |//  Created by Daniel Huri on 11/20/17.
+    6|       |//
+    7|       |
+    8|       |import Foundation
+    9|       |#if os(OSX)
+   10|       |import AppKit
+   11|       |#else
+   12|       |import UIKit
+   13|       |#endif
+   14|       |
+   15|       |// MARK: Multiple Views in Array
+   16|       |public extension Array where Element: QLView {
+   17|       |    
+   18|       |    /**
+   19|       |     All elements in the collection recieve constant value for the given edge.
+   20|       |     - parameter edge: Should be used with *.width* or *.height*.
+   21|       |     - parameter value: The size of the edge.
+   22|       |     - parameter priority: Constraint's priority (default is *.required*).
+   23|       |     - returns: The instance of the constraint that was applied (discardable).
+   24|       |     */
+   25|       |    @discardableResult
+   26|       |    func set(_ edge: QLAttribute, of value: CGFloat,
+   27|      0|             priority: QLPriority = .required) -> [NSLayoutConstraint] {
+   28|      0|        var constraints: [NSLayoutConstraint] = []
+   29|      0|        for view in self {
+   30|      0|            let constraint = view.set(edge, of: value)
+   31|      0|            constraints.append(constraint)
+   32|      0|        }
+   33|      0|        return constraints
+   34|      0|    }
+   35|       |    
+   36|       |    /**
+   37|       |     All elements in the collection recieve constant value for the given edges, using variadic parameter.
+   38|       |     - parameter edges: Should be used with *.width* or *.height*.
+   39|       |     - parameter value: The size of the edge.
+   40|       |     - parameter priority: Constraint's priority (default is *.required*).
+   41|       |     - returns: The instance of the constraint that was applied (discardable).
+   42|       |     */
+   43|       |    @discardableResult
+   44|       |    func set(_ edges: QLAttribute..., of value: CGFloat,
+   45|      0|             priority: QLPriority = .required) -> [QLMultipleConstraints] {
+   46|      0|        var constraintsArray: [QLMultipleConstraints] = []
+   47|      0|        for view in self {
+   48|      0|            let constraints = view.set(edges, to: value, priority: priority)
+   49|      0|            constraintsArray.append(constraints)
+   50|      0|        }
+   51|      0|        return constraintsArray
+   52|      0|    }
+   53|       |    
+   54|       |    /**
+   55|       |     Spread elements consecutively according to the given axis.
+   56|       |     - parameter axis: The axis: *.vertically*, *horizontally*
+   57|       |     - parameter stretchEdgesToSuperview: Decides whether the first and last items in the array must be clipped to their parent edges.
+   58|       |     - parameter priority: Constraint's priority (default is *.required*).
+   59|       |     - returns: Array of constraints that were applied (discardable)
+   60|       |     */
+   61|       |    @discardableResult
+   62|       |    func spread(_ axis: QLAxis, stretchEdgesToSuperview: Bool = false, offset: CGFloat = 0,
+   63|      0|                priority: QLPriority = .required) -> [NSLayoutConstraint] {
+   64|      0|        guard isValidForQuickLayout else {
+   65|      0|            return []
+   66|      0|        }
+   67|      0|        let attributes = axis.attributes
+   68|      0|        var constraints: [NSLayoutConstraint] = []
+   69|      0|        
+   70|      0|        if stretchEdgesToSuperview {
+   71|      0|            let constraint = first!.layoutToSuperview(attributes.first, offset: offset)!
+   72|      0|            constraints.append(constraint)
+   73|      0|        }
+   74|      0|        
+   75|      0|        for (index, view) in enumerated() {
+   76|      0|            guard index > 0 else {
+   77|      0|                continue
+   78|      0|            }
+   79|      0|            let previousView = self[index - 1]
+   80|      0|            let constraint = view.layout(attributes.first, to: attributes.second, of: previousView, offset: offset, priority: priority)!
+   81|      0|            constraints.append(constraint)
+   82|      0|        }
+   83|      0|        
+   84|      0|        if stretchEdgesToSuperview {
+   85|      0|            let constraint = last!.layoutToSuperview(attributes.second, offset: -offset)!
+   86|      0|            constraints.append(constraint)
+   87|      0|        }
+   88|      0|        
+   89|      0|        return constraints
+   90|      0|    }
+   91|       |    
+   92|       |    /**
+   93|       |     Layout elements to superview's axis
+   94|       |     - parameter axis: The axis: *.vertically*, *horizontally*
+   95|       |     - parameter offset: Additional side offset that must be applied (identical spacing from each side)
+   96|       |     - parameter priority: Constraint's priority (default is *.required*).
+   97|       |     - returns: Array of QLAxisConstraints - see definition (discardable)
+   98|       |     */
+   99|       |    @discardableResult
+  100|       |    func layoutToSuperview(axis: QLAxis, offset: CGFloat = 0,
+  101|      0|                           priority: QLPriority = .required) -> [QLAxisConstraints] {
+  102|      0|        
+  103|      0|        let attributes = axis.attributes
+  104|      0|        
+  105|      0|        let firstConstraints = layoutToSuperview(attributes.first, offset: offset, priority: priority)
+  106|      0|        guard !firstConstraints.isEmpty else {
+  107|      0|            return []
+  108|      0|        }
+  109|      0|        
+  110|      0|        let secondConstraints = layoutToSuperview(attributes.second, offset: -offset, priority: priority)
+  111|      0|        guard !secondConstraints.isEmpty else {
+  112|      0|            return []
+  113|      0|        }
+  114|      0|        
+  115|      0|        var constraints: [QLAxisConstraints] = []
+  116|      0|        for (first, second) in zip(firstConstraints, secondConstraints) {
+  117|      0|            constraints.append(QLAxisConstraints(first: first, second: second))
+  118|      0|        }
+  119|      0|        
+  120|      0|        return constraints
+  121|      0|    }
+  122|       |    
+  123|       |    /**
+  124|       |     Layout elements' edges to superview's edge (The same edge - top to top, bottom to bottom, etc...)
+  125|       |     - parameter edge: The edge of the view / superview
+  126|       |     - parameter ratio: The ratio of the edge in relation to the superview's (default is 1).
+  127|       |     - parameter offset: Additional offset from that must be applied to the constraint (default is 0).
+  128|       |     - parameter priority: Constraint's priority (default is *.required*).
+  129|       |     - returns: Array of applied constraints - see definition (discardable)
+  130|       |     */
+  131|       |    @discardableResult
+  132|       |    func layoutToSuperview(_ edge: QLAttribute, ratio: CGFloat = 1, offset: CGFloat = 0,
+  133|       |                           priority: QLPriority = .required) -> [NSLayoutConstraint] {
+  134|       |        guard isValidForQuickLayout else {
+  135|       |            return []
+  136|       |        }
+  137|       |        return layout(to: edge, of: first!.superview!, ratio: ratio, offset: offset, priority: priority)
+  138|       |    }
+  139|       |    
+  140|       |    /**
+  141|       |     Layout elements' edges to to anchorView edge
+  142|       |     - parameter firstEdge: The edge of the elements in the array
+  143|       |     - parameter anchorEdge: The edge of the anchor view
+  144|       |     - parameter anchorView: The anchor view
+  145|       |     - parameter ratio: The ratio of the edge in relative to the superview edge (default is 1).
+  146|       |     - parameter offset: Additional offset from that can be applied to the constraints (default is 0).
+  147|       |     - parameter priority: Constraints' priority (default is *.required*).
+  148|       |     - returns: Array of applied constraints - see definition (discardable)
+  149|       |     */
+  150|       |    @discardableResult
+  151|       |    func layout(_ firstEdge: QLAttribute? = nil, to anchorEdge: QLAttribute,
+  152|       |                of anchorView: QLView, ratio: CGFloat = 1, offset: CGFloat = 0,
+  153|       |                priority: QLPriority = .required) -> [NSLayoutConstraint] {
+  154|       |        guard isValidForQuickLayout else {
+  155|       |            return []
+  156|       |        }
+  157|       |        
+  158|       |        let edge: QLAttribute
+  159|       |        if let firstEdge = firstEdge {
+  160|       |            edge = firstEdge
+  161|       |        } else {
+  162|       |            edge = anchorEdge
+  163|       |        }
+  164|       |        
+  165|       |        var result: [NSLayoutConstraint] = []
+  166|       |        for view in self {
+  167|       |            let constraint = view.layout(edge, to: anchorEdge, of: anchorView, ratio: ratio, offset: offset, priority: priority)!
+  168|       |            result.append(constraint)
+  169|       |        }
+  170|       |        return result
+  171|       |    }
+  172|       |    
+  173|       |    /**
+  174|       |     Layout elements' multiple edges to to anchorView's same edges (top to top, bottom to bottom, etc...)
+  175|       |     - parameter edges: The edges of the view - variadic parameter
+  176|       |     - parameter anchorView: The anchor view
+  177|       |     - parameter ratio: The ratio of the edge in relative to the superview edge (default is 1).
+  178|       |     - parameter offset: Additional offset from that can be applied to the constraints (default is 0).
+  179|       |     - parameter priority: Constraints' priority (default is *.required*).
+  180|       |     - returns: Array of applied constraints, each element is of type QLMultipleConstraints - see definition (discardable)
+  181|       |     */
+  182|       |    @discardableResult
+  183|       |    func layout(_ edges: QLAttribute..., to anchorView: QLView,
+  184|       |                ratio: CGFloat = 1, offset: CGFloat = 0,
+  185|      0|                priority: QLPriority = .required) -> [QLMultipleConstraints] {
+  186|      0|        guard !edges.isEmpty && isValidForQuickLayout else {
+  187|      0|            return []
+  188|      0|        }
+  189|      0|        // Avoid duplicities
+  190|      0|        let uniqueEdges = Set(edges)
+  191|      0|        var result: [QLMultipleConstraints] = []
+  192|      0|        for view in self {
+  193|      0|            var multipleConstraints: QLMultipleConstraints = [:]
+  194|      0|            for edge in uniqueEdges {
+  195|      0|                let constraint = view.layout(to: edge, of: anchorView, ratio: ratio, offset: offset, priority: priority)!
+  196|      0|                multipleConstraints[edge] = constraint
+  197|      0|            }
+  198|      0|            result.append(multipleConstraints)
+  199|      0|        }
+  200|      0|        return result
+  201|      0|    }
+  202|       |    
+  203|       |    /** **PRIVATELY USED** to test for validation*/
+  204|       |    var isValidForQuickLayout: Bool {
+  205|       |        guard !isEmpty else {
+  206|       |            print("\(String(describing: self)) Error in func: \(#function), Views collection is empty!")
+  207|       |            return false
+  208|       |        }
+  209|       |        
+  210|       |        for view in self {
+  211|       |            guard view.isValidForQuickLayout else {
+  212|       |                print("\(String(describing: self)) Error in func: \(#function)")
+  213|       |                return false
+  214|       |            }
+  215|       |        }
+  216|       |        return true
+  217|       |    }
+  218|       |}
+
