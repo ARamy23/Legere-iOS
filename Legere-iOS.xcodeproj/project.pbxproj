@@ -72,6 +72,7 @@
 		B883C2902281504B0094CC9D /* NetworkMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C28F2281504B0094CC9D /* NetworkMock.swift */; };
 		B883C293228153BF0094CC9D /* BaseSceneTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C292228153BF0094CC9D /* BaseSceneTests.swift */; };
 		B883C297228154C80094CC9D /* LoginTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C296228154C80094CC9D /* LoginTests.swift */; };
+		B8D2C0402281FAB6006F5255 /* RegisterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8D2C03F2281FAB6006F5255 /* RegisterTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -156,6 +157,7 @@
 		B883C28F2281504B0094CC9D /* NetworkMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMock.swift; sourceTree = "<group>"; };
 		B883C292228153BF0094CC9D /* BaseSceneTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseSceneTests.swift; sourceTree = "<group>"; };
 		B883C296228154C80094CC9D /* LoginTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginTests.swift; sourceTree = "<group>"; };
+		B8D2C03F2281FAB6006F5255 /* RegisterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterTests.swift; sourceTree = "<group>"; };
 		BC76ECF1BC9D6E95BD4EF2CC /* Pods-Legere-iOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSTests.release.xcconfig"; path = "Target Support Files/Pods-Legere-iOSTests/Pods-Legere-iOSTests.release.xcconfig"; sourceTree = "<group>"; };
 		CE6B995BFDD3CE096A8561BF /* Pods-Legere-iOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSTests.debug.xcconfig"; path = "Target Support Files/Pods-Legere-iOSTests/Pods-Legere-iOSTests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -535,6 +537,7 @@
 			isa = PBXGroup;
 			children = (
 				B883C296228154C80094CC9D /* LoginTests.swift */,
+				B8D2C03F2281FAB6006F5255 /* RegisterTests.swift */,
 			);
 			path = Welcome;
 			sourceTree = "<group>";
@@ -851,6 +854,7 @@
 			files = (
 				B883C2902281504B0094CC9D /* NetworkMock.swift in Sources */,
 				B883C28A22814DC60094CC9D /* RouterMock.swift in Sources */,
+				B8D2C0402281FAB6006F5255 /* RegisterTests.swift in Sources */,
 				B883C297228154C80094CC9D /* LoginTests.swift in Sources */,
 				B883C28D22814FE40094CC9D /* CacheMock.swift in Sources */,
 				B883C293228153BF0094CC9D /* BaseSceneTests.swift in Sources */,
