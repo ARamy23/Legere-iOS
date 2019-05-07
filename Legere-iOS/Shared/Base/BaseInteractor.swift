@@ -28,7 +28,9 @@ class BaseInteractor {
         }
     }
     
-    func validate() throws {}
+    func validate() throws {
+        try ToSeeIfIsReachable().orThrow()
+    }
     func extract() {}
     
     func process<T: Codable>(_ model: T.Type) -> Promise<T> {

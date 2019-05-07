@@ -18,21 +18,12 @@ final class IsValidPassword: BaseValidator {
     }
     
     func orThrow() throws {
-        
-        let error = NotValidPasswordError()
-        
         if let value = value {
-            if value.count >= 6 {
-                return
-            }
-            
             if value.count < 6 {
-                error.reason = .tooShort
-            } else if let confirmValue = confirmValue, confirmValue != value {
-                error.reason = .notEqualToConfirmValue
+                throw ValidationError.notValid(reason: "Password can not be less than 6 characters.")
+            } else if let confirmValue = confirmValue, value != confirmValue {
+                throw ValidationError.notValid(reason: "Passwords do not match each other, please double check and try again.")
             }
         }
-        
-        throw error
     }
 }

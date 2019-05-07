@@ -71,6 +71,9 @@
 		B883C27F2280FC5A0094CC9D /* BaseCustomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C2422280FC5A0094CC9D /* BaseCustomView.swift */; };
 		B883C2802280FC5A0094CC9D /* LETextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C2442280FC5A0094CC9D /* LETextField.swift */; };
 		B883C2812280FC5A0094CC9D /* LETextField.xib in Resources */ = {isa = PBXBuildFile; fileRef = B883C2452280FC5A0094CC9D /* LETextField.xib */; };
+		B883C283228148B40094CC9D /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C282228148B40094CC9D /* Reachability.swift */; };
+		B883C285228148CF0094CC9D /* ReachabilityValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C284228148CF0094CC9D /* ReachabilityValidator.swift */; };
+		B883C287228148E80094CC9D /* ValidationErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C286228148E80094CC9D /* ValidationErrors.swift */; };
 		CB754117910EA7C43EC77708 /* Pods_Legere_iOSTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BEAD3B65874BC679AA4E75C /* Pods_Legere_iOSTests.framework */; };
 /* End PBXBuildFile section */
 
@@ -163,6 +166,9 @@
 		B883C2422280FC5A0094CC9D /* BaseCustomView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseCustomView.swift; sourceTree = "<group>"; };
 		B883C2442280FC5A0094CC9D /* LETextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LETextField.swift; sourceTree = "<group>"; };
 		B883C2452280FC5A0094CC9D /* LETextField.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LETextField.xib; sourceTree = "<group>"; };
+		B883C282228148B40094CC9D /* Reachability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
+		B883C284228148CF0094CC9D /* ReachabilityValidator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReachabilityValidator.swift; sourceTree = "<group>"; };
+		B883C286228148E80094CC9D /* ValidationErrors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ValidationErrors.swift; sourceTree = "<group>"; };
 		BA205B9FFF702B1339E976A3 /* Pods-Legere-iOSUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSUITests.debug.xcconfig"; path = "Target Support Files/Pods-Legere-iOSUITests/Pods-Legere-iOSUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		BD3F748BC0C840D845749DEA /* Pods-Legere-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOS.debug.xcconfig"; path = "Target Support Files/Pods-Legere-iOS/Pods-Legere-iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		D10945DE0B2B91F0BC7BB041 /* Pods-Legere-iOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSTests.release.xcconfig"; path = "Target Support Files/Pods-Legere-iOSTests/Pods-Legere-iOSTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -422,6 +428,7 @@
 		B883C2192280FC5A0094CC9D /* Networking */ = {
 			isa = PBXGroup;
 			children = (
+				B883C282228148B40094CC9D /* Reachability.swift */,
 				B883C21A2280FC5A0094CC9D /* Authentication.swift */,
 				B883C21B2280FC5A0094CC9D /* Base Service.swift */,
 				B883C21C2280FC5A0094CC9D /* Articles.swift */,
@@ -476,6 +483,8 @@
 		B883C2282280FC5A0094CC9D /* Validators */ = {
 			isa = PBXGroup;
 			children = (
+				B883C286228148E80094CC9D /* ValidationErrors.swift */,
+				B883C284228148CF0094CC9D /* ReachabilityValidator.swift */,
 				B883C2292280FC5A0094CC9D /* NotEmpty.swift */,
 				B883C22A2280FC5A0094CC9D /* BaseValidator.swift */,
 				B883C22B2280FC5A0094CC9D /* IsValidPassword.swift */,
@@ -836,6 +845,7 @@
 				B883C1C02280FC170094CC9D /* AppDelegate.swift in Sources */,
 				B883C2592280FC5A0094CC9D /* RegisterInteractor.swift in Sources */,
 				B883C24F2280FC5A0094CC9D /* ArticleDetailsViewController.swift in Sources */,
+				B883C283228148B40094CC9D /* Reachability.swift in Sources */,
 				B883C25A2280FC5A0094CC9D /* RegisterViewModel.swift in Sources */,
 				B883C2712280FC5A0094CC9D /* NotOptional.swift in Sources */,
 				B883C2732280FC5A0094CC9D /* NotValidUsernameError.swift in Sources */,
@@ -851,6 +861,7 @@
 				B883C2462280FC5A0094CC9D /* ArticleCollectionViewCell.swift in Sources */,
 				B883C2642280FC5A0094CC9D /* Base Service.swift in Sources */,
 				B883C26B2280FC5A0094CC9D /* CachingKeys.swift in Sources */,
+				B883C287228148E80094CC9D /* ValidationErrors.swift in Sources */,
 				B883C2572280FC5A0094CC9D /* User.swift in Sources */,
 				B883C2502280FC5A0094CC9D /* HomeViewController.swift in Sources */,
 				B883C2752280FC5A0094CC9D /* NotValidNameError.swift in Sources */,
@@ -861,6 +872,7 @@
 				B883C24A2280FC5A0094CC9D /* HomeViewModel.swift in Sources */,
 				B883C25B2280FC5A0094CC9D /* AuthenticationViewController.swift in Sources */,
 				B883C2532280FC5A0094CC9D /* ArticleDetailsInteractor.swift in Sources */,
+				B883C285228148CF0094CC9D /* ReachabilityValidator.swift in Sources */,
 				B883C24B2280FC5A0094CC9D /* ArticleDetails.swift in Sources */,
 				B883C2632280FC5A0094CC9D /* Authentication.swift in Sources */,
 			);
