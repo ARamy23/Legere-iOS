@@ -27,6 +27,21 @@ class LoginTests: BaseSceneTests {
     override func tearDown() {
         super.tearDown()
         viewModel = nil
+        Reachability.testingValue = nil
+    }
+    
+    func testShowingToastErrorWhenNoInternet() {
+        // Given
+        Reachability.testingValue = false
+        
+        // When
+        viewModel.login()
+        _ = waitForPromises(timeout: 10)
+        
+        // Then
+        let expectedError = ValidationError.unreachable.localizedDescription
+        XCTAssertEqual(router.actions.count, 1)
+        XCTAssertEqual(router.actions[0], .toast(expectedError))
     }
     
     func testingLoginWithEmptyUsernameShouldAlertWithError() {

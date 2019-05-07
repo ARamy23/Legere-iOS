@@ -55,11 +55,6 @@
 		B883C26F2280FC5A0094CC9D /* IsValidName.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C22C2280FC5A0094CC9D /* IsValidName.swift */; };
 		B883C2702280FC5A0094CC9D /* IsValidUsername.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C22D2280FC5A0094CC9D /* IsValidUsername.swift */; };
 		B883C2712280FC5A0094CC9D /* NotOptional.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C22E2280FC5A0094CC9D /* NotOptional.swift */; };
-		B883C2722280FC5A0094CC9D /* NotFoundError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C2302280FC5A0094CC9D /* NotFoundError.swift */; };
-		B883C2732280FC5A0094CC9D /* NotValidUsernameError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C2312280FC5A0094CC9D /* NotValidUsernameError.swift */; };
-		B883C2742280FC5A0094CC9D /* EmptyValueError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C2322280FC5A0094CC9D /* EmptyValueError.swift */; };
-		B883C2752280FC5A0094CC9D /* NotValidNameError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C2332280FC5A0094CC9D /* NotValidNameError.swift */; };
-		B883C2762280FC5A0094CC9D /* NotValidPasswordError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C2342280FC5A0094CC9D /* NotValidPasswordError.swift */; };
 		B883C2772280FC5A0094CC9D /* Codable+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C2362280FC5A0094CC9D /* Codable+Helpers.swift */; };
 		B883C2782280FC5A0094CC9D /* StringUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C2382280FC5A0094CC9D /* StringUtils.swift */; };
 		B883C2792280FC5A0094CC9D /* Storyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C2392280FC5A0094CC9D /* Storyboard.swift */; };
@@ -155,11 +150,6 @@
 		B883C22C2280FC5A0094CC9D /* IsValidName.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IsValidName.swift; sourceTree = "<group>"; };
 		B883C22D2280FC5A0094CC9D /* IsValidUsername.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IsValidUsername.swift; sourceTree = "<group>"; };
 		B883C22E2280FC5A0094CC9D /* NotOptional.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotOptional.swift; sourceTree = "<group>"; };
-		B883C2302280FC5A0094CC9D /* NotFoundError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotFoundError.swift; sourceTree = "<group>"; };
-		B883C2312280FC5A0094CC9D /* NotValidUsernameError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotValidUsernameError.swift; sourceTree = "<group>"; };
-		B883C2322280FC5A0094CC9D /* EmptyValueError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmptyValueError.swift; sourceTree = "<group>"; };
-		B883C2332280FC5A0094CC9D /* NotValidNameError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotValidNameError.swift; sourceTree = "<group>"; };
-		B883C2342280FC5A0094CC9D /* NotValidPasswordError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotValidPasswordError.swift; sourceTree = "<group>"; };
 		B883C2362280FC5A0094CC9D /* Codable+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Codable+Helpers.swift"; sourceTree = "<group>"; };
 		B883C2382280FC5A0094CC9D /* StringUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringUtils.swift; sourceTree = "<group>"; };
 		B883C2392280FC5A0094CC9D /* Storyboard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Storyboard.swift; sourceTree = "<group>"; };
@@ -429,7 +419,6 @@
 				B883C21D2280FC5A0094CC9D /* Externals */,
 				B883C2252280FC5A0094CC9D /* Keys */,
 				B883C2282280FC5A0094CC9D /* Validators */,
-				B883C22F2280FC5A0094CC9D /* Errors */,
 				B883C2352280FC5A0094CC9D /* Helpers */,
 				B883C23A2280FC5A0094CC9D /* Base */,
 				B883C23E2280FC5A0094CC9D /* Reusable Views */,
@@ -505,18 +494,6 @@
 				B883C22E2280FC5A0094CC9D /* NotOptional.swift */,
 			);
 			path = Validators;
-			sourceTree = "<group>";
-		};
-		B883C22F2280FC5A0094CC9D /* Errors */ = {
-			isa = PBXGroup;
-			children = (
-				B883C2302280FC5A0094CC9D /* NotFoundError.swift */,
-				B883C2312280FC5A0094CC9D /* NotValidUsernameError.swift */,
-				B883C2322280FC5A0094CC9D /* EmptyValueError.swift */,
-				B883C2332280FC5A0094CC9D /* NotValidNameError.swift */,
-				B883C2342280FC5A0094CC9D /* NotValidPasswordError.swift */,
-			);
-			path = Errors;
 			sourceTree = "<group>";
 		};
 		B883C2352280FC5A0094CC9D /* Helpers */ = {
@@ -973,19 +950,16 @@
 				B883C27F2280FC5A0094CC9D /* BaseCustomView.swift in Sources */,
 				B883C2542280FC5A0094CC9D /* DidReadArticleInteractor.swift in Sources */,
 				B883C2552280FC5A0094CC9D /* AllArticlesInteractor.swift in Sources */,
-				B883C2742280FC5A0094CC9D /* EmptyValueError.swift in Sources */,
 				B883C25E2280FC5A0094CC9D /* RegisterFormView.swift in Sources */,
 				B883C27A2280FC5A0094CC9D /* BaseViewController.swift in Sources */,
 				B883C2662280FC5A0094CC9D /* ExternalProtocols.swift in Sources */,
 				B883C2802280FC5A0094CC9D /* LETextField.swift in Sources */,
-				B883C2722280FC5A0094CC9D /* NotFoundError.swift in Sources */,
 				B883C1C02280FC170094CC9D /* AppDelegate.swift in Sources */,
 				B883C2592280FC5A0094CC9D /* RegisterInteractor.swift in Sources */,
 				B883C24F2280FC5A0094CC9D /* ArticleDetailsViewController.swift in Sources */,
 				B883C283228148B40094CC9D /* Reachability.swift in Sources */,
 				B883C25A2280FC5A0094CC9D /* RegisterViewModel.swift in Sources */,
 				B883C2712280FC5A0094CC9D /* NotOptional.swift in Sources */,
-				B883C2732280FC5A0094CC9D /* NotValidUsernameError.swift in Sources */,
 				B883C2672280FC5A0094CC9D /* UserDefaults.swift in Sources */,
 				B883C2612280FC5A0094CC9D /* LoginFormView.swift in Sources */,
 				B883C25C2280FC5A0094CC9D /* LoginViewModel.swift in Sources */,
@@ -1001,8 +975,6 @@
 				B883C287228148E80094CC9D /* ValidationErrors.swift in Sources */,
 				B883C2572280FC5A0094CC9D /* User.swift in Sources */,
 				B883C2502280FC5A0094CC9D /* HomeViewController.swift in Sources */,
-				B883C2752280FC5A0094CC9D /* NotValidNameError.swift in Sources */,
-				B883C2762280FC5A0094CC9D /* NotValidPasswordError.swift in Sources */,
 				B883C26D2280FC5A0094CC9D /* BaseValidator.swift in Sources */,
 				B883C2782280FC5A0094CC9D /* StringUtils.swift in Sources */,
 				B883C2692280FC5A0094CC9D /* Router.swift in Sources */,
@@ -1275,6 +1247,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = BA205B9FFF702B1339E976A3 /* Pods-Legere-iOSUITests.debug.xcconfig */;
 			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Legere-iOS.app/Legere-iOS";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 969Y6REAB6;
 				INFOPLIST_FILE = "Legere-iOSUITests/Info.plist";
@@ -1288,6 +1261,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUNDLE_LOADER)";
 				TEST_TARGET_NAME = "Legere-iOS";
 			};
 			name = Debug;
@@ -1296,6 +1270,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7E1A33CFA21D9E46BF73EB86 /* Pods-Legere-iOSUITests.release.xcconfig */;
 			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Legere-iOS.app/Legere-iOS";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 969Y6REAB6;
 				INFOPLIST_FILE = "Legere-iOSUITests/Info.plist";
@@ -1309,6 +1284,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUNDLE_LOADER)";
 				TEST_TARGET_NAME = "Legere-iOS";
 			};
 			name = Release;
