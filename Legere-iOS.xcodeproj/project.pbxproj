@@ -74,6 +74,7 @@
 		B883C283228148B40094CC9D /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C282228148B40094CC9D /* Reachability.swift */; };
 		B883C285228148CF0094CC9D /* ReachabilityValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C284228148CF0094CC9D /* ReachabilityValidator.swift */; };
 		B883C287228148E80094CC9D /* ValidationErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C286228148E80094CC9D /* ValidationErrors.swift */; };
+		B883C28A22814DC60094CC9D /* RouterMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C28922814DC60094CC9D /* RouterMock.swift */; };
 		CB754117910EA7C43EC77708 /* Pods_Legere_iOSTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BEAD3B65874BC679AA4E75C /* Pods_Legere_iOSTests.framework */; };
 /* End PBXBuildFile section */
 
@@ -169,6 +170,7 @@
 		B883C282228148B40094CC9D /* Reachability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
 		B883C284228148CF0094CC9D /* ReachabilityValidator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReachabilityValidator.swift; sourceTree = "<group>"; };
 		B883C286228148E80094CC9D /* ValidationErrors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ValidationErrors.swift; sourceTree = "<group>"; };
+		B883C28922814DC60094CC9D /* RouterMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouterMock.swift; sourceTree = "<group>"; };
 		BA205B9FFF702B1339E976A3 /* Pods-Legere-iOSUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSUITests.debug.xcconfig"; path = "Target Support Files/Pods-Legere-iOSUITests/Pods-Legere-iOSUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		BD3F748BC0C840D845749DEA /* Pods-Legere-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOS.debug.xcconfig"; path = "Target Support Files/Pods-Legere-iOS/Pods-Legere-iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		D10945DE0B2B91F0BC7BB041 /* Pods-Legere-iOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSTests.release.xcconfig"; path = "Target Support Files/Pods-Legere-iOSTests/Pods-Legere-iOSTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -266,6 +268,7 @@
 		B883C1D32280FC180094CC9D /* Legere-iOSTests */ = {
 			isa = PBXGroup;
 			children = (
+				B883C28822814DBB0094CC9D /* Mocks */,
 				B883C1D42280FC180094CC9D /* Legere_iOSTests.swift */,
 				B883C1D62280FC180094CC9D /* Info.plist */,
 			);
@@ -561,6 +564,14 @@
 				B883C2452280FC5A0094CC9D /* LETextField.xib */,
 			);
 			path = Textfield;
+			sourceTree = "<group>";
+		};
+		B883C28822814DBB0094CC9D /* Mocks */ = {
+			isa = PBXGroup;
+			children = (
+				B883C28922814DC60094CC9D /* RouterMock.swift */,
+			);
+			path = Mocks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -882,6 +893,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B883C28A22814DC60094CC9D /* RouterMock.swift in Sources */,
 				B883C1D52280FC180094CC9D /* Legere_iOSTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

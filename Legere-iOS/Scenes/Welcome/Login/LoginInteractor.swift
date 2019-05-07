@@ -20,7 +20,7 @@ final class LoginInteractor: BaseInteractor {
     }
     
     override func validate() throws {
-        super.validate()
+        try super.validate()
         try NotEmpty(value: username, key: .usernameField).orThrow()
         try NotEmpty(value: password, key: .passwordField).orThrow()
         try IsValidUsername(value: username).orThrow()
