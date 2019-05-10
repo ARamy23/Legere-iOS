@@ -17,24 +17,12 @@ final class IsValidName: BaseValidator {
     }
     
     func orThrow() throws {
-        
-        let error = NotValidNameError()
-        
         if let value = value {
-            if isValid(name: value) {
-                return
-            }
-            
             if value.isAlphaNumeric {
-                error.reason = .containsCharactersWhichAreNotAlphabetics
+                throw ValidationError.notValid(reason: .nameContainsNumbers)
             } else if value.containEmoji {
-                error.reason = .containsEmojis
+                throw ValidationError.notValid(reason: .nameContainsEmojis)
             }
         }
-        throw error
-    }
-    
-    func isValid(name: String) -> Bool {
-        return name.isAlphabetic && !name.isAlphaNumeric && !name.containEmoji
     }
 }

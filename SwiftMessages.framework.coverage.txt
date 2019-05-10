@@ -1,0 +1,3734 @@
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/SwiftMessages/SwiftMessages/Animator.swift:
+    1|       |//
+    2|       |//  Animator.swift
+    3|       |//  SwiftMessages
+    4|       |//
+    5|       |//  Created by Timothy Moose on 6/4/17.
+    6|       |//  Copyright © 2017 SwiftKick Mobile. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |
+   11|       |public typealias AnimationCompletion = (_ completed: Bool) -> Void
+   12|       |
+   13|       |public protocol AnimationDelegate: class {
+   14|       |    func hide(animator: Animator)
+   15|       |    func panStarted(animator: Animator)
+   16|       |    func panEnded(animator: Animator)
+   17|       |}
+   18|       |
+   19|       |/**
+   20|       | An option set representing the known types of safe area conflicts
+   21|       | that could require margin adustments on the message view in order to
+   22|       | get the layouts to look right.
+   23|       | */
+   24|       |public struct SafeZoneConflicts: OptionSet {
+   25|       |    public let rawValue: Int
+   26|       |
+   27|      0|    public init(rawValue: Int) {
+   28|      0|        self.rawValue = rawValue
+   29|      0|    }
+   30|       |
+   31|       |    /// Message view behind status bar
+   32|       |    public static let statusBar = SafeZoneConflicts(rawValue: 1 << 0)
+   33|       |
+   34|       |    /// Message view behind the sensor notch on iPhone X
+   35|       |    public static let sensorNotch = SafeZoneConflicts(rawValue: 1 << 1)
+   36|       |
+   37|       |    /// Message view behind home indicator on iPhone X
+   38|       |    public static let homeIndicator = SafeZoneConflicts(rawValue: 1 << 2)
+   39|       |
+   40|       |    /// Message view is over the status bar on an iPhone 8 or lower. This is a special
+   41|       |    /// case because we logically expect the top safe area to be zero, but it is reported as 20
+   42|       |    /// (which seems like an iOS bug). We use the `overStatusBar` to indicate this special case.
+   43|       |    public static let overStatusBar = SafeZoneConflicts(rawValue: 1 << 3)
+   44|       |}
+   45|       |
+   46|       |public class AnimationContext {
+   47|       |
+   48|       |    public let messageView: UIView
+   49|       |    public let containerView: UIView
+   50|       |    public let safeZoneConflicts: SafeZoneConflicts
+   51|       |    public let interactiveHide: Bool
+   52|       |
+   53|      0|    init(messageView: UIView, containerView: UIView, safeZoneConflicts: SafeZoneConflicts, interactiveHide: Bool) {
+   54|      0|        self.messageView = messageView
+   55|      0|        self.containerView = containerView
+   56|      0|        self.safeZoneConflicts = safeZoneConflicts
+   57|      0|        self.interactiveHide = interactiveHide
+   58|      0|    }
+   59|       |}
+   60|       |
+   61|       |public protocol Animator: class {
+   62|       |
+   63|       |    /// Adopting classes should declare as `weak`.
+   64|       |    var delegate: AnimationDelegate? { get set }
+   65|       |
+   66|       |    func show(context: AnimationContext, completion: @escaping AnimationCompletion)
+   67|       |
+   68|       |    func hide(context: AnimationContext, completion: @escaping AnimationCompletion)
+   69|       |
+   70|       |    /// The show animation duration. Return `nil` (the default) if animation has undefined duration,
+   71|       |    /// such as if using `UIDynamicAnimator`. This value is utilized by `SwiftMessagesSegue`.
+   72|       |    var showDuration: TimeInterval? { get }
+   73|       |
+   74|       |    /// The hide animation duration. Return `nil` (the default) if animation has undefined duration,
+   75|       |    /// such as if using `UIDynamicAnimator`. This value is utilized by `SwiftMessagesSegue`.
+   76|       |    var hideDuration: TimeInterval? { get }
+   77|       |}
+   78|       |
+   79|       |public extension Animator {
+   80|      0|    var showDuration: TimeInterval? { return nil }
+   81|      0|    var hideDuration: TimeInterval? { return nil }
+   82|       |}
+   83|       |
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/SwiftMessages/SwiftMessages/Array+Utils.swift:
+    1|       |//
+    2|       |//  Array+Utils.swift
+    3|       |//  SwiftMessages
+    4|       |//
+    5|       |//  Created by Tim Moose on 8/30/16.
+    6|       |//  Copyright © 2016 SwiftKick Mobile. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import Darwin
+   10|       |
+   11|       |public extension Array {
+   12|       |    
+   13|       |    /**
+   14|       |     Returns a random element from the array. Can be used to create a playful
+   15|       |     message that cycles randomly through a set of emoji icons, for example.
+   16|       |     */
+   17|      0|    public func sm_random() -> Iterator.Element? {
+   18|      0|        guard count > 0 else { return nil }
+   19|      0|        return self[Int(arc4random_uniform(UInt32(count)))]
+   20|      0|    }
+   21|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/SwiftMessages/SwiftMessages/BaseView.swift:
+    1|       |
+    2|       |//
+    3|       |//  BaseView.swift
+    4|       |//  SwiftMessages
+    5|       |//
+    6|       |//  Created by Timothy Moose on 8/17/16.
+    7|       |//  Copyright © 2016 SwiftKick Mobile LLC. All rights reserved.
+    8|       |//
+    9|       |
+   10|       |import UIKit
+   11|       |
+   12|       |/**
+   13|       | The `BaseView` class is a reusable message view base class that implements some
+   14|       | of the optional SwiftMessages protocols and provides some convenience functions
+   15|       | and a configurable tap handler. Message views do not need to inherit from `BaseVew`.
+   16|       | */
+   17|       |open class BaseView: UIView, BackgroundViewable, MarginAdjustable {
+   18|       |
+   19|       |    /*
+   20|       |     MARK: - IB outlets
+   21|       |     */
+   22|       |
+   23|       |    /**
+   24|       |     Fulfills the `BackgroundViewable` protocol and is the target for
+   25|       |     the optional `tapHandler` block. Defaults to `self`.
+   26|       |     */
+   27|       |    @IBOutlet open weak var backgroundView: UIView! {
+   28|      0|        didSet {
+   29|      0|            if let old = oldValue {
+   30|      0|                old.removeGestureRecognizer(tapRecognizer)
+   31|      0|            }
+   32|      0|            installTapRecognizer()
+   33|      0|            updateBackgroundHeightConstraint()
+   34|      0|        }
+   35|       |    }
+   36|       |
+   37|       |    // The `contentView` property was removed because it no longer had any functionality
+   38|       |    // in the framework. This is a minor backwards incompatible change. If you've copied
+   39|       |    // one of the included nib files from a previous release, you may get a key-value
+   40|       |    // coding runtime error related to contentView, in which case you can subclass the
+   41|       |    // view and add a `contentView` property or you can remove the outlet connection in
+   42|       |    // Interface Builder.
+   43|       |    // @IBOutlet public var contentView: UIView!
+   44|       |
+   45|       |    /*
+   46|       |     MARK: - Initialization
+   47|       |     */
+   48|       |
+   49|      0|    public required init?(coder aDecoder: NSCoder) {
+   50|      0|        super.init(coder: aDecoder)
+   51|      0|        backgroundView = self
+   52|      0|        layoutMargins = UIEdgeInsets.zero
+   53|      0|    }
+   54|       |
+   55|      0|    public override init(frame: CGRect) {
+   56|      0|        super.init(frame: frame)
+   57|      0|        backgroundView = self
+   58|      0|        layoutMargins = UIEdgeInsets.zero
+   59|      0|    }
+   60|       |
+   61|       |    /*
+   62|       |     MARK: - Installing background and content
+   63|       |     */
+   64|       |
+   65|       |    /**
+   66|       |     A convenience function for installing a content view as a subview of `backgroundView`
+   67|       |     and pinning the edges to `backgroundView` with the specified `insets`.
+   68|       |
+   69|       |     - Parameter contentView: The view to be installed into the background view
+   70|       |       and assigned to the `contentView` property.
+   71|       |     - Parameter insets: The amount to inset the content view from the background view.
+   72|       |       Default is zero inset.
+   73|       |     */
+   74|      0|    open func installContentView(_ contentView: UIView, insets: UIEdgeInsets = UIEdgeInsets.zero) {
+   75|      0|        contentView.translatesAutoresizingMaskIntoConstraints = false
+   76|      0|        backgroundView.addSubview(contentView)
+   77|      0|        contentView.topAnchor.constraint(equalTo: backgroundView.topAnchor, constant: insets.top).isActive = true
+   78|      0|        contentView.bottomAnchor.constraint(equalTo: backgroundView.bottomAnchor, constant: -insets.bottom).isActive = true
+   79|      0|        contentView.leftAnchor.constraint(equalTo: backgroundView.leftAnchor, constant: insets.left).isActive = true
+   80|      0|        contentView.rightAnchor.constraint(equalTo: backgroundView.rightAnchor, constant: -insets.right).isActive = true
+   81|      0|    }
+   82|       |
+   83|       |    /**
+   84|       |     A convenience function for installing a background view and pinning to the layout margins.
+   85|       |     This is useful for creating programatic layouts where the background view needs to be
+   86|       |     inset from the message view's edges (like a card-style layout).
+   87|       |
+   88|       |     - Parameter backgroundView: The view to be installed as a subview and
+   89|       |       assigned to the `backgroundView` property.
+   90|       |     - Parameter insets: The amount to inset the content view from the margins. Default is zero inset.
+   91|       |     */
+   92|      0|    open func installBackgroundView(_ backgroundView: UIView, insets: UIEdgeInsets = UIEdgeInsets.zero) {
+   93|      0|        backgroundView.translatesAutoresizingMaskIntoConstraints = false
+   94|      0|        if backgroundView != self {
+   95|      0|            backgroundView.removeFromSuperview()
+   96|      0|        }
+   97|      0|        addSubview(backgroundView)
+   98|      0|        self.backgroundView = backgroundView
+   99|      0|        backgroundView.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor, constant: insets.top).isActive = true
+  100|      0|        backgroundView.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor, constant: -insets.bottom).isActive = true
+  101|      0|        backgroundView.leftAnchor.constraint(equalTo: layoutMarginsGuide.leftAnchor, constant: insets.left).isActive = true
+  102|      0|        backgroundView.rightAnchor.constraint(equalTo: layoutMarginsGuide.rightAnchor, constant: -insets.right).isActive = true
+  103|      0|        installTapRecognizer()
+  104|      0|    }
+  105|       |
+  106|       |    /**
+  107|       |     A convenience function for installing a background view and pinning to the horizontal
+  108|       |     layout margins and to the vertical edges. This is useful for creating programatic layouts where
+  109|       |     the background view needs to be inset from the message view's horizontal edges (like a tab-style layout).
+  110|       |
+  111|       |     - Parameter backgroundView: The view to be installed as a subview and
+  112|       |       assigned to the `backgroundView` property.
+  113|       |     - Parameter insets: The amount to inset the content view from the horizontal margins and vertical edges.
+  114|       |       Default is zero inset.
+  115|       |     */
+  116|      0|    open func installBackgroundVerticalView(_ backgroundView: UIView, insets: UIEdgeInsets = UIEdgeInsets.zero) {
+  117|      0|        backgroundView.translatesAutoresizingMaskIntoConstraints = false
+  118|      0|        if backgroundView != self {
+  119|      0|            backgroundView.removeFromSuperview()
+  120|      0|        }
+  121|      0|        addSubview(backgroundView)
+  122|      0|        self.backgroundView = backgroundView
+  123|      0|        backgroundView.topAnchor.constraint(equalTo: topAnchor, constant: insets.top).isActive = true
+  124|      0|        backgroundView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -insets.bottom).isActive = true
+  125|      0|        backgroundView.leftAnchor.constraint(equalTo: layoutMarginsGuide.leftAnchor, constant: insets.left).isActive = true
+  126|      0|        backgroundView.rightAnchor.constraint(equalTo: layoutMarginsGuide.rightAnchor, constant: -insets.right).isActive = true
+  127|      0|        installTapRecognizer()
+  128|      0|    }
+  129|       |
+  130|       |    /*
+  131|       |     MARK: - Tap handler
+  132|       |     */
+  133|       |
+  134|       |    /**
+  135|       |     An optional tap handler that will be called when the `backgroundView` is tapped.
+  136|       |     */
+  137|       |    open var tapHandler: ((_ view: BaseView) -> Void)? {
+  138|      0|        didSet {
+  139|      0|            installTapRecognizer()
+  140|      0|        }
+  141|       |    }
+  142|       |
+  143|      0|    fileprivate lazy var tapRecognizer: UITapGestureRecognizer = {
+  144|      0|        let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(MessageView.tapped))
+  145|      0|        return tapRecognizer
+  146|      0|    }()
+  147|       |
+  148|      0|    @objc func tapped() {
+  149|      0|        tapHandler?(self)
+  150|      0|    }
+  151|       |
+  152|      0|    fileprivate func installTapRecognizer() {
+  153|      0|        guard let backgroundView = backgroundView else { return }
+  154|      0|        removeGestureRecognizer(tapRecognizer)
+  155|      0|        backgroundView.removeGestureRecognizer(tapRecognizer)
+  156|      0|        if tapHandler != nil {
+  157|      0|            // Only install the tap recognizer if there is a tap handler,
+  158|      0|            // which makes it slightly nicer if one wants to install
+  159|      0|            // a custom gesture recognizer.
+  160|      0|            backgroundView.addGestureRecognizer(tapRecognizer)
+  161|      0|        }
+  162|      0|    }
+  163|       |
+  164|      0|    open override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+  165|      0|        if backgroundView != self {
+  166|      0|            let backgroundViewPoint = convert(point, to: backgroundView)
+  167|      0|            return backgroundView.point(inside: backgroundViewPoint, with: event)
+  168|      0|        }
+  169|      0|        return super.point(inside: point, with: event)
+  170|      0|    }
+  171|       |
+  172|       |    /*
+  173|       |     MARK: - MarginAdjustable
+  174|       |
+  175|       |     These properties fulfill the `MarginAdjustable` protocol and are exposed
+  176|       |     as `@IBInspectables` so that they can be adjusted directly in nib files
+  177|       |     (see MessageView.nib).
+  178|       |     */
+  179|       |
+  180|       |    public var layoutMarginAdditions: UIEdgeInsets {
+  181|      0|        get {
+  182|      0|            return UIEdgeInsets(top: topLayoutMarginAddition, left: leftLayoutMarginAddition, bottom: bottomLayoutMarginAddition, right: rightLayoutMarginAddition)
+  183|      0|        }
+  184|      0|        set {
+  185|      0|            topLayoutMarginAddition = newValue.top
+  186|      0|            leftLayoutMarginAddition = newValue.left
+  187|      0|            bottomLayoutMarginAddition = newValue.bottom
+  188|      0|            rightLayoutMarginAddition = newValue.right
+  189|      0|        }
+  190|       |    }
+  191|       |
+  192|       |    /// IBInspectable access to layoutMarginAdditions.top
+  193|       |    @IBInspectable open var topLayoutMarginAddition: CGFloat = 0
+  194|       |
+  195|       |    /// IBInspectable access to layoutMarginAdditions.left
+  196|       |    @IBInspectable open var leftLayoutMarginAddition: CGFloat = 0
+  197|       |
+  198|       |    /// IBInspectable access to layoutMarginAdditions.bottom
+  199|       |    @IBInspectable open var bottomLayoutMarginAddition: CGFloat = 0
+  200|       |
+  201|       |    /// IBInspectable access to layoutMarginAdditions.right
+  202|       |    @IBInspectable open var rightLayoutMarginAddition: CGFloat = 0
+  203|       |
+  204|       |    @IBInspectable open var collapseLayoutMarginAdditions: Bool = true
+  205|       |
+  206|       |    @IBInspectable open var bounceAnimationOffset: CGFloat = 5
+  207|       |     
+  208|       |    /// Deprecated
+  209|       |    @objc open var statusBarOffset: CGFloat = 0
+  210|       |    
+  211|       |    /// Deprecated
+  212|       |    @objc  open var safeAreaTopOffset: CGFloat = 0
+  213|       |
+  214|       |    /// Deprecated
+  215|       |    @objc  open var safeAreaBottomOffset: CGFloat = 0
+  216|       |
+  217|       |    /*
+  218|       |     MARK: - Setting the height
+  219|       |     */
+  220|       |
+  221|       |    /**
+  222|       |     An optional explicit height for the background view, which can be used if
+  223|       |     the message view's intrinsic content size does not produce the desired height.
+  224|       |     */
+  225|       |    open var backgroundHeight: CGFloat? {
+  226|      0|        didSet {
+  227|      0|            updateBackgroundHeightConstraint()
+  228|      0|        }
+  229|       |    }
+  230|       |
+  231|      0|    private func updateBackgroundHeightConstraint() {
+  232|      0|        if let existing = backgroundHeightConstraint {
+  233|      0|            let view = existing.firstItem as! UIView
+  234|      0|            view.removeConstraint(existing)
+  235|      0|            backgroundHeightConstraint = nil
+  236|      0|        }
+  237|      0|        if let height = backgroundHeight {
+  238|      0|            let constraint = NSLayoutConstraint(item: backgroundView, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: height)
+  239|      0|            backgroundView.addConstraint(constraint)
+  240|      0|            backgroundHeightConstraint = constraint
+  241|      0|        }
+  242|      0|    }
+  243|       |
+  244|       |    private var backgroundHeightConstraint: NSLayoutConstraint?
+  245|       |
+  246|       |    open override var intrinsicContentSize: CGSize {
+  247|       |        if let preferredHeight = (self as InternalPreferredHeight).preferredHeight {
+  248|       |            return CGSize(width: UIView.noIntrinsicMetric, height: preferredHeight)
+  249|       |        }
+  250|       |        return super.intrinsicContentSize
+  251|       |    }
+  252|       |
+  253|       |    /**
+  254|       |     An optional value that sets the message view's intrinsic content height.
+  255|       |     This can be used as a way to specify a fixed height for the message view.
+  256|       |     Note that this height is not guaranteed depending on anyt Auto Layout
+  257|       |     constraints used within the message view.
+  258|       |     */
+  259|       |    @available(*, deprecated:4.2.0, message:"Use `backgroundHeight` instead to specify preferred height of the visible region of the message.")
+  260|       |    open var preferredHeight: CGFloat? {
+  261|      0|        didSet {
+  262|      0|            setNeedsLayout()
+  263|      0|        }
+  264|       |    }
+  265|       |}
+  266|       |
+  267|       |// A workaround to prevent warning on deprecated property.
+  268|       |private protocol InternalPreferredHeight {
+  269|       |    var preferredHeight: CGFloat? { get }
+  270|       |}
+  271|       |extension BaseView: InternalPreferredHeight {}
+  272|       |
+  273|       |/*
+  274|       | MARK: - Theming
+  275|       | */
+  276|       |
+  277|       |extension BaseView {
+  278|       |
+  279|       |    /// A convenience function to configure a default drop shadow effect.
+  280|       |    /// The shadow is to this view's layer instead of that of the background view
+  281|       |    /// because the background view may be masked. So, when modifying the drop shadow,
+  282|       |    /// be sure to set the shadow properties of this view's layer. The shadow path is
+  283|       |    /// updated for you automatically.
+  284|      0|    open func configureDropShadow() {
+  285|      0|        layer.shadowColor = UIColor.black.cgColor
+  286|      0|        layer.shadowOffset = CGSize(width: 0.0, height: 2.0)
+  287|      0|        layer.shadowRadius = 6.0
+  288|      0|        layer.shadowOpacity = 0.4
+  289|      0|        layer.masksToBounds = false
+  290|      0|        updateShadowPath()
+  291|      0|    }
+  292|       |
+  293|       |    /// A convenience function to turn off drop shadow
+  294|      0|    open func configureNoDropShadow() {
+  295|      0|        layer.shadowOpacity = 0
+  296|      0|    }
+  297|       |
+  298|       |    private func updateShadowPath() {
+  299|       |        backgroundView?.layoutIfNeeded()
+  300|       |        let shadowLayer = backgroundView?.layer ?? layer
+  301|       |        let shadowRect = layer.convert(shadowLayer.bounds, from: shadowLayer)
+  302|       |        let shadowPath: CGPath?
+  303|       |        if let backgroundMaskLayer = shadowLayer.mask as? CAShapeLayer,
+  304|       |            let backgroundMaskPath = backgroundMaskLayer.path {
+  305|       |            var transform = CGAffineTransform(translationX: shadowRect.minX, y: shadowRect.minY)
+  306|       |            shadowPath = backgroundMaskPath.copy(using: &transform)
+  307|       |        } else {
+  308|       |            shadowPath = UIBezierPath(roundedRect: shadowRect, cornerRadius: shadowLayer.cornerRadius).cgPath
+  309|       |        }
+  310|       |        // This is a workaround needed for smooth rotation animations.
+  311|       |        if let foundAnimation = layer.findAnimation(forKeyPath: "bounds.size") {
+  312|       |            // Update the layer's `shadowPath` with animation, copying the relevant properties
+  313|       |            // from the found animation.
+  314|       |            let animation = CABasicAnimation(keyPath: "shadowPath")
+  315|       |            animation.duration = foundAnimation.duration
+  316|       |            animation.timingFunction = foundAnimation.timingFunction
+  317|       |            animation.fromValue = layer.shadowPath
+  318|       |            animation.toValue = shadowPath
+  319|       |            layer.add(animation, forKey: "shadowPath")
+  320|       |            layer.shadowPath = shadowPath
+  321|       |        } else {
+  322|       |            // Update the layer's `shadowPath` without animation
+  323|       |            layer.shadowPath = shadowPath        }
+  324|       |    }
+  325|       |
+  326|      0|    open override func layoutSubviews() {
+  327|      0|        super.layoutSubviews()
+  328|      0|        updateShadowPath()
+  329|      0|    }
+  330|       |}
+  331|       |    
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/SwiftMessages/SwiftMessages/CALayer+Utils.swift:
+    1|       |//
+    2|       |//  CALayer+Utils.swift
+    3|       |//  SwiftMessages
+    4|       |//
+    5|       |//  Created by Timothy Moose on 8/3/18.
+    6|       |//  Copyright © 2018 SwiftKick Mobile. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import CoreGraphics
+   10|       |
+   11|       |extension CALayer {
+   12|      0|    func findAnimation(forKeyPath keyPath: String) -> CABasicAnimation? {
+   13|      0|        return animationKeys()?
+   14|      0|            .compactMap({ animation(forKey: $0) as? CABasicAnimation })
+   15|      0|            .filter({ $0.keyPath == keyPath })
+   16|      0|            .first
+   17|      0|    }
+   18|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/SwiftMessages/SwiftMessages/CornerRoundingView.swift:
+    1|       |//
+    2|       |//  CornerRoundingView.swift
+    3|       |//  SwiftMessages
+    4|       |//
+    5|       |//  Created by Timothy Moose on 7/28/18.
+    6|       |//  Copyright © 2018 SwiftKick Mobile. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |
+   11|       |/// A background view that messages can use for rounding all or a subset of corners with squircles
+   12|       |/// (the smoother method of rounding corners that you see on app icons).
+   13|       |open class CornerRoundingView: UIView {
+   14|       |
+   15|       |    /// Specifies the corner radius to use.
+   16|       |    @IBInspectable
+   17|       |    open var cornerRadius: CGFloat = 0 {
+   18|      0|        didSet {
+   19|      0|            updateMaskPath()
+   20|      0|        }
+   21|       |    }
+   22|       |
+   23|       |    /// Set to `true` for layouts where only the leading corners should be
+   24|       |    /// rounded. For example, the layout in TabView.xib rounds the bottom corners
+   25|       |    /// when displayed from the top and the top corners when displayed from the bottom.
+   26|       |    /// When this property is `true`, the `roundedCorners` property will be overwritten
+   27|       |    /// by relevant animators (e.g. `TopBottomAnimation`).
+   28|       |    @IBInspectable
+   29|       |    open var roundsLeadingCorners: Bool = false
+   30|       |
+   31|       |    /// Specifies which corners should be rounded. When `roundsLeadingCorners = true`, relevant
+   32|       |    /// relevant animators (e.g. `TopBottomAnimation`) will overwrite the value of this property.
+   33|       |    open var roundedCorners: UIRectCorner = [.allCorners] {
+   34|      0|        didSet {
+   35|      0|            updateMaskPath()
+   36|      0|        }
+   37|       |    }
+   38|       |
+   39|      0|    override public init(frame: CGRect) {
+   40|      0|        super.init(frame: frame)
+   41|      0|        sharedInit()
+   42|      0|    }
+   43|       |
+   44|      0|    required public init?(coder aDecoder: NSCoder) {
+   45|      0|        super.init(coder: aDecoder)
+   46|      0|        sharedInit()
+   47|      0|    }
+   48|       |
+   49|      0|    private func sharedInit() {
+   50|      0|        layer.mask = shapeLayer
+   51|      0|    }
+   52|       |
+   53|       |    private let shapeLayer = CAShapeLayer()
+   54|       |
+   55|      0|    override open func layoutSubviews() {
+   56|      0|        super.layoutSubviews()
+   57|      0|        updateMaskPath()
+   58|      0|    }
+   59|       |
+   60|      0|    private func updateMaskPath() {
+   61|      0|        let newPath = UIBezierPath(roundedRect: layer.bounds, byRoundingCorners: roundedCorners, cornerRadii: cornerRadii).cgPath
+   62|      0|        // Update the `shapeLayer's` path with animation if we detect our `layer's` size is being animated.
+   63|      0|        // This is a workaround needed for smooth rotation animations.
+   64|      0|        if let foundAnimation = layer.findAnimation(forKeyPath: "bounds.size") {
+   65|      0|            // Update the `shapeLayer's` path with animation, copying the relevant properties
+   66|      0|            // from the found animation.
+   67|      0|            let animation = CABasicAnimation(keyPath: "path")
+   68|      0|            animation.duration = foundAnimation.duration
+   69|      0|            animation.timingFunction = foundAnimation.timingFunction
+   70|      0|            animation.fromValue = shapeLayer.path
+   71|      0|            animation.toValue = newPath
+   72|      0|            shapeLayer.add(animation, forKey: "path")
+   73|      0|            shapeLayer.path = newPath
+   74|      0|        } else {
+   75|      0|            // Update the `shapeLayer's` path  without animation
+   76|      0|            shapeLayer.path = newPath
+   77|      0|        }
+   78|      0|    }
+   79|       |
+   80|      0|    private var cornerRadii: CGSize {
+   81|      0|        return CGSize(width: cornerRadius, height: cornerRadius)
+   82|      0|    }
+   83|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/SwiftMessages/SwiftMessages/MarginAdjustable+Animation.swift:
+    1|       |//
+    2|       |//  MarginAdjustable+Animation.swift
+    3|       |//  SwiftMessages
+    4|       |//
+    5|       |//  Created by Timothy Moose on 11/5/17.
+    6|       |//  Copyright © 2017 SwiftKick Mobile. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |
+   11|       |public extension MarginAdjustable where Self: UIView {
+   12|       |
+   13|      0|    public func defaultMarginAdjustment(context: AnimationContext) -> UIEdgeInsets {
+   14|      0|        // Best effort to determine if we should use the new or deprecated margin adjustments.
+   15|      0|        if layoutMarginAdditions != .zero
+   16|      0|            || (safeAreaTopOffset == 0 && safeAreaBottomOffset == 0 && statusBarOffset == 0) {
+   17|      0|            var layoutMargins: UIEdgeInsets = layoutMarginAdditions
+   18|      0|            var safeAreaInsets: UIEdgeInsets
+   19|      0|            if #available(iOS 11, *) {
+   20|      0|                insetsLayoutMarginsFromSafeArea = false
+   21|      0|                safeAreaInsets = self.safeAreaInsets
+   22|      0|            } else {
+   23|      0|                #if SWIFTMESSAGES_APP_EXTENSIONS
+   24|      0|                let application: UIApplication? = nil
+   25|      0|                #else
+   26|      0|                let application: UIApplication? = UIApplication.shared
+   27|      0|                #endif
+   28|      0|                if !context.safeZoneConflicts.isDisjoint(with: [.statusBar]),
+   29|      0|                    let app = application,
+   30|      0|                    app.statusBarOrientation == .portrait || app.statusBarOrientation == .portraitUpsideDown {
+   31|      0|                    let frameInWindow = convert(bounds, to: window)
+   32|      0|                    let top = max(0, 20 - frameInWindow.minY)
+   33|      0|                    safeAreaInsets = UIEdgeInsets(top: top, left: 0, bottom: 0, right: 0)
+   34|      0|                } else {
+   35|      0|                    safeAreaInsets = .zero
+   36|      0|                }
+   37|      0|            }
+   38|      0|            if !context.safeZoneConflicts.isDisjoint(with: .overStatusBar) {
+   39|      0|                safeAreaInsets.top = 0
+   40|      0|            }
+   41|      0|            layoutMargins = collapseLayoutMarginAdditions
+   42|      0|                ? layoutMargins.collapse(toInsets: safeAreaInsets)
+   43|      0|                : layoutMargins + safeAreaInsets
+   44|      0|            return layoutMargins
+   45|      0|        } else {
+   46|      0|            var insets: UIEdgeInsets
+   47|      0|            if #available(iOS 11, *) {
+   48|      0|                insets = safeAreaInsets
+   49|      0|            } else {
+   50|      0|                insets = .zero
+   51|      0|            }
+   52|      0|            insets.top += topAdjustment(context: context)
+   53|      0|            insets.bottom += bottomAdjustment(context: context)
+   54|      0|            return insets
+   55|      0|        }
+   56|      0|    }
+   57|       |
+   58|       |    private func topAdjustment(context: AnimationContext) -> CGFloat {        
+   59|       |        var top: CGFloat = 0
+   60|       |        if !context.safeZoneConflicts.isDisjoint(with: [.sensorNotch, .statusBar]) {
+   61|       |            #if SWIFTMESSAGES_APP_EXTENSIONS
+   62|       |            let application: UIApplication? = nil
+   63|       |            #else
+   64|       |            let application: UIApplication? = UIApplication.shared
+   65|       |            #endif
+   66|       |            if #available(iOS 11, *), safeAreaInsets.top > 0  {
+   67|       |                do {
+   68|       |                    // To accommodate future safe areas, using a linear formula based on
+   69|       |                    // two data points:
+   70|       |                    // iPhone 8 - 20pt top safe area needs 0pt adjustment
+   71|       |                    // iPhone X - 44pt top safe area needs -6pt adjustment
+   72|       |                    top -= 6 * (safeAreaInsets.top - 20) / (44 - 20)
+   73|       |                }
+   74|       |                top += safeAreaTopOffset
+   75|       |            } else if let app = application, app.statusBarOrientation == .portrait || app.statusBarOrientation == .portraitUpsideDown {
+   76|       |                let frameInWindow = convert(bounds, to: window)
+   77|       |                if frameInWindow.minY == -bounceAnimationOffset {
+   78|       |                    top += statusBarOffset
+   79|       |                }
+   80|       |            }
+   81|       |        } else if #available(iOS 11, *), !context.safeZoneConflicts.isDisjoint(with: .overStatusBar) {
+   82|       |            top -= safeAreaInsets.top
+   83|       |        }
+   84|       |        return top
+   85|       |    }
+   86|       |
+   87|       |    private func bottomAdjustment(context: AnimationContext) -> CGFloat {
+   88|       |        var bottom: CGFloat = 0
+   89|       |        if !context.safeZoneConflicts.isDisjoint(with: [.homeIndicator]) {
+   90|       |            if #available(iOS 11, *), safeAreaInsets.bottom > 0  {
+   91|       |                do {
+   92|       |                    // This adjustment was added to fix a layout issue with iPhone X in
+   93|       |                    // landscape mode. Using a linear formula based on two data points to help
+   94|       |                    // future proof against future safe areas:
+   95|       |                    // iPhone X portrait: 34pt bottom safe area needs 0pt adjustment
+   96|       |                    // iPhone X landscape: 21pt bottom safe area needs 12pt adjustment
+   97|       |                    bottom -= 12 * (safeAreaInsets.bottom - 34) / (34 - 21)
+   98|       |                }
+   99|       |                bottom += safeAreaBottomOffset
+  100|       |            }
+  101|       |        }
+  102|       |        return bottom
+  103|       |    }
+  104|       |}
+  105|       |
+  106|       |extension UIEdgeInsets {
+  107|       |    func collapse(toInsets insets: UIEdgeInsets) -> UIEdgeInsets {
+  108|       |        let top = self.top.collapse(toInset: insets.top)
+  109|       |        let left = self.left.collapse(toInset: insets.left)
+  110|       |        let bottom = self.bottom.collapse(toInset: insets.bottom)
+  111|       |        let right = self.right.collapse(toInset: insets.right)
+  112|       |        return UIEdgeInsets(top: top, left: left, bottom: bottom, right: right)
+  113|       |    }
+  114|       |}
+  115|       |
+  116|       |extension CGFloat {
+  117|       |    func collapse(toInset inset: CGFloat) -> CGFloat {
+  118|       |        return Swift.max(self, inset)
+  119|       |    }
+  120|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/SwiftMessages/SwiftMessages/MaskingView.swift:
+    1|       |//
+    2|       |//  MaskingView.swift
+    3|       |//  SwiftMessages
+    4|       |//
+    5|       |//  Created by Timothy Moose on 3/11/17.
+    6|       |//  Copyright © 2017 SwiftKick Mobile. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |
+   11|       |
+   12|       |class MaskingView: PassthroughView {
+   13|       |
+   14|       |    var accessibleElements: [NSObject] = []
+   15|       |
+   16|       |    weak var backgroundView: UIView? {
+   17|      0|        didSet {
+   18|      0|            oldValue?.removeFromSuperview()
+   19|      0|            if let view = backgroundView {
+   20|      0|                view.isUserInteractionEnabled = false
+   21|      0|                view.frame = bounds
+   22|      0|                view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+   23|      0|                addSubview(view)
+   24|      0|                sendSubviewToBack(view)
+   25|      0|            }
+   26|      0|        }
+   27|       |    }
+   28|       |
+   29|      0|    override func accessibilityElementCount() -> Int {
+   30|      0|        return accessibleElements.count
+   31|      0|    }
+   32|       |
+   33|      0|    override func accessibilityElement(at index: Int) -> Any? {
+   34|      0|        return accessibleElements[index]
+   35|      0|    }
+   36|       |
+   37|      0|    override func index(ofAccessibilityElement element: Any) -> Int {
+   38|      0|        guard let object = element as? NSObject else { return 0 }
+   39|      0|        return accessibleElements.index(of: object) ?? 0
+   40|      0|    }
+   41|       |
+   42|      0|    init() {
+   43|      0|        super.init(frame: CGRect.zero)
+   44|      0|        clipsToBounds = true
+   45|      0|    }
+   46|       |
+   47|      0|    required init?(coder aDecoder: NSCoder) {
+   48|      0|        super.init(coder: aDecoder)
+   49|      0|        clipsToBounds = true
+   50|      0|    }
+   51|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/SwiftMessages/SwiftMessages/MessageView.swift:
+    1|       |//
+    2|       |//  MessageView.swift
+    3|       |//  SwiftMessages
+    4|       |//
+    5|       |//  Created by Timothy Moose on 7/30/16.
+    6|       |//  Copyright © 2016 SwiftKick Mobile LLC. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |
+   11|       |/*
+   12|       | */
+   13|       |open class MessageView: BaseView, Identifiable, AccessibleMessage {
+   14|       |    
+   15|       |    /*
+   16|       |     MARK: - Button tap handler
+   17|       |     */
+   18|       |    
+   19|       |    /// An optional button tap handler. The `button` is automatically
+   20|       |    /// configured to call this tap handler on `.TouchUpInside`.
+   21|       |    open var buttonTapHandler: ((_ button: UIButton) -> Void)?
+   22|       |    
+   23|      0|    @objc func buttonTapped(_ button: UIButton) {
+   24|      0|        buttonTapHandler?(button)
+   25|      0|    }
+   26|       |
+   27|       |    /*
+   28|       |     MARK: - Touch handling
+   29|       |     */
+   30|       |
+   31|      0|    open override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+   32|      0|        // Only accept touches within the background view. Anything outside of the
+   33|      0|        // background view's bounds should be transparent and does not need to receive
+   34|      0|        // touches. This helps with tap dismissal when using `DimMode.gray` and `DimMode.color`.
+   35|      0|        return backgroundView == self
+   36|      0|            ? super.point(inside: point, with: event)
+   37|      0|            : backgroundView.point(inside: convert(point, to: backgroundView), with: event)
+   38|      0|    }
+   39|       |
+   40|       |    /*
+   41|       |     MARK: - IB outlets
+   42|       |     */
+   43|       |    
+   44|       |    /// An optional title label.
+   45|       |    @IBOutlet open var titleLabel: UILabel?
+   46|       |    
+   47|       |    /// An optional body text label.
+   48|       |    @IBOutlet open var bodyLabel: UILabel?
+   49|       |    
+   50|       |    /// An optional icon image view.
+   51|       |    @IBOutlet open var iconImageView: UIImageView?
+   52|       |    
+   53|       |    /// An optional icon label (e.g. for emoji character, icon font, etc.).
+   54|       |    @IBOutlet open var iconLabel: UILabel?
+   55|       |    
+   56|       |    /// An optional button. This buttons' `.TouchUpInside` event will automatically
+   57|       |    /// invoke the optional `buttonTapHandler`, but its fine to add other target
+   58|       |    /// action handlers can be added.
+   59|       |    @IBOutlet open var button: UIButton? {
+   60|      0|        didSet {
+   61|      0|            if let old = oldValue {
+   62|      0|                old.removeTarget(self, action: #selector(MessageView.buttonTapped(_:)), for: .touchUpInside)
+   63|      0|            }
+   64|      0|            if let button = button {
+   65|      0|                button.addTarget(self, action: #selector(MessageView.buttonTapped(_:)), for: .touchUpInside)
+   66|      0|            }
+   67|      0|        }
+   68|       |    }
+   69|       |    
+   70|       |    /*
+   71|       |     MARK: - Identifiable
+   72|       |     */
+   73|       |    
+   74|       |    open var id: String {
+   75|      0|        get {
+   76|      0|            return customId ?? "MessageView:title=\(String(describing: titleLabel?.text)), body=\(String(describing: bodyLabel?.text))"
+   77|      0|        }
+   78|      0|        set {
+   79|      0|            customId = newValue
+   80|      0|        }
+   81|       |    }
+   82|       |    
+   83|       |    private var customId: String?
+   84|       |
+   85|       |    /*
+   86|       |     MARK: - AccessibleMessage
+   87|       |     */
+   88|       |
+   89|       |    /**
+   90|       |     An optional prefix for the `accessibilityMessage` that can
+   91|       |     be used to futher clarify the message for VoiceOver. For example, 
+   92|       |     the view's background color or icon might convey that a message is
+   93|       |     a warning, in which case one may specify the value "warning".
+   94|       |     */
+   95|       |    open var accessibilityPrefix: String?
+   96|       |
+   97|      0|    open var accessibilityMessage: String? {
+   98|      0|        #if swift(>=4.1)
+   99|      0|        let components = [accessibilityPrefix, titleLabel?.text, bodyLabel?.text].compactMap { $0 }
+  100|      0|        #else
+  101|      0|        let components = [accessibilityPrefix, titleLabel?.text, bodyLabel?.text].flatMap { $0 }
+  102|      0|        #endif
+  103|      0|        guard components.count > 0 else { return nil }
+  104|      0|        return components.joined(separator: ", ")
+  105|      0|    }
+  106|       |
+  107|      0|    public var accessibilityElement: NSObject? {
+  108|      0|        return backgroundView
+  109|      0|    }
+  110|       |
+  111|      0|    open var additonalAccessibilityElements: [NSObject]? {
+  112|      0|        var elements: [NSObject] = []
+  113|      0|        func getAccessibleSubviews(view: UIView) {
+  114|      0|            for subview in view.subviews {
+  115|      0|                if subview.isAccessibilityElement {
+  116|      0|                    elements.append(subview)
+  117|      0|                } else {
+  118|      0|                    // Only doing this for non-accessible `subviews`, which avoids
+  119|      0|                    // including button labels, etc.
+  120|      0|                    getAccessibleSubviews(view: subview)
+  121|      0|                }
+  122|      0|            }
+  123|      0|        }
+  124|      0|        getAccessibleSubviews(view: self.backgroundView)
+  125|      0|        return elements
+  126|      0|    }
+  127|       |}
+  128|       |
+  129|       |/*
+  130|       | MARK: - Creating message views
+  131|       | 
+  132|       | This extension provides several convenience functions for instantiating
+  133|       | `MessageView` from the included nib files in a type-safe way. These nib 
+  134|       | files can be found in the Resources folder and can be drag-and-dropped 
+  135|       | into a project and modified. You may still use these APIs if you've
+  136|       | copied the nib files because SwiftMessages looks for them in the main
+  137|       | bundle first. See `SwiftMessages` for additional nib loading options.
+  138|       | */
+  139|       |
+  140|       |extension MessageView {
+  141|       |    
+  142|       |    /**
+  143|       |     Specifies one of the nib files included in the Resources folders.
+  144|       |     */
+  145|       |    public enum Layout: String {
+  146|       |        
+  147|       |        /**
+  148|       |         The standard message view that stretches across the full width of the
+  149|       |         container view.
+  150|       |         */
+  151|       |        case messageView = "MessageView"
+  152|       |        
+  153|       |        /**
+  154|       |         A floating card-style view with rounded corners.
+  155|       |         */
+  156|       |        case cardView = "CardView"
+  157|       |
+  158|       |        /**
+  159|       |         Like `CardView` with one end attached to the super view.
+  160|       |         */
+  161|       |        case tabView = "TabView"
+  162|       |
+  163|       |        /**
+  164|       |         A 20pt tall view that can be used to overlay the status bar.
+  165|       |         Note that this layout will automatically grow taller if displayed
+  166|       |         directly under the status bar (see the `ContentInsetting` protocol).
+  167|       |         */
+  168|       |        case statusLine = "StatusLine"
+  169|       |
+  170|       |        /**
+  171|       |         A floating card-style view with elements centered and arranged vertically.
+  172|       |         This view is typically used with `.center` presentation style.         
+  173|       |         */
+  174|       |        case centeredView = "CenteredView"
+  175|       |    }
+  176|       |    
+  177|       |    /**
+  178|       |     Loads the nib file associated with the given `Layout` and returns the first
+  179|       |     view found in the nib file with the matching type `T: MessageView`.
+  180|       |     
+  181|       |     - Parameter layout: The `Layout` option to use.
+  182|       |     - Parameter filesOwner: An optional files owner.
+  183|       |     
+  184|       |     - Returns: An instance of generic view type `T: MessageView`.
+  185|       |     */
+  186|      0|    public static func viewFromNib<T: MessageView>(layout: Layout, filesOwner: AnyObject = NSNull.init()) -> T {
+  187|      0|        return try! SwiftMessages.viewFromNib(named: layout.rawValue)
+  188|      0|    }
+  189|       |    
+  190|       |    /**
+  191|       |     Loads the nib file associated with the given `Layout` from
+  192|       |     the given bundle and returns the first view found in the nib
+  193|       |     file with the matching type `T: MessageView`.
+  194|       |     
+  195|       |     - Parameter layout: The `Layout` option to use.
+  196|       |     - Parameter bundle: The name of the bundle containing the nib file.
+  197|       |     - Parameter filesOwner: An optional files owner.
+  198|       |     
+  199|       |     - Returns: An instance of generic view type `T: MessageView`.
+  200|       |     */
+  201|      0|    public static func viewFromNib<T: MessageView>(layout: Layout, bundle: Bundle, filesOwner: AnyObject = NSNull.init()) -> T {
+  202|      0|        return try! SwiftMessages.viewFromNib(named: layout.rawValue, bundle: bundle, filesOwner: filesOwner)
+  203|      0|    }
+  204|       |}
+  205|       |
+  206|       |/*
+  207|       | MARK: - Layout adjustments
+  208|       |
+  209|       | This extention provides a few convenience functions for adjusting the layout.
+  210|       | */
+  211|       |
+  212|       |extension MessageView {
+  213|       |    /**
+  214|       |     Constrains the image view to a specified size. By default, the size of the
+  215|       |     image view is determined by its `intrinsicContentSize`.
+  216|       |     
+  217|       |     - Parameter size: The size to be translated into Auto Layout constraints.
+  218|       |     - Parameter contentMode: The optional content mode to apply.
+  219|       |     */
+  220|      0|    public func configureIcon(withSize size: CGSize, contentMode: UIView.ContentMode? = nil) {
+  221|      0|        var views: [UIView] = []
+  222|      0|        if let iconImageView = iconImageView { views.append(iconImageView) }
+  223|      0|        if let iconLabel = iconLabel { views.append(iconLabel) }
+  224|      0|        views.forEach {
+  225|      0|            let constraints = [$0.heightAnchor.constraint(equalToConstant: size.height),
+  226|      0|                               $0.widthAnchor.constraint(equalToConstant: size.width)]
+  227|      0|            constraints.forEach { $0.priority = UILayoutPriority(999.0) }
+  228|      0|            $0.addConstraints(constraints)
+  229|      0|            if let contentMode = contentMode {
+  230|      0|                $0.contentMode = contentMode
+  231|      0|            }
+  232|      0|        }
+  233|      0|    }
+  234|       |}
+  235|       |
+  236|       |/*
+  237|       | MARK: - Theming
+  238|       | 
+  239|       | This extention provides a few convenience functions for setting styles,
+  240|       | colors and icons. You are encouraged to write your own such functions
+  241|       | if these don't exactly meet your needs.
+  242|       | */
+  243|       |
+  244|       |extension MessageView {
+  245|       |    
+  246|       |    /**
+  247|       |     A convenience function for setting some pre-defined colors and icons.
+  248|       |     
+  249|       |     - Parameter theme: The theme type to use.
+  250|       |     - Parameter iconStyle: The icon style to use. Defaults to `.Default`.
+  251|       |     */
+  252|      0|    public func configureTheme(_ theme: Theme, iconStyle: IconStyle = .default) {
+  253|      0|        let iconImage = iconStyle.image(theme: theme)
+  254|      0|        switch theme {
+  255|      0|        case .info:
+  256|      0|            let backgroundColor = UIColor(red: 225.0/255.0, green: 225.0/255.0, blue: 225.0/255.0, alpha: 1.0)
+  257|      0|            let foregroundColor = UIColor.darkText
+  258|      0|            configureTheme(backgroundColor: backgroundColor, foregroundColor: foregroundColor, iconImage: iconImage)
+  259|      0|        case .success:
+  260|      0|            let backgroundColor = UIColor(red: 97.0/255.0, green: 161.0/255.0, blue: 23.0/255.0, alpha: 1.0)
+  261|      0|            let foregroundColor = UIColor.white
+  262|      0|            configureTheme(backgroundColor: backgroundColor, foregroundColor: foregroundColor, iconImage: iconImage)
+  263|      0|        case .warning:
+  264|      0|            let backgroundColor = UIColor(red: 238.0/255.0, green: 189.0/255.0, blue: 34.0/255.0, alpha: 1.0)
+  265|      0|            let foregroundColor = UIColor.white
+  266|      0|            configureTheme(backgroundColor: backgroundColor, foregroundColor: foregroundColor, iconImage: iconImage)
+  267|      0|        case .error:
+  268|      0|            let backgroundColor = UIColor(red: 249.0/255.0, green: 66.0/255.0, blue: 47.0/255.0, alpha: 1.0)
+  269|      0|            let foregroundColor = UIColor.white
+  270|      0|            configureTheme(backgroundColor: backgroundColor, foregroundColor: foregroundColor, iconImage: iconImage)
+  271|      0|        }
+  272|      0|    }
+  273|       |    
+  274|       |    /**
+  275|       |     A convenience function for setting a foreground and background color.
+  276|       |     Note that images will only display the foreground color if they're
+  277|       |     configured with UIImageRenderingMode.AlwaysTemplate.
+  278|       |     
+  279|       |     - Parameter backgroundColor: The background color to use.
+  280|       |     - Parameter foregroundColor: The foreground color to use.
+  281|       |     */
+  282|       |    public func configureTheme(backgroundColor: UIColor, foregroundColor: UIColor, iconImage: UIImage? = nil, iconText: String? = nil) {
+  283|       |        iconImageView?.image = iconImage
+  284|       |        iconLabel?.text = iconText
+  285|       |        iconImageView?.tintColor = foregroundColor
+  286|      0|        let backgroundView = self.backgroundView ?? self
+  287|       |        backgroundView.backgroundColor = backgroundColor
+  288|       |        iconLabel?.textColor = foregroundColor
+  289|       |        titleLabel?.textColor = foregroundColor
+  290|       |        bodyLabel?.textColor = foregroundColor
+  291|       |        button?.backgroundColor = foregroundColor
+  292|       |        button?.tintColor = backgroundColor
+  293|       |        button?.contentEdgeInsets = UIEdgeInsets(top: 7.0, left: 7.0, bottom: 7.0, right: 7.0)
+  294|       |        button?.layer.cornerRadius = 5.0
+  295|       |        iconImageView?.isHidden = iconImageView?.image == nil
+  296|       |        iconLabel?.isHidden = iconLabel?.text == nil
+  297|       |    }
+  298|       |}
+  299|       |
+  300|       |/*
+  301|       | MARK: - Configuring the content
+  302|       | 
+  303|       | This extension provides a few convenience functions for configuring the
+  304|       | message content. You are encouraged to write your own such functions
+  305|       | if these don't exactly meet your needs.
+  306|       | 
+  307|       | SwiftMessages does not try to be clever by adjusting the layout based on 
+  308|       | what content you configure. All message elements are optional and it is
+  309|       | up to you to hide or remove elements you don't need. The easiest way to
+  310|       | remove unwanted elements is to drag-and-drop one of the included nib
+  311|       | files into your project as a starting point and make changes.
+  312|       | */
+  313|       |
+  314|       |extension MessageView {
+  315|       |    
+  316|       |    /**
+  317|       |     Sets the message body text.
+  318|       |     
+  319|       |     - Parameter body: The message body text to use.
+  320|       |     */
+  321|      0|    public func configureContent(body: String) {
+  322|      0|        bodyLabel?.text = body
+  323|      0|    }
+  324|       |    
+  325|       |    /**
+  326|       |     Sets the message title and body text.
+  327|       |     
+  328|       |     - Parameter title: The message title to use.
+  329|       |     - Parameter body: The message body text to use.
+  330|       |     */
+  331|      0|    public func configureContent(title: String, body: String) {
+  332|      0|        configureContent(body: body)
+  333|      0|        titleLabel?.text = title
+  334|      0|    }
+  335|       |    
+  336|       |    /**
+  337|       |     Sets the message title, body text and icon image. Also hides the
+  338|       |     `iconLabel`.
+  339|       |     
+  340|       |     - Parameter title: The message title to use.
+  341|       |     - Parameter body: The message body text to use.
+  342|       |     - Parameter iconImage: The icon image to use.
+  343|       |     */
+  344|      0|    public func configureContent(title: String, body: String, iconImage: UIImage) {
+  345|      0|        configureContent(title: title, body: body)
+  346|      0|        iconImageView?.image = iconImage
+  347|      0|        iconImageView?.isHidden = false
+  348|      0|        iconLabel?.text = nil
+  349|      0|        iconLabel?.isHidden = true
+  350|      0|    }
+  351|       |    
+  352|       |    /**
+  353|       |     Sets the message title, body text and icon text (e.g. an emoji).
+  354|       |     Also hides the `iconImageView`.
+  355|       |     
+  356|       |     - Parameter title: The message title to use.
+  357|       |     - Parameter body: The message body text to use.
+  358|       |     - Parameter iconText: The icon text to use (e.g. an emoji).
+  359|       |     */
+  360|      0|    public func configureContent(title: String, body: String, iconText: String) {
+  361|      0|        configureContent(title: title, body: body)
+  362|      0|        iconLabel?.text = iconText
+  363|      0|        iconLabel?.isHidden = false
+  364|      0|        iconImageView?.isHidden = true
+  365|      0|        iconImageView?.image = nil
+  366|      0|    }
+  367|       |    
+  368|       |    /**
+  369|       |     Sets all configurable elements.
+  370|       |     
+  371|       |     - Parameter title: The message title to use.
+  372|       |     - Parameter body: The message body text to use.
+  373|       |     - Parameter iconImage: The icon image to use.
+  374|       |     - Parameter iconText: The icon text to use (e.g. an emoji).
+  375|       |     - Parameter buttonImage: The button image to use.
+  376|       |     - Parameter buttonTitle: The button title to use.
+  377|       |     - Parameter buttonTapHandler: The button tap handler block to use.
+  378|       |     */
+  379|      0|    public func configureContent(title: String?, body: String?, iconImage: UIImage?, iconText: String?, buttonImage: UIImage?, buttonTitle: String?, buttonTapHandler: ((_ button: UIButton) -> Void)?) {
+  380|      0|        titleLabel?.text = title
+  381|      0|        bodyLabel?.text = body
+  382|      0|        iconImageView?.image = iconImage
+  383|      0|        iconLabel?.text = iconText
+  384|      0|        button?.setImage(buttonImage, for: .normal)
+  385|      0|        button?.setTitle(buttonTitle, for: .normal)
+  386|      0|        self.buttonTapHandler = buttonTapHandler
+  387|      0|        iconImageView?.isHidden = iconImageView?.image == nil
+  388|      0|        iconLabel?.isHidden = iconLabel?.text == nil
+  389|      0|    }
+  390|       |}
+  391|       |
+  392|       |/*
+  393|       | MARK: - Configuring the width
+  394|       | 
+  395|       | This extension provides a few convenience functions for configuring the
+  396|       | background view's width. You are encouraged to write your own such functions
+  397|       | if these don't exactly meet your needs.
+  398|       | */
+  399|       |
+  400|       |extension MessageView {
+  401|       |
+  402|       |    /**
+  403|       |     A shortcut for configuring the left and right layout margins. For views that
+  404|       |     have `backgroundView` as a subview of `MessageView`, the background view should
+  405|       |     be pinned to the left and right `layoutMargins` in order for this configuration to work.
+  406|       |    */
+  407|      0|    public func configureBackgroundView(sideMargin: CGFloat) {
+  408|      0|        layoutMargins.left = sideMargin
+  409|      0|        layoutMargins.right = sideMargin
+  410|      0|    }
+  411|       |
+  412|       |    /**
+  413|       |     A shortcut for adding a width constraint to the `backgroundView`. When calling this
+  414|       |     method, it is important to ensure that the width constraint doesn't conflict with
+  415|       |     other constraints. The CardView.nib and TabView.nib layouts are compatible with
+  416|       |     this method.
+  417|       |     */
+  418|      0|    public func configureBackgroundView(width: CGFloat) {
+  419|      0|        let constraint = NSLayoutConstraint(item: backgroundView, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: width)
+  420|      0|        backgroundView.addConstraint(constraint)
+  421|      0|    }
+  422|       |}
+  423|       |
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/SwiftMessages/SwiftMessages/NSBundle+Utils.swift:
+    1|       |//
+    2|       |//  NSBundle+Utils.swift
+    3|       |//  SwiftMessages
+    4|       |//
+    5|       |//  Created by Timothy Moose on 8/8/16.
+    6|       |//  Copyright © 2016 SwiftKick Mobile LLC. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import Foundation
+   10|       |
+   11|       |extension Bundle {
+   12|      0|    static func sm_frameworkBundle() -> Bundle {
+   13|      0|        let bundle = Bundle(for: MessageView.self)
+   14|      0|        if let path = bundle.path(forResource: "SwiftMessages", ofType: "bundle") {
+   15|      0|            return Bundle(path: path)!
+   16|      0|        }
+   17|      0|        else {
+   18|      0|            return bundle
+   19|      0|        }
+   20|      0|    }
+   21|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/SwiftMessages/SwiftMessages/PassthroughView.swift:
+    1|       |//
+    2|       |//  PassthroughView.swift
+    3|       |//  SwiftMessages
+    4|       |//
+    5|       |//  Created by Timothy Moose on 8/5/16.
+    6|       |//  Copyright © 2016 SwiftKick Mobile LLC. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |
+   11|       |class PassthroughView: UIControl {
+   12|       |
+   13|       |    var tappedHander: (() -> Void)?
+   14|       |
+   15|      0|    override init(frame: CGRect) {
+   16|      0|        super.init(frame: frame)
+   17|      0|        initCommon()
+   18|      0|    }
+   19|       |
+   20|      0|    required init?(coder aDecoder: NSCoder) {
+   21|      0|        super.init(coder: aDecoder)
+   22|      0|        initCommon()
+   23|      0|    }
+   24|       |
+   25|      0|    private func initCommon() {
+   26|      0|        addTarget(self, action: #selector(tapped), for: .touchUpInside)
+   27|      0|    }
+   28|       |
+   29|      0|    @objc func tapped() {
+   30|      0|        tappedHander?()
+   31|      0|    }
+   32|       |    
+   33|      0|    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+   34|      0|        let view = super.hitTest(point, with: event)
+   35|      0|        return view == self && tappedHander == nil ? nil : view
+   36|      0|    }
+   37|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/SwiftMessages/SwiftMessages/PassthroughWindow.swift:
+    1|       |//
+    2|       |//  PassthroughWindow.swift
+    3|       |//  SwiftMessages
+    4|       |//
+    5|       |//  Created by Timothy Moose on 8/5/16.
+    6|       |//  Copyright © 2016 SwiftKick Mobile LLC. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |
+   11|       |class PassthroughWindow: UIWindow {
+   12|       |
+   13|      0|    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+   14|      0|        let view = super.hitTest(point, with: event)
+   15|      0|        return view == self ? nil : view
+   16|      0|    }
+   17|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/SwiftMessages/SwiftMessages/PhysicsAnimation.swift:
+    1|       |//
+    2|       |//  PhysicsAnimation.swift
+    3|       |//  SwiftMessages
+    4|       |//
+    5|       |//  Created by Timothy Moose on 6/14/17.
+    6|       |//  Copyright © 2017 SwiftKick Mobile. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |
+   11|       |public class PhysicsAnimation: NSObject, Animator {
+   12|       |
+   13|       |    public enum Placement {
+   14|       |        case top
+   15|       |        case center
+   16|       |        case bottom
+   17|       |    }
+   18|       |
+   19|       |    public var placement: Placement = .center
+   20|       |
+   21|       |    public var panHandler = PhysicsPanHandler()
+   22|       |
+   23|       |    public weak var delegate: AnimationDelegate?
+   24|       |    weak var messageView: UIView?
+   25|       |    weak var containerView: UIView?
+   26|       |    var context: AnimationContext?
+   27|       |
+   28|      0|    public override init() {}
+   29|       |
+   30|      0|    init(delegate: AnimationDelegate) {
+   31|      0|        self.delegate = delegate
+   32|      0|    }
+   33|       |
+   34|      0|    public func show(context: AnimationContext, completion: @escaping AnimationCompletion) {
+   35|      0|        NotificationCenter.default.addObserver(self, selector: #selector(adjustMargins), name: UIDevice.orientationDidChangeNotification, object: nil)
+   36|      0|        install(context: context)
+   37|      0|        showAnimation(context: context, completion: completion)
+   38|      0|    }
+   39|       |
+   40|      0|    public func hide(context: AnimationContext, completion: @escaping AnimationCompletion) {
+   41|      0|        NotificationCenter.default.removeObserver(self)
+   42|      0|        if panHandler.isOffScreen {
+   43|      0|            context.messageView.alpha = 0
+   44|      0|            panHandler.state?.stop()
+   45|      0|        }
+   46|      0|        let view = context.messageView
+   47|      0|        self.context = context
+   48|      0|        CATransaction.begin()
+   49|      0|        CATransaction.setCompletionBlock {
+   50|      0|            view.alpha = 1
+   51|      0|            view.transform = CGAffineTransform.identity
+   52|      0|            completion(true)
+   53|      0|        }
+   54|      0|        UIView.animate(withDuration: hideDuration!, delay: 0, options: [.beginFromCurrentState, .curveEaseIn, .allowUserInteraction], animations: {
+   55|      0|            view.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
+   56|      0|        }, completion: nil)
+   57|      0|        UIView.animate(withDuration: hideDuration!, delay: 0, options: [.beginFromCurrentState, .curveEaseIn, .allowUserInteraction], animations: {
+   58|      0|            view.alpha = 0
+   59|      0|        }, completion: nil)
+   60|      0|        CATransaction.commit()
+   61|      0|    }
+   62|       |
+   63|      0|    public var showDuration: TimeInterval? { return 0.5  }
+   64|       |
+   65|      0|    public var hideDuration: TimeInterval? { return 0.15  }
+   66|       |
+   67|      0|    func install(context: AnimationContext) {
+   68|      0|        let view = context.messageView
+   69|      0|        let container = context.containerView
+   70|      0|        messageView = view
+   71|      0|        containerView = container
+   72|      0|        self.context = context
+   73|      0|        view.translatesAutoresizingMaskIntoConstraints = false
+   74|      0|        container.addSubview(view)
+   75|      0|        switch placement {
+   76|      0|        case .center:
+   77|      0|            NSLayoutConstraint(item: view, attribute: .centerY, relatedBy: .equal, toItem: container, attribute: .centerY, multiplier: 1, constant: 0).isActive = true
+   78|      0|        case .top:
+   79|      0|            NSLayoutConstraint(item: view, attribute: .top, relatedBy: .equal, toItem: container, attribute: .top, multiplier: 1, constant: 0).isActive = true
+   80|      0|        case .bottom:
+   81|      0|            NSLayoutConstraint(item: container, attribute: .bottom, relatedBy: .equal, toItem: view, attribute: .bottom, multiplier: 1, constant: 0).isActive = true
+   82|      0|        }
+   83|      0|        NSLayoutConstraint(item: view, attribute: .leading, relatedBy: .equal, toItem: container, attribute: .leading, multiplier: 1, constant: 0).isActive = true
+   84|      0|        NSLayoutConstraint(item: view, attribute: .trailing, relatedBy: .equal, toItem: container, attribute: .trailing, multiplier: 1, constant: 0).isActive = true
+   85|      0|        // Important to layout now in order to get the right safe area insets
+   86|      0|        container.layoutIfNeeded()
+   87|      0|        adjustMargins()
+   88|      0|        container.layoutIfNeeded()
+   89|      0|        installInteractive(context: context)
+   90|      0|    }
+   91|       |
+   92|      0|    @objc public func adjustMargins() {
+   93|      0|        guard let adjustable = messageView as? MarginAdjustable & UIView,
+   94|      0|            let context = context else { return }
+   95|      0|        adjustable.preservesSuperviewLayoutMargins = false
+   96|      0|        if #available(iOS 11, *) {
+   97|      0|            adjustable.insetsLayoutMarginsFromSafeArea = false
+   98|      0|        }
+   99|      0|        adjustable.layoutMargins = adjustable.defaultMarginAdjustment(context: context)
+  100|      0|    }
+  101|       |
+  102|      0|    func showAnimation(context: AnimationContext, completion: @escaping AnimationCompletion) {
+  103|      0|        let view = context.messageView
+  104|      0|        view.alpha = 0.25
+  105|      0|        view.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
+  106|      0|        CATransaction.begin()
+  107|      0|        CATransaction.setCompletionBlock {
+  108|      0|            completion(true)
+  109|      0|        }
+  110|      0|        UIView.animate(withDuration: showDuration!, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0, options: [.beginFromCurrentState, .curveLinear, .allowUserInteraction], animations: {
+  111|      0|            view.transform = CGAffineTransform.identity
+  112|      0|        }, completion: nil)
+  113|      0|        UIView.animate(withDuration: 0.3 * showDuration!, delay: 0, options: [.beginFromCurrentState, .curveLinear, .allowUserInteraction], animations: {
+  114|      0|            view.alpha = 1
+  115|      0|        }, completion: nil)
+  116|      0|        CATransaction.commit()
+  117|      0|    }
+  118|       |
+  119|      0|    func installInteractive(context: AnimationContext) {
+  120|      0|        guard context.interactiveHide else { return }
+  121|      0|        panHandler.configure(context: context, animator: self)
+  122|      0|    }
+  123|       |}
+  124|       |
+  125|       |
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/SwiftMessages/SwiftMessages/PhysicsPanHandler.swift:
+    1|       |//
+    2|       |//  PhysicsPanHandler.swift
+    3|       |//  SwiftMessages
+    4|       |//
+    5|       |//  Created by Timothy Moose on 6/25/17.
+    6|       |//  Copyright © 2017 SwiftKick Mobile. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |
+   11|       |open class PhysicsPanHandler {
+   12|       |
+   13|       |    public var hideDelay: TimeInterval = 0.2
+   14|       |
+   15|       |    public struct MotionSnapshot {
+   16|       |        var angle: CGFloat
+   17|       |        var time: CFAbsoluteTime
+   18|       |    }
+   19|       |
+   20|       |    public final class State {
+   21|       |
+   22|       |        weak var messageView: UIView?
+   23|       |        weak var containerView: UIView?
+   24|       |        var dynamicAnimator: UIDynamicAnimator
+   25|       |        var itemBehavior: UIDynamicItemBehavior
+   26|       |        var attachmentBehavior: UIAttachmentBehavior? {
+   27|      0|            didSet {
+   28|      0|                if let oldValue = oldValue {
+   29|      0|                    dynamicAnimator.removeBehavior(oldValue)
+   30|      0|                }
+   31|      0|                if let attachmentBehavior = attachmentBehavior {
+   32|      0|                    dynamicAnimator.addBehavior(attachmentBehavior)
+   33|      0|                    addSnapshot()
+   34|      0|                }
+   35|      0|            }
+   36|       |        }
+   37|       |        var snapshots: [MotionSnapshot] = []
+   38|       |
+   39|      0|        public init(messageView: UIView, containerView: UIView) {
+   40|      0|            self.messageView = messageView
+   41|      0|            self.containerView = containerView
+   42|      0|            let dynamicAnimator = UIDynamicAnimator(referenceView: containerView)
+   43|      0|            let itemBehavior = UIDynamicItemBehavior(items: [messageView])
+   44|      0|            itemBehavior.allowsRotation = true
+   45|      0|            dynamicAnimator.addBehavior(itemBehavior)
+   46|      0|            self.itemBehavior = itemBehavior
+   47|      0|            self.dynamicAnimator = dynamicAnimator
+   48|      0|        }
+   49|       |
+   50|      0|        func update(attachmentAnchorPoint anchorPoint: CGPoint) {
+   51|      0|            addSnapshot()
+   52|      0|            attachmentBehavior?.anchorPoint = anchorPoint
+   53|      0|        }
+   54|       |
+   55|       |        func addSnapshot() {
+   56|      0|            let angle = messageView?.angle ?? snapshots.last?.angle ?? 0
+   57|       |            let time = CFAbsoluteTimeGetCurrent()
+   58|       |            snapshots.append(MotionSnapshot(angle: angle, time: time))
+   59|       |        }
+   60|       |
+   61|      0|        public func stop() {
+   62|      0|            guard let messageView = messageView else {
+   63|      0|                dynamicAnimator.removeAllBehaviors()
+   64|      0|                return
+   65|      0|            }
+   66|      0|            let center = messageView.center
+   67|      0|            let transform = messageView.transform
+   68|      0|            dynamicAnimator.removeAllBehaviors()
+   69|      0|            messageView.center = center
+   70|      0|            messageView.transform = transform
+   71|      0|        }
+   72|       |
+   73|      0|        public var angularVelocity: CGFloat {
+   74|      0|            guard let last = snapshots.last else { return 0 }
+   75|      0|            for previous in snapshots.reversed() {
+   76|      0|                // Ignore snapshots where the angle or time hasn't changed to avoid degenerate cases.
+   77|      0|                if previous.angle != last.angle && previous.time != last.time {
+   78|      0|                    return (last.angle - previous.angle) / CGFloat(last.time - previous.time)
+   79|      0|                }
+   80|      0|            }
+   81|      0|            return 0
+   82|      0|        }
+   83|       |    }
+   84|       |
+   85|       |    weak var animator: Animator?
+   86|       |    weak var messageView: UIView?
+   87|       |    weak var containerView: UIView?
+   88|       |    private(set) public var state: State?
+   89|       |    private(set) public var isOffScreen = false
+   90|       |    private var restingCenter: CGPoint?
+   91|       |
+   92|      0|    public init() {}
+   93|       |
+   94|      0|    lazy var pan: UIPanGestureRecognizer = {
+   95|      0|        let pan = UIPanGestureRecognizer()
+   96|      0|        pan.addTarget(self, action: #selector(pan(_:)))
+   97|      0|        return pan
+   98|      0|    }()
+   99|       |
+  100|      0|    func configure(context: AnimationContext, animator: Animator) {
+  101|      0|        if let oldView = (messageView as? BackgroundViewable)?.backgroundView ?? messageView {
+  102|      0|            oldView.removeGestureRecognizer(pan)
+  103|      0|        }
+  104|      0|        messageView = context.messageView
+  105|      0|        let view = (messageView as? BackgroundViewable)?.backgroundView ?? messageView
+  106|      0|        view?.addGestureRecognizer(pan)
+  107|      0|        containerView = context.containerView
+  108|      0|        self.animator = animator
+  109|      0|    }
+  110|       |
+  111|      0|    @objc func pan(_ pan: UIPanGestureRecognizer) {
+  112|      0|        guard let messageView = messageView, let containerView = containerView, let animator = animator else { return }
+  113|      0|        let anchorPoint = pan.location(in: containerView)
+  114|      0|        switch pan.state {
+  115|      0|        case .began:
+  116|      0|            animator.delegate?.panStarted(animator: animator)
+  117|      0|            let state = State(messageView: messageView, containerView: containerView)
+  118|      0|            self.state = state
+  119|      0|            let center = messageView.center
+  120|      0|            restingCenter = center
+  121|      0|            let offset = UIOffset(horizontal: anchorPoint.x - center.x, vertical: anchorPoint.y - center.y)
+  122|      0|            let attachmentBehavior = UIAttachmentBehavior(item: messageView, offsetFromCenter: offset, attachedToAnchor: anchorPoint)
+  123|      0|            state.attachmentBehavior = attachmentBehavior
+  124|      0|            state.itemBehavior.action = { [weak self, weak messageView, weak containerView] in
+  125|      0|                guard let self = self, !self.isOffScreen, let messageView = messageView, let containerView = containerView, let animator = self.animator else { return }
+  126|      0|                let view = (messageView as? BackgroundViewable)?.backgroundView ?? messageView
+  127|      0|                let frame = containerView.convert(view.bounds, from: view)
+  128|      0|                if !containerView.bounds.intersects(frame) {
+  129|      0|                    self.isOffScreen = true
+  130|      0|                    DispatchQueue.main.asyncAfter(deadline: .now() + self.hideDelay) {
+  131|      0|                        animator.delegate?.hide(animator: animator)
+  132|      0|                    }
+  133|      0|                }
+  134|      0|            }
+  135|      0|        case .changed:
+  136|      0|            guard let state = state else { return }
+  137|      0|            state.update(attachmentAnchorPoint: anchorPoint)
+  138|      0|        case .ended, .cancelled:
+  139|      0|            guard let state = state else { return }
+  140|      0|            state.update(attachmentAnchorPoint: anchorPoint)
+  141|      0|            let velocity = pan.velocity(in: containerView)
+  142|      0|            let angularVelocity = state.angularVelocity
+  143|      0|            let speed = sqrt(pow(velocity.x, 2) + pow(velocity.y, 2))
+  144|      0|            // The multiplier on angular velocity was determined by hand-tuning
+  145|      0|            let energy = sqrt(pow(speed, 2) + pow(angularVelocity * 75, 2))
+  146|      0|            if energy > 200 && speed > 600 {
+  147|      0|                // Limit the speed and angular velocity to reasonable values
+  148|      0|                let speedScale = speed > 0 ? min(1, 1800 / speed) : 1
+  149|      0|                let escapeVelocity = CGPoint(x: velocity.x * speedScale, y: velocity.y * speedScale)
+  150|      0|                let angularSpeedScale = min(1, 10 / abs(angularVelocity))
+  151|      0|                let escapeAngularVelocity = angularVelocity * angularSpeedScale
+  152|      0|                state.itemBehavior.addLinearVelocity(escapeVelocity, for: messageView)
+  153|      0|                state.itemBehavior.addAngularVelocity(escapeAngularVelocity, for: messageView)
+  154|      0|                state.attachmentBehavior = nil
+  155|      0|            } else {
+  156|      0|                state.stop()
+  157|      0|                self.state = nil
+  158|      0|                animator.delegate?.panEnded(animator: animator)
+  159|      0|                UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 0, options: .beginFromCurrentState, animations: {
+  160|      0|                    messageView.center = self.restingCenter ?? CGPoint(x: containerView.bounds.width / 2, y: containerView.bounds.height / 2)
+  161|      0|                    messageView.transform = CGAffineTransform.identity
+  162|      0|                }, completion: nil)
+  163|      0|            }
+  164|      0|        default:
+  165|      0|            break
+  166|      0|        }
+  167|      0|    }
+  168|       |}
+  169|       |
+  170|       |extension UIView {
+  171|       |    var angle: CGFloat {
+  172|       |        // http://stackoverflow.com/a/2051861/1271826
+  173|       |        return atan2(transform.b, transform.a)
+  174|       |    }
+  175|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/SwiftMessages/SwiftMessages/Presenter.swift:
+    1|       |//
+    2|       |//  MessagePresenter.swift
+    3|       |//  SwiftMessages
+    4|       |//
+    5|       |//  Created by Timothy Moose on 7/30/16.
+    6|       |//  Copyright © 2016 SwiftKick Mobile LLC. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |
+   11|       |protocol PresenterDelegate: AnimationDelegate {
+   12|       |    func hide(presenter: Presenter)
+   13|       |}
+   14|       |
+   15|       |class Presenter: NSObject {
+   16|       |
+   17|       |    enum PresentationContext {
+   18|       |        case viewController(_: Weak<UIViewController>)
+   19|       |        case view(_: Weak<UIView>)
+   20|       |        
+   21|      0|        func viewControllerValue() -> UIViewController? {
+   22|      0|            switch self {
+   23|      0|            case .viewController(let weak):
+   24|      0|                return weak.value
+   25|      0|            case .view:
+   26|      0|                return nil
+   27|      0|            }
+   28|      0|        }
+   29|       |        
+   30|      0|        func viewValue() -> UIView? {
+   31|      0|            switch self {
+   32|      0|            case .viewController(let weak):
+   33|      0|                return weak.value?.view
+   34|      0|            case .view(let weak):
+   35|      0|                return weak.value
+   36|      0|            }
+   37|      0|        }
+   38|       |    }
+   39|       |    
+   40|       |    var config: SwiftMessages.Config
+   41|       |    let view: UIView
+   42|       |    weak var delegate: PresenterDelegate?
+   43|      0|    lazy var maskingView: MaskingView = { return MaskingView() }()
+   44|       |    var presentationContext = PresentationContext.viewController(Weak<UIViewController>(value: nil))
+   45|       |    let animator: Animator
+   46|       |
+   47|      0|    init(config: SwiftMessages.Config, view: UIView, delegate: PresenterDelegate) {
+   48|      0|        self.config = config
+   49|      0|        self.view = view
+   50|      0|        self.delegate = delegate
+   51|      0|        self.animator = Presenter.animator(forPresentationStyle: config.presentationStyle, delegate: delegate)
+   52|      0|        if let identifiable = view as? Identifiable {
+   53|      0|            id = identifiable.id
+   54|      0|        } else {
+   55|      0|            var mutableView = view
+   56|      0|            id = withUnsafePointer(to: &mutableView) { "\($0)" }
+   57|      0|        }
+   58|      0|        super.init()
+   59|      0|    }
+   60|       |
+   61|       |    private static func animator(forPresentationStyle style: SwiftMessages.PresentationStyle, delegate: AnimationDelegate) -> Animator {
+   62|       |        switch style {
+   63|       |        case .top:
+   64|       |            return TopBottomAnimation(style: .top, delegate: delegate)
+   65|       |        case .bottom:
+   66|       |            return TopBottomAnimation(style: .bottom, delegate: delegate)
+   67|       |        case .center:
+   68|       |            return PhysicsAnimation(delegate: delegate)
+   69|       |        case .custom(let animator):
+   70|       |            animator.delegate = delegate
+   71|       |            return animator
+   72|       |        }
+   73|       |    }
+   74|       |
+   75|       |    var id: String
+   76|       |    
+   77|      0|    var pauseDuration: TimeInterval? {
+   78|      0|        let duration: TimeInterval?
+   79|      0|        switch self.config.duration {
+   80|      0|        case .automatic:
+   81|      0|            duration = 2
+   82|      0|        case .seconds(let seconds):
+   83|      0|            duration = seconds
+   84|      0|        case .forever, .indefinite:
+   85|      0|            duration = nil
+   86|      0|        }
+   87|      0|        return duration
+   88|      0|    }
+   89|       |
+   90|       |    var showDate: Date?
+   91|       |
+   92|       |    private var interactivelyHidden = false;
+   93|       |
+   94|      0|    var delayShow: TimeInterval? {
+   95|      0|        if case .indefinite(let opts) = config.duration { return opts.delay }
+   96|      0|        return nil
+   97|      0|    }
+   98|       |
+   99|       |    /// Returns the required delay for hiding based on time shown
+  100|      0|    var delayHide: TimeInterval? {
+  101|      0|        if interactivelyHidden { return 0 }
+  102|      0|        if case .indefinite(let opts) = config.duration, let showDate = showDate {
+  103|      0|            let timeIntervalShown = -showDate.timeIntervalSinceNow
+  104|      0|            return max(0, opts.minimum - timeIntervalShown)
+  105|      0|        }
+  106|      0|        return nil
+  107|      0|    }
+  108|       |
+  109|       |    /*
+  110|       |     MARK: - Showing and hiding
+  111|       |     */
+  112|       |
+  113|      0|    func show(completion: @escaping AnimationCompletion) throws {
+  114|      0|        try presentationContext = getPresentationContext()
+  115|      0|        install()
+  116|      0|        self.config.eventListeners.forEach { $0(.willShow) }
+  117|      0|        showAnimation() { completed in
+  118|      0|            completion(completed)
+  119|      0|            if completed {
+  120|      0|                if self.config.dimMode.modal {
+  121|      0|                    self.showAccessibilityFocus()
+  122|      0|                } else {
+  123|      0|                    self.showAccessibilityAnnouncement()
+  124|      0|                }
+  125|      0|                self.config.eventListeners.forEach { $0(.didShow) }
+  126|      0|            }
+  127|      0|        }
+  128|      0|    }
+  129|       |
+  130|      0|    private func showAnimation(completion: @escaping AnimationCompletion) {
+  131|      0|
+  132|      0|        func dim(_ color: UIColor) {
+  133|      0|            self.maskingView.backgroundColor = UIColor.clear
+  134|      0|            UIView.animate(withDuration: 0.2, animations: {
+  135|      0|                self.maskingView.backgroundColor = color
+  136|      0|            })
+  137|      0|        }
+  138|      0|
+  139|      0|        func blur(style: UIBlurEffect.Style, alpha: CGFloat) {
+  140|      0|            let blurView = UIVisualEffectView(effect: nil)
+  141|      0|            blurView.alpha = alpha
+  142|      0|            maskingView.backgroundView = blurView
+  143|      0|            UIView.animate(withDuration: 0.3) {
+  144|      0|                blurView.effect = UIBlurEffect(style: style)
+  145|      0|            }
+  146|      0|        }
+  147|      0|
+  148|      0|        let context = animationContext()
+  149|      0|        animator.show(context: context) { (completed) in
+  150|      0|            completion(completed)
+  151|      0|        }
+  152|      0|        switch config.dimMode {
+  153|      0|        case .none:
+  154|      0|            break
+  155|      0|        case .gray:
+  156|      0|            dim(UIColor(white: 0, alpha: 0.3))
+  157|      0|        case .color(let color, _):
+  158|      0|            dim(color)
+  159|      0|        case .blur(let style, let alpha, _):
+  160|      0|            blur(style: style, alpha: alpha)
+  161|      0|        }
+  162|      0|    }
+  163|       |
+  164|      0|    private func showAccessibilityAnnouncement() {
+  165|      0|        guard let accessibleMessage = view as? AccessibleMessage,
+  166|      0|            let message = accessibleMessage.accessibilityMessage else { return }
+  167|      0|        UIAccessibility.post(notification: UIAccessibility.Notification.announcement, argument: message)
+  168|      0|    }
+  169|       |
+  170|      0|    private func showAccessibilityFocus() {
+  171|      0|        guard let accessibleMessage = view as? AccessibleMessage,
+  172|      0|            let focus = accessibleMessage.accessibilityElement ?? accessibleMessage.additonalAccessibilityElements?.first else { return }
+  173|      0|        UIAccessibility.post(notification: UIAccessibility.Notification.layoutChanged, argument: focus)
+  174|      0|    }
+  175|       |
+  176|       |    var isHiding = false
+  177|       |
+  178|      0|    func hide(completion: @escaping AnimationCompletion) {
+  179|      0|        isHiding = true
+  180|      0|        self.config.eventListeners.forEach { $0(.willHide) }
+  181|      0|        let context = animationContext()
+  182|      0|        animator.hide(context: context) { (completed) in
+  183|      0|            if let viewController = self.presentationContext.viewControllerValue() as? WindowViewController {
+  184|      0|                viewController.uninstall()
+  185|      0|            }
+  186|      0|            self.maskingView.removeFromSuperview()
+  187|      0|            completion(true)
+  188|      0|            self.config.eventListeners.forEach { $0(.didHide) }
+  189|      0|        }
+  190|      0|
+  191|      0|        func undim() {
+  192|      0|            UIView.animate(withDuration: 0.2, delay: 0, options: .beginFromCurrentState, animations: {
+  193|      0|                self.maskingView.backgroundColor = UIColor.clear
+  194|      0|            }, completion: nil)
+  195|      0|        }
+  196|      0|
+  197|      0|        func unblur() {
+  198|      0|            guard let view = maskingView.backgroundView as? UIVisualEffectView else { return }
+  199|      0|            UIView.animate(withDuration: 0.2, delay: 0, options: .beginFromCurrentState, animations: { 
+  200|      0|                view.effect = nil
+  201|      0|            }, completion: nil)
+  202|      0|        }
+  203|      0|        
+  204|      0|        switch config.dimMode {
+  205|      0|        case .none:
+  206|      0|            break
+  207|      0|        case .gray:
+  208|      0|            undim()
+  209|      0|        case .color:
+  210|      0|            undim()
+  211|      0|        case .blur:
+  212|      0|            unblur()
+  213|      0|        }
+  214|      0|    }
+  215|       |
+  216|      0|    private func animationContext() -> AnimationContext {
+  217|      0|        return AnimationContext(messageView: view, containerView: maskingView, safeZoneConflicts: safeZoneConflicts(), interactiveHide: config.interactiveHide)
+  218|      0|    }
+  219|       |
+  220|      0|    private func safeZoneConflicts() -> SafeZoneConflicts {
+  221|      0|        guard let window = maskingView.window else { return [] }
+  222|      0|        let windowLevel: UIWindow.Level = {
+  223|      0|            if let vc = presentationContext.viewControllerValue() as? WindowViewController {
+  224|      0|                return vc.windowLevel
+  225|      0|            }
+  226|      0|            return UIWindow.Level.normal
+  227|      0|        }()
+  228|      0|        // TODO `underNavigationBar` and `underTabBar` should look up the presentation context's hierarchy
+  229|      0|        // TODO for cases where both should be true (probably not an issue for typical height messages, though).
+  230|      0|        let underNavigationBar: Bool = {
+  231|      0|            if let vc = presentationContext.viewControllerValue() as? UINavigationController { return vc.sm_isVisible(view: vc.navigationBar) }
+  232|      0|            return false
+  233|      0|        }()
+  234|      0|        let underTabBar: Bool = {
+  235|      0|            if let vc = presentationContext.viewControllerValue() as? UITabBarController { return vc.sm_isVisible(view: vc.tabBar) }
+  236|      0|            return false
+  237|      0|        }()
+  238|      0|        if #available(iOS 11, *) {
+  239|      0|            if windowLevel > UIWindow.Level.normal {
+  240|      0|                // TODO seeing `maskingView.safeAreaInsets.top` value of 20 on
+  241|      0|                // iPhone 8 with status bar window level. This seems like an iOS bug since
+  242|      0|                // the message view's window is above the status bar. Applying a special rule
+  243|      0|                // to allow the animator to revove this amount from the layout margins if needed.
+  244|      0|                // This may need to be reworked if any future device has a legitimate 20pt top safe area,
+  245|      0|                // such as with a potentially smaller notch.
+  246|      0|                if maskingView.safeAreaInsets.top == 20 {
+  247|      0|                    return [.overStatusBar]
+  248|      0|                } else {
+  249|      0|                    var conflicts: SafeZoneConflicts = []
+  250|      0|                    if maskingView.safeAreaInsets.top > 0 {
+  251|      0|                        conflicts.formUnion(.sensorNotch)
+  252|      0|                    }
+  253|      0|                    if maskingView.safeAreaInsets.bottom > 0 {
+  254|      0|                        conflicts.formUnion(.homeIndicator)
+  255|      0|                    }
+  256|      0|                    return conflicts
+  257|      0|                }
+  258|      0|            }
+  259|      0|            var conflicts: SafeZoneConflicts = []
+  260|      0|            if !underNavigationBar {
+  261|      0|                conflicts.formUnion(.sensorNotch)
+  262|      0|            }
+  263|      0|            if !underTabBar {
+  264|      0|                conflicts.formUnion(.homeIndicator)
+  265|      0|            }
+  266|      0|            return conflicts
+  267|      0|        } else {
+  268|      0|            #if SWIFTMESSAGES_APP_EXTENSIONS
+  269|      0|            return []
+  270|      0|            #else
+  271|      0|            if UIApplication.shared.isStatusBarHidden { return [] }
+  272|      0|            if (windowLevel > UIWindow.Level.normal) || underNavigationBar { return [] }
+  273|      0|            let statusBarFrame = UIApplication.shared.statusBarFrame
+  274|      0|            let statusBarWindowFrame = window.convert(statusBarFrame, from: nil)
+  275|      0|            let statusBarViewFrame = maskingView.convert(statusBarWindowFrame, from: nil)
+  276|      0|            return statusBarViewFrame.intersects(maskingView.bounds) ? SafeZoneConflicts.statusBar : []
+  277|      0|            #endif
+  278|      0|        }
+  279|      0|    }
+  280|       |
+  281|      0|    private func getPresentationContext() throws -> PresentationContext {
+  282|      0|
+  283|      0|        func newWindowViewController(_ windowLevel: UIWindow.Level) -> UIViewController {
+  284|      0|            let viewController = WindowViewController.newInstance(windowLevel: windowLevel, config: config)
+  285|      0|            return viewController
+  286|      0|        }
+  287|      0|
+  288|      0|        switch config.presentationContext {
+  289|      0|        case .automatic:
+  290|      0|            #if SWIFTMESSAGES_APP_EXTENSIONS
+  291|      0|            throw SwiftMessagesError.noRootViewController
+  292|      0|            #else
+  293|      0|            if let rootViewController = UIApplication.shared.keyWindow?.rootViewController {
+  294|      0|                let viewController = rootViewController.sm_selectPresentationContextTopDown(config)
+  295|      0|                return .viewController(Weak(value: viewController))
+  296|      0|            } else {
+  297|      0|                throw SwiftMessagesError.noRootViewController
+  298|      0|            }
+  299|      0|            #endif
+  300|      0|        case .window(let level):
+  301|      0|            let viewController = newWindowViewController(level)
+  302|      0|            return .viewController(Weak(value: viewController))
+  303|      0|        case .viewController(let viewController):
+  304|      0|            let viewController = viewController.sm_selectPresentationContextBottomUp(config)
+  305|      0|            return .viewController(Weak(value: viewController))
+  306|      0|        case .view(let view):
+  307|      0|            return .view(Weak(value: view))
+  308|      0|        }
+  309|      0|    }
+  310|       |
+  311|       |    /*
+  312|       |     MARK: - Installation
+  313|       |     */
+  314|       |
+  315|      0|    func install() {
+  316|      0|
+  317|      0|        func topLayoutConstraint(view: UIView, containerView: UIView, viewController: UIViewController?) -> NSLayoutConstraint {
+  318|      0|            if case .top = config.presentationStyle, let nav = viewController as? UINavigationController, nav.sm_isVisible(view: nav.navigationBar) {
+  319|      0|                return NSLayoutConstraint(item: view, attribute: .top, relatedBy: .equal, toItem: nav.navigationBar, attribute: .bottom, multiplier: 1.00, constant: 0.0)
+  320|      0|            }
+  321|      0|            return NSLayoutConstraint(item: view, attribute: .top, relatedBy: .equal, toItem: containerView, attribute: .top, multiplier: 1.00, constant: 0.0)
+  322|      0|        }
+  323|      0|
+  324|      0|        func bottomLayoutConstraint(view: UIView, containerView: UIView, viewController: UIViewController?) -> NSLayoutConstraint {
+  325|      0|            if case .bottom = config.presentationStyle, let tab = viewController as? UITabBarController, tab.sm_isVisible(view: tab.tabBar) {
+  326|      0|                return NSLayoutConstraint(item: view, attribute: .bottom, relatedBy: .equal, toItem: tab.tabBar, attribute: .top, multiplier: 1.00, constant: 0.0)
+  327|      0|            }
+  328|      0|            return NSLayoutConstraint(item: view, attribute: .bottom, relatedBy: .equal, toItem: containerView, attribute: .bottom, multiplier: 1.00, constant: 0.0)
+  329|      0|        }
+  330|      0|
+  331|      0|        func installMaskingView(containerView: UIView) {
+  332|      0|            maskingView.translatesAutoresizingMaskIntoConstraints = false
+  333|      0|            if let nav = presentationContext.viewControllerValue() as? UINavigationController {
+  334|      0|                containerView.insertSubview(maskingView, belowSubview: nav.navigationBar)
+  335|      0|            } else if let tab = presentationContext.viewControllerValue() as? UITabBarController {
+  336|      0|                containerView.insertSubview(maskingView, belowSubview: tab.tabBar)
+  337|      0|            } else {
+  338|      0|                containerView.addSubview(maskingView)
+  339|      0|            }
+  340|      0|            maskingView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor).isActive = true
+  341|      0|            maskingView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor).isActive = true
+  342|      0|            topLayoutConstraint(view: maskingView, containerView: containerView, viewController: presentationContext.viewControllerValue()).isActive = true
+  343|      0|            bottomLayoutConstraint(view: maskingView, containerView: containerView, viewController: presentationContext.viewControllerValue()).isActive = true
+  344|      0|            // Update the container view's layout in order to know the masking view's frame
+  345|      0|            containerView.layoutIfNeeded()
+  346|      0|        }
+  347|      0|
+  348|      0|        func installInteractive() {
+  349|      0|            guard config.dimMode.modal else { return }
+  350|      0|            if config.dimMode.interactive {
+  351|      0|                maskingView.tappedHander = { [weak self] in
+  352|      0|                    guard let strongSelf = self else { return }
+  353|      0|                    strongSelf.interactivelyHidden = true
+  354|      0|                    strongSelf.delegate?.hide(presenter: strongSelf)
+  355|      0|                }
+  356|      0|            } else {
+  357|      0|                // There's no action to take, but the presence of
+  358|      0|                // a tap handler prevents interaction with underlying views.
+  359|      0|                maskingView.tappedHander = { }
+  360|      0|            }
+  361|      0|        }
+  362|      0|
+  363|      0|        func installAccessibility() {
+  364|      0|            var elements: [NSObject] = []
+  365|      0|            if let accessibleMessage = view as? AccessibleMessage {
+  366|      0|                if let message = accessibleMessage.accessibilityMessage {
+  367|      0|                    let element = accessibleMessage.accessibilityElement ?? view
+  368|      0|                    element.isAccessibilityElement = true
+  369|      0|                    if element.accessibilityLabel == nil {
+  370|      0|                        element.accessibilityLabel = message
+  371|      0|                    }
+  372|      0|                    elements.append(element)
+  373|      0|                }
+  374|      0|                if let additional = accessibleMessage.additonalAccessibilityElements {
+  375|      0|                    elements += additional
+  376|      0|                }
+  377|      0|            }
+  378|      0|            if config.dimMode.interactive {
+  379|      0|                let dismissView = UIView(frame: maskingView.bounds)
+  380|      0|                dismissView.translatesAutoresizingMaskIntoConstraints = true
+  381|      0|                dismissView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+  382|      0|                maskingView.addSubview(dismissView)
+  383|      0|                maskingView.sendSubviewToBack(dismissView)
+  384|      0|                dismissView.isUserInteractionEnabled = false
+  385|      0|                dismissView.isAccessibilityElement = true
+  386|      0|                dismissView.accessibilityLabel = config.dimModeAccessibilityLabel
+  387|      0|                dismissView.accessibilityTraits = UIAccessibilityTraits.button
+  388|      0|                elements.append(dismissView)
+  389|      0|            }
+  390|      0|            if config.dimMode.modal {
+  391|      0|                maskingView.accessibilityViewIsModal = true
+  392|      0|            }
+  393|      0|            maskingView.accessibleElements = elements
+  394|      0|        }
+  395|      0|
+  396|      0|        guard let containerView = presentationContext.viewValue() else { return }
+  397|      0|        if let windowViewController = presentationContext.viewControllerValue() as? WindowViewController {
+  398|      0|            windowViewController.install(becomeKey: becomeKeyWindow)
+  399|      0|        }
+  400|      0|        installMaskingView(containerView: containerView)
+  401|      0|        installInteractive()
+  402|      0|        installAccessibility()
+  403|      0|    }
+  404|       |
+  405|      0|    private var becomeKeyWindow: Bool {
+  406|      0|        if config.becomeKeyWindow == .some(true) { return true }
+  407|      0|        switch config.dimMode {
+  408|      0|        case .gray, .color, .blur:
+  409|      0|            // Should become key window in modal presentation style
+  410|      0|            // for proper VoiceOver handling.
+  411|      0|            return true
+  412|      0|        case .none:
+  413|      0|            return false
+  414|      0|        }
+  415|      0|    }
+  416|       |}
+  417|       |
+  418|       |
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/SwiftMessages/SwiftMessages/SwiftMessages.swift:
+    1|       |//
+    2|       |//  SwiftMessages.swift
+    3|       |//  SwiftMessages
+    4|       |//
+    5|       |//  Created by Timothy Moose on 8/1/16.
+    6|       |//  Copyright © 2016 SwiftKick Mobile LLC. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |
+   11|       |private let globalInstance = SwiftMessages()
+   12|       |
+   13|       |/**
+   14|       | The `SwiftMessages` class provides the interface for showing and hiding messages.
+   15|       | It behaves like a queue, only showing one message at a time. Message views that
+   16|       | adopt the `Identifiable` protocol (as `MessageView` does) will have duplicates removed.
+   17|       | */
+   18|       |open class SwiftMessages {
+   19|       |    
+   20|       |    /**
+   21|       |     Specifies whether the message view is displayed at the top or bottom
+   22|       |     of the selected presentation container.
+   23|       |    */
+   24|       |    public enum PresentationStyle {
+   25|       |        
+   26|       |        /**
+   27|       |         Message view slides down from the top.
+   28|       |        */
+   29|       |        case top
+   30|       |
+   31|       |        /**
+   32|       |         Message view slides up from the bottom.
+   33|       |         */
+   34|       |        case bottom
+   35|       |
+   36|       |        /**
+   37|       |         Message view fades into the center.
+   38|       |         */
+   39|       |        case center
+   40|       |
+   41|       |        /**
+   42|       |         User-defined animation
+   43|       |        */
+   44|       |        case custom(animator: Animator)
+   45|       |    }
+   46|       |
+   47|       |    /**
+   48|       |     Specifies how the container for presenting the message view
+   49|       |     is selected.
+   50|       |    */
+   51|       |    public enum PresentationContext {
+   52|       |        
+   53|       |        /**
+   54|       |         Displays the message view under navigation bars and tab bars if an
+   55|       |         appropriate one is found. Otherwise, it is displayed in a new window
+   56|       |         at level `UIWindow.Level.normal`. Use this option to automatically display
+   57|       |         under bars, where applicable. Because this option involves a top-down
+   58|       |         search, an approrpiate context might not be found when the view controller
+   59|       |         heirarchy incorporates custom containers. If this is the case, the
+   60|       |         .ViewController option can provide a more targeted context.
+   61|       |        */
+   62|       |        case automatic
+   63|       |
+   64|       |        /**
+   65|       |         Displays the message in a new window at the specified window level. Use
+   66|       |         `UIWindow.Level.normal` to display under the status bar and `UIWindow.Level.statusBar`
+   67|       |         to display over. When displaying under the status bar, SwiftMessages automatically
+   68|       |         increases the top margins of any message view that adopts the `MarginInsetting`
+   69|       |         protocol (as `MessageView` does) to account for the status bar.
+   70|       |        */
+   71|       |        case window(windowLevel: UIWindow.Level)
+   72|       |        
+   73|       |        /**
+   74|       |         Displays the message view under navigation bars and tab bars if an
+   75|       |         appropriate one is found using the given view controller as a starting
+   76|       |         point and searching up the parent view controller chain. Otherwise, it
+   77|       |         is displayed in the given view controller's view. This option can be used
+   78|       |         for targeted placement in a view controller heirarchy.
+   79|       |        */
+   80|       |        case viewController(_: UIViewController)
+   81|       |        
+   82|       |        /**
+   83|       |         Displays the message view in the given container view.
+   84|       |         */
+   85|       |        case view(_: UIView)
+   86|       |    }
+   87|       |    
+   88|       |    /**
+   89|       |     Specifies the duration of the message view's time on screen before it is
+   90|       |     automatically hidden.
+   91|       |    */
+   92|       |    public enum Duration {
+   93|       |        
+   94|       |        /**
+   95|       |         Hide the message view after the default duration.
+   96|       |        */
+   97|       |        case automatic
+   98|       |        
+   99|       |        /**
+  100|       |         Disables automatic hiding of the message view.
+  101|       |        */
+  102|       |        case forever
+  103|       |        
+  104|       |        /**
+  105|       |         Hide the message view after the speficied number of seconds.
+  106|       |         
+  107|       |         - Parameter seconds: The number of seconds.
+  108|       |        */
+  109|       |        case seconds(seconds: TimeInterval)
+  110|       |
+  111|       |        /**
+  112|       |         The `indefinite` option is similar to `forever` in the sense that
+  113|       |         the message view will not be automatically hidden. However, it
+  114|       |         provides two options that can be useful in some scenarios:
+  115|       |         
+  116|       |            - `delay`: wait the specified time interval before displaying
+  117|       |                       the message. If you hide the message during the delay
+  118|       |                       interval by calling either `hideAll()` or `hide(id:)`,
+  119|       |                       the message will not be displayed. This is not the case for
+  120|       |                       `hide()` because it only acts on a visible message. Messages
+  121|       |                       shown during another message's delay window are displayed first.
+  122|       |            - `minimum`: if the message is displayed, ensure that it is displayed
+  123|       |                         for a minimum time interval. If you explicitly hide the
+  124|       |                         during this interval, the message will be hidden at the
+  125|       |                         end of the interval.
+  126|       |
+  127|       |         This option is useful for displaying a message when a process is taking
+  128|       |         too long but you don't want to display the message if the process completes
+  129|       |         in a reasonable amount of time. The value `indefinite(delay: 0, minimum: 0)`
+  130|       |         is equivalent to `forever`.
+  131|       |         
+  132|       |         For example, if a URL load is expected to complete in 2 seconds, you may use
+  133|       |         the value `indefinite(delay: 2, minimum 1)` to ensure that the message will not
+  134|       |         be displayed in most cases, but will be displayed for at least 1 second if
+  135|       |         the operation takes longer than 2 seconds. By specifying a minimum duration,
+  136|       |         you can avoid hiding the message too fast if the operation finishes right
+  137|       |         after the delay interval.
+  138|       |        */
+  139|       |        case indefinite(delay: TimeInterval, minimum: TimeInterval)
+  140|       |    }
+  141|       |    
+  142|       |    /**
+  143|       |     Specifies options for dimming the background behind the message view
+  144|       |     similar to a popover view controller.
+  145|       |    */
+  146|       |    public enum DimMode {
+  147|       |        
+  148|       |        /**
+  149|       |         Don't dim the background behind the message view.
+  150|       |        */
+  151|       |        case none
+  152|       |
+  153|       |        /**
+  154|       |         Dim the background behind the message view a gray color.
+  155|       |         
+  156|       |         - `interactive`: Specifies whether or not tapping the
+  157|       |                          dimmed area dismisses the message view.
+  158|       |         */
+  159|       |        case gray(interactive: Bool)
+  160|       |
+  161|       |        /**
+  162|       |         Dim the background behind the message view using the given color.
+  163|       |         SwiftMessages does not apply alpha transparency to the color, so any alpha
+  164|       |         must be baked into the `UIColor` instance.
+  165|       |         
+  166|       |         - `color`: The color of the dim view.
+  167|       |         - `interactive`: Specifies whether or not tapping the
+  168|       |                          dimmed area dismisses the message view.
+  169|       |         */
+  170|       |        case color(color: UIColor, interactive: Bool)
+  171|       |
+  172|       |        /**
+  173|       |         Dim the background behind the message view using a blur effect with
+  174|       |         the given style
+  175|       |
+  176|       |         - `style`: The blur effect style to use
+  177|       |         - `alpha`: The alpha level of the blur
+  178|       |         - `interactive`: Specifies whether or not tapping the
+  179|       |         dimmed area dismisses the message view.
+  180|       |         */
+  181|       |        case blur(style: UIBlurEffect.Style, alpha: CGFloat, interactive: Bool)
+  182|       |
+  183|      0|        public var interactive: Bool {
+  184|      0|            switch self {
+  185|      0|            case .gray(let interactive):
+  186|      0|                return interactive
+  187|      0|            case .color(_, let interactive):
+  188|      0|                return interactive
+  189|      0|            case .blur (_, _, let interactive):
+  190|      0|                return interactive
+  191|      0|            case .none:
+  192|      0|                return false
+  193|      0|            }
+  194|      0|        }
+  195|       |
+  196|      0|        public var modal: Bool {
+  197|      0|            switch self {
+  198|      0|            case .gray, .color, .blur:
+  199|      0|                return true
+  200|      0|            case .none:
+  201|      0|                return false
+  202|      0|            }
+  203|      0|        }
+  204|       |    }
+  205|       |
+  206|       |    /**
+  207|       |     Specifies events in the message lifecycle.
+  208|       |    */
+  209|       |    public enum Event {
+  210|       |        case willShow
+  211|       |        case didShow
+  212|       |        case willHide
+  213|       |        case didHide
+  214|       |    }
+  215|       |    
+  216|       |    /**
+  217|       |     A closure that takes an `Event` as an argument.
+  218|       |     */
+  219|       |    public typealias EventListener = (Event) -> Void
+  220|       |    
+  221|       |    /**
+  222|       |     The `Config` struct specifies options for displaying a single message view. It is
+  223|       |     provided as an optional argument to one of the `MessageView.show()` methods.
+  224|       |     */
+  225|       |    public struct Config {
+  226|       |        
+  227|      0|        public init() {}
+  228|       |        
+  229|       |        /**
+  230|       |         Specifies whether the message view is displayed at the top or bottom
+  231|       |         of the selected presentation container. The default is `.Top`.
+  232|       |         */
+  233|       |        public var presentationStyle = PresentationStyle.top
+  234|       |
+  235|       |        /**
+  236|       |         Specifies how the container for presenting the message view
+  237|       |         is selected. The default is `.Automatic`.
+  238|       |         */
+  239|       |        public var presentationContext = PresentationContext.automatic
+  240|       |
+  241|       |        /**
+  242|       |         Specifies the duration of the message view's time on screen before it is
+  243|       |         automatically hidden. The default is `.Automatic`.
+  244|       |         */
+  245|       |        public var duration = Duration.automatic
+  246|       |        
+  247|       |        /**
+  248|       |         Specifies options for dimming the background behind the message view
+  249|       |         similar to a popover view controller. The default is `.None`.
+  250|       |         */
+  251|       |        public var dimMode = DimMode.none
+  252|       |        
+  253|       |        /**
+  254|       |         Specifies whether or not the interactive pan-to-hide gesture is enabled
+  255|       |         on the message view. For views that implement the `BackgroundViewable` 
+  256|       |         protocol (as `MessageView` does), the pan gesture recognizer is installed
+  257|       |         in the `backgroundView`, which allows for card-style views with transparent
+  258|       |         margins that shouldn't be interactive. Otherwise, it is installed in
+  259|       |         the message view itself. The default is `true`.
+  260|       |        */
+  261|       |        public var interactiveHide = true
+  262|       |        
+  263|       |        /**
+  264|       |         Specifies the preferred status bar style when the view is displayed
+  265|       |         directly behind the status bar, such as when using `.Window`
+  266|       |         presentation context with a `UIWindow.Level.normal` window level
+  267|       |         and `.Top` presentation style. This option is useful if the message
+  268|       |         view has a background color that needs a different status bar style than
+  269|       |         the current one. The default is `.Default`.
+  270|       |         */
+  271|       |        public var preferredStatusBarStyle: UIStatusBarStyle?
+  272|       |        
+  273|       |        /**
+  274|       |         If a view controller is created to host the message view, should the view 
+  275|       |         controller auto rotate?  The default is 'true', meaning it should auto
+  276|       |         rotate.
+  277|       |         */
+  278|       |        public var shouldAutorotate = true
+  279|       |
+  280|       |        /**
+  281|       |         Specified whether or not duplicate `Identifiable` messages are ignored.
+  282|       |         The default is `true`.
+  283|       |        */
+  284|       |        public var ignoreDuplicates = true
+  285|       |        
+  286|       |        /**
+  287|       |         Specifies an optional array of event listeners.
+  288|       |        */
+  289|       |        public var eventListeners: [EventListener] = []
+  290|       |        
+  291|       |        /**
+  292|       |         Specifies that in cases where the message is displayed in its own window,
+  293|       |         such as with `.window` presentation context, the window should become
+  294|       |         the key window. This option should only be used if the message view
+  295|       |         needs to receive non-touch events, such as keyboard input. From Apple's
+  296|       |         documentation https://developer.apple.com/reference/uikit/uiwindow:
+  297|       |         
+  298|       |         > Whereas touch events are delivered to the window where they occurred,
+  299|       |         > events that do not have a relevant coordinate value are delivered to
+  300|       |         > the key window. Only one window at a time can be the key window, and
+  301|       |         > you can use a window’s keyWindow property to determine its status.
+  302|       |         > Most of the time, your app’s main window is the key window, but UIKit
+  303|       |         > may designate a different window as needed.
+  304|       |         */
+  305|       |        public var becomeKeyWindow: Bool?
+  306|       |
+  307|       |        /**
+  308|       |         The `dimMode` background will use this accessibility
+  309|       |         label, e.g. "dismiss" when the `interactive` option is used.
+  310|       |        */
+  311|       |        public var dimModeAccessibilityLabel: String = "dismiss"
+  312|       |
+  313|       |        /**
+  314|       |         If specified, SwiftMessages calls this closure when an instance of
+  315|       |         `WindowViewController` is needed. Use this if you need to supply a custom subclass
+  316|       |         of `WindowViewController`.
+  317|       |         */
+  318|       |        public var windowViewController: ((_ windowLevel: UIWindow.Level?, _ config: SwiftMessages.Config) -> WindowViewController)?
+  319|       |    }
+  320|       |    
+  321|       |    /**
+  322|       |     Not much to say here.
+  323|       |     */
+  324|      0|    public init() {}
+  325|       |    
+  326|       |    /**
+  327|       |     Adds the given configuration and view to the message queue to be displayed.
+  328|       |     
+  329|       |     - Parameter config: The configuration options.
+  330|       |     - Parameter view: The view to be displayed.
+  331|       |     */
+  332|      0|    open func show(config: Config, view: UIView) {
+  333|      0|        let presenter = Presenter(config: config, view: view, delegate: self)
+  334|      0|        messageQueue.sync {
+  335|      0|            enqueue(presenter: presenter)
+  336|      0|        }
+  337|      0|    }
+  338|       |    
+  339|       |    /**
+  340|       |     Adds the given view to the message queue to be displayed
+  341|       |     with default configuration options.
+  342|       |     
+  343|       |     - Parameter config: The configuration options.
+  344|       |     - Parameter view: The view to be displayed.
+  345|       |     */
+  346|      0|    public func show(view: UIView) {
+  347|      0|        show(config: defaultConfig, view: view)
+  348|      0|    }
+  349|       |    
+  350|       |    /// A block that returns an arbitrary view.
+  351|       |    public typealias ViewProvider = () -> UIView
+  352|       |
+  353|       |    /**
+  354|       |     Adds the given configuration and view provider to the message queue to be displayed.
+  355|       |
+  356|       |     The `viewProvider` block is guaranteed to be called on the main queue where
+  357|       |     it is safe to interact with `UIKit` components. This variant of `show()` is
+  358|       |     recommended when the message might be added from a background queue.
+  359|       |     
+  360|       |     - Parameter config: The configuration options.
+  361|       |     - Parameter viewProvider: A block that returns the view to be displayed.
+  362|       |     */
+  363|      0|    open func show(config: Config, viewProvider: @escaping ViewProvider) {
+  364|      0|        DispatchQueue.main.async { [weak self] in
+  365|      0|            guard let strongSelf = self else { return }
+  366|      0|            let view = viewProvider()
+  367|      0|            strongSelf.show(config: config, view: view)
+  368|      0|        }
+  369|      0|    }
+  370|       |    
+  371|       |    /**
+  372|       |     Adds the given view provider to the message queue to be displayed
+  373|       |     with default configuration options.
+  374|       |     
+  375|       |     The `viewProvider` block is guaranteed to be called on the main queue where
+  376|       |     it is safe to interact with `UIKit` components. This variant of `show()` is
+  377|       |     recommended when the message might be added from a background queue.
+  378|       |     
+  379|       |     - Parameter viewProvider: A block that returns the view to be displayed.
+  380|       |     */
+  381|      0|    public func show(viewProvider: @escaping ViewProvider) {
+  382|      0|        show(config: defaultConfig, viewProvider: viewProvider)
+  383|      0|    }
+  384|       |    
+  385|       |    /**
+  386|       |     Hide the current message being displayed by animating it away.
+  387|       |     */
+  388|      0|    open func hide() {
+  389|      0|        messageQueue.sync {
+  390|      0|            hideCurrent()
+  391|      0|        }
+  392|      0|    }
+  393|       |
+  394|       |    /**
+  395|       |     Hide the current message, if there is one, by animating it away and
+  396|       |     clear the message queue.
+  397|       |     */
+  398|      0|    open func hideAll() {
+  399|      0|        messageQueue.sync {
+  400|      0|            queue.removeAll()
+  401|      0|            delays.ids.removeAll()
+  402|      0|            counts.removeAll()
+  403|      0|            hideCurrent()
+  404|      0|        }
+  405|      0|    }
+  406|       |
+  407|       |    /**
+  408|       |     Hide a message with the given `id`. If the specified message is
+  409|       |     currently being displayed, it will be animated away. Works with message
+  410|       |     views, such as `MessageView`, that adopt the `Identifiable` protocol.
+  411|       |     - Parameter id: The identifier of the message to remove.
+  412|       |     */
+  413|      0|    open func hide(id: String) {
+  414|      0|        messageQueue.sync {
+  415|      0|            if id == _current?.id {
+  416|      0|                hideCurrent()
+  417|      0|            }
+  418|      0|            queue = queue.filter { $0.id != id }
+  419|      0|            delays.ids.remove(id)
+  420|      0|            counts[id] = nil
+  421|      0|        }
+  422|      0|    }
+  423|       |
+  424|       |    /**
+  425|       |     Hide the message when the number of calls to show() and hideCounted(id:) for a
+  426|       |     given message ID are equal. This can be useful for messages that may be
+  427|       |     shown from  multiple code paths to ensure that all paths are ready to hide.
+  428|       |     */
+  429|      0|    open func hideCounted(id: String) {
+  430|      0|        messageQueue.sync {
+  431|      0|            if let count = counts[id] {
+  432|      0|                if count < 2 {
+  433|      0|                    counts[id] = nil
+  434|      0|                } else {
+  435|      0|                    counts[id] = count - 1
+  436|      0|                    return
+  437|      0|                }
+  438|      0|            }
+  439|      0|            if id == _current?.id {
+  440|      0|                hideCurrent()
+  441|      0|            }
+  442|      0|            queue = queue.filter { $0.id != id }
+  443|      0|            delays.ids.remove(id)
+  444|      0|        }
+  445|      0|    }
+  446|       |
+  447|       |    /**
+  448|       |     Get the count of a message with the given ID (see `hideCounted(id:)`)
+  449|       |     */
+  450|      0|    public func count(id: String) -> Int {
+  451|      0|        return counts[id] ?? 0
+  452|      0|    }
+  453|       |
+  454|       |    /**
+  455|       |     Explicitly set the count of a message with the given ID (see `hideCounted(id:)`).
+  456|       |     Not sure if there's a use case for this, but why not?!
+  457|       |     */
+  458|      0|    public func set(count: Int, for id: String) {
+  459|      0|        guard counts[id] != nil else { return }
+  460|      0|        return counts[id] = count
+  461|      0|    }
+  462|       |
+  463|       |    /**
+  464|       |     Specifies the default configuration to use when calling the variants of
+  465|       |     `show()` that don't take a `config` argument or as a base for custom configs.
+  466|       |     */
+  467|       |    public var defaultConfig = Config()
+  468|       |
+  469|       |    /**
+  470|       |     Specifies the amount of time to pause between removing a message
+  471|       |     and showing the next. Default is 0.5 seconds.
+  472|       |     */
+  473|       |    open var pauseBetweenMessages: TimeInterval = 0.5
+  474|       |
+  475|       |    /// Type for keeping track of delayed presentations
+  476|       |    fileprivate class Delays {
+  477|       |
+  478|       |        fileprivate var ids = Set<String>()
+  479|       |
+  480|      0|        fileprivate func add(presenter: Presenter) {
+  481|      0|            ids.insert(presenter.id)
+  482|      0|        }
+  483|       |
+  484|       |        @discardableResult
+  485|      0|        fileprivate func remove(presenter: Presenter) -> Bool {
+  486|      0|            guard ids.contains(presenter.id) else { return false }
+  487|      0|            ids.remove(presenter.id)
+  488|      0|            return true
+  489|      0|        }
+  490|       |    }
+  491|       |
+  492|      0|    func show(presenter: Presenter) {
+  493|      0|        messageQueue.sync {
+  494|      0|            enqueue(presenter: presenter)
+  495|      0|        }
+  496|      0|    }
+  497|       |
+  498|       |    fileprivate let messageQueue = DispatchQueue(label: "it.swiftkick.SwiftMessages", attributes: [])
+  499|       |    fileprivate var queue: [Presenter] = []
+  500|       |    fileprivate var delays = Delays()
+  501|       |    fileprivate var counts: [String : Int] = [:]
+  502|       |    fileprivate var _current: Presenter? = nil {
+  503|      0|        didSet {
+  504|      0|            if oldValue != nil {
+  505|      0|                let delayTime = DispatchTime.now() + pauseBetweenMessages
+  506|      0|                messageQueue.asyncAfter(deadline: delayTime) { [weak self] in
+  507|      0|                    self?.dequeueNext()
+  508|      0|                }
+  509|      0|            }
+  510|      0|        }
+  511|       |    }
+  512|       |
+  513|      0|    fileprivate func enqueue(presenter: Presenter) {
+  514|      0|        if presenter.config.ignoreDuplicates {
+  515|      0|            counts[presenter.id] = (counts[presenter.id] ?? 0) + 1
+  516|      0|            if _current?.id == presenter.id && _current?.isHiding == false { return }
+  517|      0|            if queue.filter({ $0.id == presenter.id }).count > 0 { return }
+  518|      0|        }
+  519|      0|        func doEnqueue() {
+  520|      0|            queue.append(presenter)
+  521|      0|            dequeueNext()
+  522|      0|        }
+  523|      0|        if let delay = presenter.delayShow {
+  524|      0|            delays.add(presenter: presenter)
+  525|      0|            messageQueue.asyncAfter(deadline: .now() + delay) { [weak self] in
+  526|      0|                // Don't enqueue if the view has been hidden during the delay window.
+  527|      0|                guard let strongSelf = self, strongSelf.delays.remove(presenter: presenter) else { return }
+  528|      0|                doEnqueue()
+  529|      0|            }
+  530|      0|        } else {
+  531|      0|            doEnqueue()
+  532|      0|        }
+  533|      0|    }
+  534|       |    
+  535|      0|    fileprivate func dequeueNext() {
+  536|      0|        guard self._current == nil, queue.count > 0 else { return }
+  537|      0|        let current = queue.removeFirst()
+  538|      0|        self._current = current
+  539|      0|        // Set `autohideToken` before the animation starts in case
+  540|      0|        // the dismiss gesture begins before we've queued the autohide
+  541|      0|        // block on animation completion.
+  542|      0|        self.autohideToken = current
+  543|      0|        current.showDate = Date()
+  544|      0|        DispatchQueue.main.async { [weak self] in
+  545|      0|            guard let strongSelf = self else { return }
+  546|      0|            do {
+  547|      0|                try current.show { completed in
+  548|      0|                    guard let strongSelf = self else { return }
+  549|      0|                    guard completed else {
+  550|      0|                        strongSelf.messageQueue.sync {
+  551|      0|                            strongSelf.internalHide(id: current.id)
+  552|      0|                        }
+  553|      0|                        return
+  554|      0|                    }
+  555|      0|                    if current === strongSelf.autohideToken {
+  556|      0|                        strongSelf.queueAutoHide()
+  557|      0|                    }
+  558|      0|                }
+  559|      0|            } catch {
+  560|      0|                strongSelf.messageQueue.sync {
+  561|      0|                    strongSelf._current = nil
+  562|      0|                }
+  563|      0|            }
+  564|      0|        }
+  565|      0|    }
+  566|       |
+  567|      0|    fileprivate func internalHide(id: String) {
+  568|      0|        if id == _current?.id {
+  569|      0|            hideCurrent()
+  570|      0|        }
+  571|      0|        queue = queue.filter { $0.id != id }
+  572|      0|        delays.ids.remove(id)
+  573|      0|    }
+  574|       |
+  575|      0|    fileprivate func hideCurrent() {
+  576|      0|        guard let current = _current, !current.isHiding else { return }
+  577|      0|        let delay = current.delayHide ?? 0
+  578|      0|        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self, weak current] in
+  579|      0|            guard let strongCurrent = current else { return }
+  580|      0|            strongCurrent.hide { (completed) in
+  581|      0|                guard completed, let strongSelf = self, let strongCurrent = current else { return }
+  582|      0|                strongSelf.messageQueue.sync {
+  583|      0|                    guard strongSelf._current === strongCurrent else { return }
+  584|      0|                    strongSelf.counts[strongCurrent.id] = nil
+  585|      0|                    strongSelf._current = nil
+  586|      0|                }
+  587|      0|            }
+  588|      0|        }
+  589|      0|    }
+  590|       |
+  591|       |    fileprivate weak var autohideToken: AnyObject?
+  592|       |    
+  593|      0|    fileprivate func queueAutoHide() {
+  594|      0|        guard let current = _current else { return }
+  595|      0|        autohideToken = current
+  596|      0|        if let pauseDuration = current.pauseDuration {
+  597|      0|            let delayTime = DispatchTime.now() + pauseDuration
+  598|      0|            messageQueue.asyncAfter(deadline: delayTime, execute: { [weak self, weak current] in
+  599|      0|                guard let strongSelf = self, let current = current else { return }
+  600|      0|                // Make sure we've still got a green light to auto-hide.
+  601|      0|                if strongSelf.autohideToken !== current { return }
+  602|      0|                strongSelf.internalHide(id: current.id)
+  603|      0|            })
+  604|      0|        }
+  605|      0|    }
+  606|       |}
+  607|       |
+  608|       |/*
+  609|       | MARK: - Accessing messages
+  610|       | */
+  611|       |
+  612|       |extension SwiftMessages {
+  613|       |
+  614|       |    /**
+  615|       |     Returns the message view of type `T` if it is currently being shown or hidden.
+  616|       |
+  617|       |     - Returns: The view of type `T` if it is currently being shown or hidden.
+  618|       |     */
+  619|      0|    public func current<T: UIView>() -> T? {
+  620|      0|        var view: T?
+  621|      0|        messageQueue.sync {
+  622|      0|            view = _current?.view as? T
+  623|      0|        }
+  624|      0|        return view
+  625|      0|    }
+  626|       |
+  627|       |    /**
+  628|       |     Returns a message view with the given `id` if it is currently being shown or hidden.
+  629|       |
+  630|       |     - Parameter id: The id of a message that adopts `Identifiable`.
+  631|       |     - Returns: The view with matching id if currently being shown or hidden.
+  632|       |    */
+  633|      0|    public func current<T: UIView>(id: String) -> T? {
+  634|      0|        var view: T?
+  635|      0|        messageQueue.sync {
+  636|      0|            if let current = _current, current.id == id {
+  637|      0|                view = current.view as? T
+  638|      0|            }
+  639|      0|        }
+  640|      0|        return view
+  641|      0|    }
+  642|       |
+  643|       |    /**
+  644|       |     Returns a message view with the given `id` if it is currently in the queue to be shown.
+  645|       |
+  646|       |     - Parameter id: The id of a message that adopts `Identifiable`.
+  647|       |     - Returns: The view with matching id if currently queued to be shown.
+  648|       |     */
+  649|      0|    public func queued<T: UIView>(id: String) -> T? {
+  650|      0|        var view: T?
+  651|      0|        messageQueue.sync {
+  652|      0|            if let queued = queue.first(where: { $0.id == id }) {
+  653|      0|                view = queued.view as? T
+  654|      0|            }
+  655|      0|        }
+  656|      0|        return view
+  657|      0|    }
+  658|       |
+  659|       |    /**
+  660|       |     Returns a message view with the given `id` if it is currently being 
+  661|       |     shown, hidden or in the queue to be shown.
+  662|       |
+  663|       |     - Parameter id: The id of a message that adopts `Identifiable`.
+  664|       |     - Returns: The view with matching id if currently queued to be shown.
+  665|       |     */
+  666|      0|    public func currentOrQueued<T: UIView>(id: String) -> T? {
+  667|      0|        return current(id: id) ?? queued(id: id)
+  668|      0|    }
+  669|       |}
+  670|       |
+  671|       |/*
+  672|       | MARK: - PresenterDelegate
+  673|       | */
+  674|       |
+  675|       |extension SwiftMessages: PresenterDelegate {
+  676|       |
+  677|      0|    func hide(presenter: Presenter) {
+  678|      0|        messageQueue.sync {
+  679|      0|            self.internalHide(id: presenter.id)
+  680|      0|        }
+  681|      0|    }
+  682|       |
+  683|      0|    public func hide(animator: Animator) {
+  684|      0|        messageQueue.sync {
+  685|      0|            guard let presenter = self.presenter(forAnimator: animator) else { return }
+  686|      0|            self.internalHide(id: presenter.id)
+  687|      0|        }
+  688|      0|    }
+  689|       |
+  690|      0|    public func panStarted(animator: Animator) {
+  691|      0|        autohideToken = nil
+  692|      0|    }
+  693|       |
+  694|      0|    public func panEnded(animator: Animator) {
+  695|      0|        queueAutoHide()
+  696|      0|    }
+  697|       |
+  698|       |    private func presenter(forAnimator animator: Animator) -> Presenter? {
+  699|       |        if let current = _current, animator === current.animator {
+  700|       |            return current
+  701|       |        }
+  702|      0|        let queued = queue.filter { $0.animator === animator }
+  703|       |        return queued.first
+  704|       |    }
+  705|       |}
+  706|       |
+  707|       |/**
+  708|       | MARK: - Creating views from nibs
+  709|       |
+  710|       | This extension provides several convenience functions for instantiating views from nib files.
+  711|       | SwiftMessages provides several default nib files in the Resources folder that can be
+  712|       | drag-and-dropped into a project as a starting point and modified.
+  713|       | */
+  714|       |
+  715|       |extension SwiftMessages {
+  716|       |    
+  717|       |    /**
+  718|       |     Loads a nib file with the same name as the generic view type `T` and returns
+  719|       |     the first view found in the nib file with matching type `T`. For example, if
+  720|       |     the generic type is `MyView`, a nib file named `MyView.nib` is loaded and the
+  721|       |     first top-level view of type `MyView` is returned. The main bundle is searched
+  722|       |     first followed by the SwiftMessages bundle.
+  723|       |     
+  724|       |     - Parameter filesOwner: An optional files owner.
+  725|       |     
+  726|       |     - Throws: `Error.CannotLoadViewFromNib` if a view matching the
+  727|       |       generic type `T` is not found in the nib.
+  728|       |     
+  729|       |     - Returns: An instance of generic view type `T`.
+  730|       |     */
+  731|      0|    public class func viewFromNib<T: UIView>(_ filesOwner: AnyObject = NSNull.init()) throws -> T {
+  732|      0|        let name = T.description().components(separatedBy: ".").last
+  733|      0|        assert(name != nil)
+  734|      0|        let view: T = try internalViewFromNib(named: name!, bundle: nil, filesOwner: filesOwner)
+  735|      0|        return view
+  736|      0|    }
+  737|       |    
+  738|       |    /**
+  739|       |     Loads a nib file with specified name and returns the first view found in the  nib file
+  740|       |     with matching type `T`. The main bundle is searched first followed by the SwiftMessages bundle.
+  741|       |     
+  742|       |     - Parameter name: The name of the nib file (excluding the .xib extension).
+  743|       |     - Parameter filesOwner: An optional files owner.
+  744|       |     
+  745|       |     - Throws: `Error.CannotLoadViewFromNib` if a view matching the
+  746|       |     generic type `T` is not found in the nib.
+  747|       |     
+  748|       |     - Returns: An instance of generic view type `T`.
+  749|       |     */
+  750|      0|    public class func viewFromNib<T: UIView>(named name: String, filesOwner: AnyObject = NSNull.init()) throws -> T {
+  751|      0|        let view: T = try internalViewFromNib(named: name, bundle: nil, filesOwner: filesOwner)
+  752|      0|        return view
+  753|      0|    }
+  754|       |    
+  755|       |    /**
+  756|       |     Loads a nib file with specified name in the specified bundle and returns the
+  757|       |     first view found in the  nib file with matching type `T`.
+  758|       |     
+  759|       |     - Parameter name: The name of the nib file (excluding the .xib extension).
+  760|       |     - Parameter bundle: The name of the bundle containing the nib file.
+  761|       |     - Parameter filesOwner: An optional files owner.
+  762|       |     
+  763|       |     - Throws: `Error.CannotLoadViewFromNib` if a view matching the
+  764|       |     generic type `T` is not found in the nib.
+  765|       |     
+  766|       |     - Returns: An instance of generic view type `T`.
+  767|       |     */
+  768|      0|    public class func viewFromNib<T: UIView>(named name: String, bundle: Bundle, filesOwner: AnyObject = NSNull.init()) throws -> T {
+  769|      0|        let view: T = try internalViewFromNib(named: name, bundle: bundle, filesOwner: filesOwner)
+  770|      0|        return view
+  771|      0|    }
+  772|       |    
+  773|       |    fileprivate class func internalViewFromNib<T: UIView>(named name: String, bundle: Bundle? = nil, filesOwner: AnyObject = NSNull.init()) throws -> T {
+  774|       |        let resolvedBundle: Bundle
+  775|       |        if let bundle = bundle {
+  776|       |            resolvedBundle = bundle
+  777|       |        } else {
+  778|       |            if Bundle.main.path(forResource: name, ofType: "nib") != nil {
+  779|       |                resolvedBundle = Bundle.main
+  780|       |            } else {
+  781|       |                resolvedBundle = Bundle.sm_frameworkBundle()
+  782|       |            }
+  783|       |        }
+  784|       |        let arrayOfViews = resolvedBundle.loadNibNamed(name, owner: filesOwner, options: nil) ?? []
+  785|       |        #if swift(>=4.1)
+  786|      0|        guard let view = arrayOfViews.compactMap( { $0 as? T} ).first else { throw SwiftMessagesError.cannotLoadViewFromNib(nibName: name) }
+  787|       |        #else
+  788|       |        guard let view = arrayOfViews.flatMap( { $0 as? T} ).first else { throw SwiftMessagesError.cannotLoadViewFromNib(nibName: name) }
+  789|       |        #endif
+  790|       |        return view
+  791|       |    }
+  792|       |}
+  793|       |
+  794|       |/*
+  795|       | MARK: - Static APIs
+  796|       | 
+  797|       | This extension provides a shared instance of `SwiftMessages` and a static API wrapper around
+  798|       | this instance for simplified syntax. For example, `SwiftMessages.show()` is equivalent
+  799|       | to `SwiftMessages.sharedInstance.show()`.
+  800|       | */
+  801|       |
+  802|       |extension SwiftMessages {
+  803|       |    
+  804|       |    /**
+  805|       |     A default shared instance of `SwiftMessages`. The `SwiftMessages` class provides
+  806|       |     a set of static APIs that wrap calls to this instance. For example, `SwiftMessages.show()`
+  807|       |     is equivalent to `SwiftMessages.sharedInstance.show()`.
+  808|       |     */
+  809|      0|    public static var sharedInstance: SwiftMessages {
+  810|      0|        return globalInstance
+  811|      0|    }
+  812|       |    
+  813|      0|    public static func show(viewProvider: @escaping ViewProvider) {
+  814|      0|        globalInstance.show(viewProvider: viewProvider)
+  815|      0|    }
+  816|       |    
+  817|      0|    public static func show(config: Config, viewProvider: @escaping ViewProvider) {
+  818|      0|        globalInstance.show(config: config, viewProvider: viewProvider)
+  819|      0|    }
+  820|       |    
+  821|      0|    public static func show(view: UIView) {
+  822|      0|        globalInstance.show(view: view)
+  823|      0|    }
+  824|       |
+  825|      0|    public static func show(config: Config, view: UIView) {
+  826|      0|        globalInstance.show(config: config, view: view)
+  827|      0|    }
+  828|       |
+  829|      0|    public static func hide() {
+  830|      0|        globalInstance.hide()
+  831|      0|    }
+  832|       |    
+  833|      0|    public static func hideAll() {
+  834|      0|        globalInstance.hideAll()
+  835|      0|    }
+  836|       |    
+  837|      0|    public static func hide(id: String) {
+  838|      0|        globalInstance.hide(id: id)
+  839|      0|    }
+  840|       |
+  841|      0|    public static func hideCounted(id: String) {
+  842|      0|        globalInstance.hideCounted(id: id)
+  843|      0|    }
+  844|       |
+  845|       |    public static var defaultConfig: Config {
+  846|      0|        get {
+  847|      0|            return globalInstance.defaultConfig
+  848|      0|        }
+  849|      0|        set {
+  850|      0|            globalInstance.defaultConfig = newValue
+  851|      0|        }
+  852|       |    }
+  853|       |    
+  854|       |    public static var pauseBetweenMessages: TimeInterval {
+  855|      0|        get {
+  856|      0|            return globalInstance.pauseBetweenMessages
+  857|      0|        }
+  858|      0|        set {
+  859|      0|            globalInstance.pauseBetweenMessages = newValue
+  860|      0|        }
+  861|       |    }
+  862|       |
+  863|      0|    public static func current<T: UIView>(id: String) -> T? {
+  864|      0|        return globalInstance.current(id: id)
+  865|      0|    }
+  866|       |
+  867|      0|    public static func queued<T: UIView>(id: String) -> T? {
+  868|      0|        return globalInstance.queued(id: id)
+  869|      0|    }
+  870|       |
+  871|      0|    public static func currentOrQueued<T: UIView>(id: String) -> T? {
+  872|      0|        return globalInstance.currentOrQueued(id: id)
+  873|      0|    }
+  874|       |
+  875|      0|    public static func count(id: String) -> Int {
+  876|      0|        return globalInstance.count(id: id)
+  877|      0|    }
+  878|       |
+  879|      0|    public static func set(count: Int, for id: String) {
+  880|      0|        globalInstance.set(count: count, for: id)
+  881|      0|    }
+  882|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/SwiftMessages/SwiftMessages/SwiftMessagesSegue.swift:
+    1|       |//
+    2|       |//  SwiftMessagesSegue.swift
+    3|       |//  SwiftMessages
+    4|       |//
+    5|       |//  Created by Timothy Moose on 5/30/18.
+    6|       |//  Copyright © 2018 SwiftKick Mobile. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |
+   11|       |/**
+   12|       | `SwiftMessagesSegue` is a configurable subclass of `UIStoryboardSegue` that utilizes
+   13|       | SwiftMessages to present and dismiss modal view controllers. It performs these transitions by
+   14|       | becoming your view controller's `transitioningDelegate` and calling SwiftMessage's `show()`
+   15|       | and `hide()` under the hood.
+   16|       |
+   17|       | To use `SwiftMessagesSegue` with Interface Builder, control-drag a segue, then select
+   18|       | "swift messages" from the Segue Type dialog. This configures a default transition. There are
+   19|       | two suggested ways to further configure the transition by setting options on `SwiftMessagesSegue`.
+   20|       | First, and recommended, you may subclass `SwiftMessagesSegue` and override `init(identifier:source:destination:)`.
+   21|       | Subclasses will automatically appear in the segue type dialog using an auto-generated name (for example, the
+   22|       | name for "VeryNiceSegue" would be "very nice"). Second, you may override `prepare(for:sender:)` in the
+   23|       | presenting view controller and downcast the segue to `SwiftMessagesSegue`.
+   24|       |
+   25|       | `SwiftMessagesSegue` can be used without an associated storyboard or segue by doing the following in
+   26|       | the presenting view controller.
+   27|       |
+   28|       |     let destinationVC = ... // make a reference to a destination view controller
+   29|       |     let segue = SwiftMessagesSegue(identifier: nil, source: self, destination: destinationVC)
+   30|       |     ... // do any configuration here
+   31|       |     segue.perform()
+   32|       |
+   33|       | To dismiss, call the UIKit API on the presenting view controller:
+   34|       |
+   35|       |     dismiss(animated: true, completion: nil)
+   36|       |
+   37|       | It is not necessary to retain `segue` because it retains itself until dismissal. However, you can
+   38|       | retain it if you plan to `perform()` more than once.
+   39|       |
+   40|       | + note: Some additional details:
+   41|       | 1. Your view controller's view will be embedded in a `SwiftMessages.BaseView` in order to
+   42|       |    utilize some SwiftMessages features. This view can be accessed and configured via the
+   43|       |    `SwiftMessagesSegue.messageView` property. For example, you may configure a default drop
+   44|       |    shadow by calling `segue.messageView.configureDropShadow()`.
+   45|       | 2. SwiftMessages relies on a view's `intrinsicContentSize` to determine the height of a message.
+   46|       |    However, some view controllers' views does not define a good `intrinsicContentSize`
+   47|       |    (`UINavigationController` is a common example). For these cases, there are a couple of ways
+   48|       |    to specify the preferred height. First, you may set the `preferredContentSize` on the destination
+   49|       |    view controller (available as "Use Preferred Explicit Size" in IB's attribute inspector). Second,
+   50|       |    you may set `SwiftMessagesSegue.messageView.backgroundHeight`.
+   51|       |
+   52|       | See the "View Controllers" selection in the Demo app for examples.
+   53|       | */
+   54|       |
+   55|       |open class SwiftMessagesSegue: UIStoryboardSegue {
+   56|       |
+   57|       |    /**
+   58|       |     Specifies one of the pre-defined layouts, mirroring a subset of `MessageView.Layout`.
+   59|       |     */
+   60|       |    public enum Layout {
+   61|       |
+   62|       |        /// The standard message view layout on top.
+   63|       |        case topMessage
+   64|       |
+   65|       |        /// The standard message view layout on bottom.
+   66|       |        case bottomMessage
+   67|       |
+   68|       |        /// A floating card-style view with rounded corners on top
+   69|       |        case topCard
+   70|       |
+   71|       |        /// A floating tab-style view with rounded corners on bottom
+   72|       |        case topTab
+   73|       |
+   74|       |        /// A floating card-style view with rounded corners on bottom
+   75|       |        case bottomCard
+   76|       |
+   77|       |        /// A floating tab-style view with rounded corners on top
+   78|       |        case bottomTab
+   79|       |
+   80|       |        /// A floating card-style view typically used with `.center` presentation style.
+   81|       |        case centered
+   82|       |    }
+   83|       |
+   84|       |    /**
+   85|       |     Specifies how the view controller's view is installed into the
+   86|       |     containing message view.
+   87|       |     */
+   88|       |    public enum Containment {
+   89|       |
+   90|       |        /**
+   91|       |         The view controller's view is installed for edge-to-edge display, extending into the safe areas
+   92|       |         to the device edges. This is done by calling `messageView.installContentView(:insets:)`
+   93|       |         See that method's documentation for additional details.
+   94|       |        */
+   95|       |        case content
+   96|       |
+   97|       |        /**
+   98|       |         The view controller's view is installed for card-style layouts, inset from the margins
+   99|       |         and avoiding safe areas. This is done by calling `messageView.installBackgroundView(:insets:)`.
+  100|       |         See that method's documentation for details.
+  101|       |        */
+  102|       |        case background
+  103|       |
+  104|       |        /**
+  105|       |         The view controller's view is installed for tab-style layouts, inset from the side margins, but extending
+  106|       |         to the device edge on the top or bottom. This is done by calling `messageView.installBackgroundVerticalView(:insets:)`.
+  107|       |         See that method's documentation for details.
+  108|       |         */
+  109|       |        case backgroundVertical
+  110|       |    }
+  111|       |
+  112|       |    /// The presentation style to use. See the SwiftMessages.PresentationStyle for details.
+  113|       |    public var presentationStyle: SwiftMessages.PresentationStyle {
+  114|      0|        get { return messenger.defaultConfig.presentationStyle }
+  115|      0|        set { messenger.defaultConfig.presentationStyle = newValue }
+  116|       |    }
+  117|       |
+  118|       |    /// The dim mode to use. See the SwiftMessages.DimMode for details.
+  119|       |    public var dimMode: SwiftMessages.DimMode {
+  120|      0|        get { return messenger.defaultConfig.dimMode}
+  121|      0|        set { messenger.defaultConfig.dimMode = newValue }
+  122|       |    }
+  123|       |
+  124|       |    /// Specifies whether or not the interactive pan-to-hide gesture is enabled
+  125|       |    /// on the message view. The default value is `true`, but may not be appropriate
+  126|       |    /// for view controllers that use swipe or pan gestures.
+  127|       |    public var interactiveHide: Bool {
+  128|      0|        get { return messenger.defaultConfig.interactiveHide }
+  129|      0|        set { messenger.defaultConfig.interactiveHide = newValue }
+  130|       |    }
+  131|       |
+  132|       |    /// Specifies an optional array of event listeners.
+  133|       |    public var eventListeners: [SwiftMessages.EventListener] {
+  134|      0|        get { return messenger.defaultConfig.eventListeners }
+  135|      0|        set { messenger.defaultConfig.eventListeners = newValue }
+  136|       |    }
+  137|       |
+  138|       |    /**
+  139|       |     The view that is passed to `SwiftMessages.show(config:view:)` during presentation.
+  140|       |     The view controller's view is installed into `containerView`, which is itself installed
+  141|       |     into `messageView`. `SwiftMessagesSegue` does this installation automatically based on the
+  142|       |     value of the `containment` property. `BaseView` is the parent of `MessageView` and provides a
+  143|       |     number of configuration options that you may use. For example, you may configure a default drop
+  144|       |     shadow by calling `messageView.configureDropShadow()`.
+  145|       |     */
+  146|       |    public var messageView = BaseView()
+  147|       |
+  148|       |    /**
+  149|       |     The view controller's view is embedded in `containerView` before being installed into
+  150|       |     `messageView`. This view provides configurable squircle (round) corners (see the parent
+  151|       |     class `CornerRoundingView`).
+  152|       |    */
+  153|       |    public var containerView = ViewControllerContainerView()
+  154|       |
+  155|       |    /**
+  156|       |     Specifies how the view controller's view is installed into the
+  157|       |     containing message view. See `Containment` for details.
+  158|       |     */
+  159|       |    public var containment: Containment = .content
+  160|       |
+  161|       |    private var messenger = SwiftMessages()
+  162|       |    private var selfRetainer: SwiftMessagesSegue? = nil
+  163|      0|    private lazy var hider = { return TransitioningDismisser(segue: self) }()
+  164|       |
+  165|      0|    private lazy var presenter = {
+  166|      0|        return Presenter(config: messenger.defaultConfig, view: messageView, delegate: messenger)
+  167|      0|    }()
+  168|       |
+  169|      0|    override open func perform() {
+  170|      0|        selfRetainer = self
+  171|      0|        destination.modalPresentationStyle = .custom
+  172|      0|        destination.transitioningDelegate = self
+  173|      0|        source.present(destination, animated: true, completion: nil)
+  174|      0|    }
+  175|       |
+  176|      0|    override public init(identifier: String?, source: UIViewController, destination: UIViewController) {
+  177|      0|        super.init(identifier: identifier, source: source, destination: destination)
+  178|      0|        dimMode = .gray(interactive: true)
+  179|      0|        messenger.defaultConfig.duration = .forever
+  180|      0|    }
+  181|       |
+  182|       |    fileprivate let safeAreaWorkaroundViewController = UIViewController()
+  183|       |}
+  184|       |
+  185|       |extension SwiftMessagesSegue {
+  186|       |    /// A convenience method for configuring some pre-defined layouts that mirror a subset of `MessageView.Layout`.
+  187|      0|    public func configure(layout: Layout) {
+  188|      0|        messageView.bounceAnimationOffset = 0
+  189|      0|        messageView.statusBarOffset = 0
+  190|      0|        messageView.safeAreaTopOffset = 0
+  191|      0|        messageView.safeAreaBottomOffset = 0
+  192|      0|        containment = .content
+  193|      0|        containerView.cornerRadius = 0
+  194|      0|        containerView.roundsLeadingCorners = false
+  195|      0|        messageView.configureDropShadow()
+  196|      0|        switch layout {
+  197|      0|        case .topMessage:
+  198|      0|            messageView.layoutMarginAdditions = UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20)
+  199|      0|            messageView.collapseLayoutMarginAdditions = false
+  200|      0|            let animation = TopBottomAnimation(style: .top)
+  201|      0|            animation.springDamping = 1
+  202|      0|            presentationStyle = .custom(animator: animation)
+  203|      0|        case .bottomMessage:
+  204|      0|            messageView.layoutMarginAdditions = UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20)
+  205|      0|            messageView.collapseLayoutMarginAdditions = false
+  206|      0|            let animation = TopBottomAnimation(style: .bottom)
+  207|      0|            animation.springDamping = 1
+  208|      0|            presentationStyle = .custom(animator: animation)
+  209|      0|        case .topCard:
+  210|      0|            containment = .background
+  211|      0|            messageView.layoutMarginAdditions = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+  212|      0|            messageView.collapseLayoutMarginAdditions = true
+  213|      0|            containerView.cornerRadius = 15
+  214|      0|            presentationStyle = .top
+  215|      0|        case .bottomCard:
+  216|      0|            containment = .background
+  217|      0|            messageView.layoutMarginAdditions = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+  218|      0|            messageView.collapseLayoutMarginAdditions = true
+  219|      0|            containerView.cornerRadius = 15
+  220|      0|            presentationStyle = .bottom
+  221|      0|        case .topTab:
+  222|      0|            containment = .backgroundVertical
+  223|      0|            messageView.layoutMarginAdditions = UIEdgeInsets(top: 20, left: 10, bottom: 20, right: 10)
+  224|      0|            messageView.collapseLayoutMarginAdditions = true
+  225|      0|            containerView.cornerRadius = 15
+  226|      0|            containerView.roundsLeadingCorners = true
+  227|      0|            let animation = TopBottomAnimation(style: .top)
+  228|      0|            animation.springDamping = 1
+  229|      0|            presentationStyle = .custom(animator: animation)
+  230|      0|        case .bottomTab:
+  231|      0|            containment = .backgroundVertical
+  232|      0|            messageView.layoutMarginAdditions = UIEdgeInsets(top: 20, left: 10, bottom: 20, right: 10)
+  233|      0|            messageView.collapseLayoutMarginAdditions = true
+  234|      0|            containerView.cornerRadius = 15
+  235|      0|            containerView.roundsLeadingCorners = true
+  236|      0|            let animation = TopBottomAnimation(style: .bottom)
+  237|      0|            animation.springDamping = 1
+  238|      0|            presentationStyle = .custom(animator: animation)
+  239|      0|        case .centered:
+  240|      0|            containment = .backgroundVertical
+  241|      0|            messageView.layoutMarginAdditions = UIEdgeInsets(top: 20, left: 10, bottom: 20, right: 10)
+  242|      0|            messageView.collapseLayoutMarginAdditions = true
+  243|      0|            containerView.cornerRadius = 15
+  244|      0|            presentationStyle = .center
+  245|      0|        }
+  246|      0|    }
+  247|       |}
+  248|       |
+  249|       |extension SwiftMessagesSegue: UIViewControllerTransitioningDelegate {
+  250|      0|    public func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+  251|      0|        let shower = TransitioningPresenter(segue: self)
+  252|      0|        messenger.defaultConfig.eventListeners.append { [unowned self] in
+  253|      0|            switch $0 {
+  254|      0|            case .didShow:
+  255|      0|                shower.completeTransition?(true)
+  256|      0|            case .didHide:
+  257|      0|                if let completeTransition = self.hider.completeTransition {
+  258|      0|                    completeTransition(true)
+  259|      0|                } else {
+  260|      0|                    // Case where message is interinally hidden by SwiftMessages, such as with a
+  261|      0|                    // dismiss gesture, rather than by view controller dismissal.
+  262|      0|                    source.dismiss(animated: false, completion: nil)
+  263|      0|                }
+  264|      0|                self.selfRetainer = nil
+  265|      0|            default: break
+  266|      0|            }
+  267|      0|        }
+  268|      0|        return shower
+  269|      0|    }
+  270|       |
+  271|      0|    public func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+  272|      0|        return hider
+  273|      0|    }
+  274|       |}
+  275|       |
+  276|       |extension SwiftMessagesSegue {
+  277|       |    private class TransitioningPresenter: NSObject, UIViewControllerAnimatedTransitioning {
+  278|       |
+  279|       |        fileprivate private(set) var completeTransition: ((Bool) -> Void)?
+  280|       |        private weak var segue: SwiftMessagesSegue?
+  281|       |
+  282|      0|        fileprivate init(segue: SwiftMessagesSegue) {
+  283|      0|            self.segue = segue
+  284|      0|        }
+  285|       |
+  286|      0|        func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
+  287|      0|            return segue?.presenter.animator.showDuration ?? 0.5
+  288|      0|        }
+  289|       |
+  290|      0|        func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
+  291|      0|            guard let segue = segue,
+  292|      0|                let toView = transitionContext.view(forKey: .to) else {
+  293|      0|                transitionContext.completeTransition(false)
+  294|      0|                return
+  295|      0|            }
+  296|      0|            if #available(iOS 12, *) {}
+  297|      0|            else if #available(iOS 11.0, *) {
+  298|      0|                // This works around a bug in iOS 11 where the safe area of `messageView` (
+  299|      0|                // and all ancestor views) is not set except on iPhone X. By assigning `messageView`
+  300|      0|                // to a view controller, its safe area is set consistently. This bug has been resolved as
+  301|      0|                // of Xcode 10 beta 2.
+  302|      0|                segue.safeAreaWorkaroundViewController.view = segue.presenter.maskingView
+  303|      0|            }
+  304|      0|            completeTransition = transitionContext.completeTransition
+  305|      0|            let transitionContainer = transitionContext.containerView
+  306|      0|            segue.containerView.addSubview(toView)
+  307|      0|            // Install the `toView` into the message view.
+  308|      0|            switch segue.containment {
+  309|      0|            case .content:
+  310|      0|                segue.messageView.installContentView(segue.containerView)
+  311|      0|            case .background:
+  312|      0|                segue.messageView.installBackgroundView(segue.containerView)
+  313|      0|            case .backgroundVertical:
+  314|      0|                segue.messageView.installBackgroundVerticalView(segue.containerView)
+  315|      0|            }
+  316|      0|            segue.containerView.viewController = transitionContext.viewController(forKey: .to)
+  317|      0|            segue.presenter.config.presentationContext = .view(transitionContainer)
+  318|      0|            segue.messenger.show(presenter: segue.presenter)
+  319|      0|        }
+  320|       |    }
+  321|       |}
+  322|       |
+  323|       |extension SwiftMessagesSegue {
+  324|       |    private class TransitioningDismisser: NSObject, UIViewControllerAnimatedTransitioning {
+  325|       |
+  326|       |        fileprivate private(set) var completeTransition: ((Bool) -> Void)?
+  327|       |        private weak var segue: SwiftMessagesSegue?
+  328|       |
+  329|      0|        fileprivate init(segue: SwiftMessagesSegue) {
+  330|      0|            self.segue = segue
+  331|      0|        }
+  332|       |
+  333|      0|        func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
+  334|      0|            return segue?.presenter.animator.hideDuration ?? 0.5
+  335|      0|        }
+  336|       |
+  337|      0|        func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
+  338|      0|            guard let messenger = segue?.messenger else {
+  339|      0|                transitionContext.completeTransition(false)
+  340|      0|                return
+  341|      0|            }
+  342|      0|            completeTransition = transitionContext.completeTransition
+  343|      0|            messenger.hide()
+  344|      0|        }
+  345|       |    }
+  346|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/SwiftMessages/SwiftMessages/Theme.swift:
+    1|       |//
+    2|       |//  Theme.swift
+    3|       |//  SwiftMessages
+    4|       |//
+    5|       |//  Created by Timothy Moose on 8/7/16.
+    6|       |//  Copyright © 2016 SwiftKick Mobile LLC. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |
+   11|       |/// The theme enum specifies the built-in theme options
+   12|       |public enum Theme {
+   13|       |    case info
+   14|       |    case success
+   15|       |    case warning
+   16|       |    case error
+   17|       |}
+   18|       |
+   19|       |/// The Icon enum provides type-safe access to the included icons.
+   20|       |public enum Icon: String {
+   21|       |    
+   22|       |    case error = "errorIcon"
+   23|       |    case warning = "warningIcon"
+   24|       |    case success = "successIcon"
+   25|       |    case info = "infoIcon"
+   26|       |    case errorLight = "errorIconLight"
+   27|       |    case warningLight = "warningIconLight"
+   28|       |    case successLight = "successIconLight"
+   29|       |    case infoLight = "infoIconLight"
+   30|       |    case errorSubtle = "errorIconSubtle"
+   31|       |    case warningSubtle = "warningIconSubtle"
+   32|       |    case successSubtle = "successIconSubtle"
+   33|       |    case infoSubtle = "infoIconSubtle"
+   34|       |    
+   35|       |    /// Returns the associated image.
+   36|      0|    public var image: UIImage {
+   37|      0|        return UIImage(named: rawValue, in: Bundle.sm_frameworkBundle(), compatibleWith: nil)!.withRenderingMode(.alwaysTemplate)
+   38|      0|    }
+   39|       |}
+   40|       |
+   41|       |/// The IconStyle enum specifies the different variations of the included icons.
+   42|       |public enum IconStyle {
+   43|       |    
+   44|       |    case `default`
+   45|       |    case light
+   46|       |    case subtle
+   47|       |    case none
+   48|       |    
+   49|       |    /// Returns the image for the given theme
+   50|      0|    public func image(theme: Theme) -> UIImage? {
+   51|      0|        switch (theme, self) {
+   52|      0|        case (.info, .default): return Icon.info.image
+   53|      0|        case (.info, .light): return Icon.infoLight.image
+   54|      0|        case (.info, .subtle): return Icon.infoSubtle.image
+   55|      0|        case (.success, .default): return Icon.success.image
+   56|      0|        case (.success, .light): return Icon.successLight.image
+   57|      0|        case (.success, .subtle): return Icon.successSubtle.image
+   58|      0|        case (.warning, .default): return Icon.warning.image
+   59|      0|        case (.warning, .light): return Icon.warningLight.image
+   60|      0|        case (.warning, .subtle): return Icon.warningSubtle.image
+   61|      0|        case (.error, .default): return Icon.error.image
+   62|      0|        case (.error, .light): return Icon.errorLight.image
+   63|      0|        case (.error, .subtle): return Icon.errorSubtle.image
+   64|      0|        default: return nil
+   65|      0|        }
+   66|      0|    }
+   67|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/SwiftMessages/SwiftMessages/TopBottomAnimation.swift:
+    1|       |//
+    2|       |//  TopBottomAnimation.swift
+    3|       |//  SwiftMessages
+    4|       |//
+    5|       |//  Created by Timothy Moose on 6/4/17.
+    6|       |//  Copyright © 2017 SwiftKick Mobile. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |
+   11|       |public class TopBottomAnimation: NSObject, Animator {
+   12|       |
+   13|       |    public enum Style {
+   14|       |        case top
+   15|       |        case bottom
+   16|       |    }
+   17|       |
+   18|       |    public weak var delegate: AnimationDelegate?
+   19|       |
+   20|       |    public let style: Style
+   21|       |
+   22|       |    open var springDamping: CGFloat = 0.8
+   23|       |
+   24|       |    open var closeSpeedThreshold: CGFloat = 750.0;
+   25|       |
+   26|       |    open var closePercentThreshold: CGFloat = 0.33;
+   27|       |
+   28|       |    open var closeAbsoluteThreshold: CGFloat = 75.0;
+   29|       |
+   30|       |    weak var messageView: UIView?
+   31|       |    weak var containerView: UIView?
+   32|       |    var context: AnimationContext?
+   33|       |
+   34|      0|    public init(style: Style) {
+   35|      0|        self.style = style
+   36|      0|    }
+   37|       |
+   38|      0|    init(style: Style, delegate: AnimationDelegate) {
+   39|      0|        self.style = style
+   40|      0|        self.delegate = delegate
+   41|      0|    }
+   42|       |
+   43|      0|    public func show(context: AnimationContext, completion: @escaping AnimationCompletion) {
+   44|      0|        NotificationCenter.default.addObserver(self, selector: #selector(adjustMargins), name: UIDevice.orientationDidChangeNotification, object: nil)
+   45|      0|        install(context: context)
+   46|      0|        showAnimation(completion: completion)
+   47|      0|    }
+   48|       |
+   49|      0|    public func hide(context: AnimationContext, completion: @escaping AnimationCompletion) {
+   50|      0|        NotificationCenter.default.removeObserver(self)
+   51|      0|        let view = context.messageView
+   52|      0|        self.context = context
+   53|      0|        UIView.animate(withDuration: hideDuration!, delay: 0, options: [.beginFromCurrentState, .curveEaseIn], animations: {
+   54|      0|            switch self.style {
+   55|      0|            case .top:
+   56|      0|                view.transform = CGAffineTransform(translationX: 0, y: -view.frame.height)
+   57|      0|            case .bottom:
+   58|      0|                view.transform = CGAffineTransform(translationX: 0, y: view.frame.maxY + view.frame.height)
+   59|      0|            }
+   60|      0|        }, completion: { completed in
+   61|      0|            #if SWIFTMESSAGES_APP_EXTENSIONS
+   62|      0|            completion(completed)
+   63|      0|            #else
+   64|      0|            // Fix #131 by always completing if application isn't active.
+   65|      0|            completion(completed || UIApplication.shared.applicationState != .active)
+   66|      0|            #endif
+   67|      0|        })
+   68|      0|    }
+   69|       |
+   70|      0|    public var showDuration: TimeInterval? { return 0.4  }
+   71|       |
+   72|      0|    public var hideDuration: TimeInterval? { return 0.2  }
+   73|       |
+   74|      0|    func install(context: AnimationContext) {
+   75|      0|        let view = context.messageView
+   76|      0|        let container = context.containerView
+   77|      0|        messageView = view
+   78|      0|        containerView = container
+   79|      0|        self.context = context
+   80|      0|        if let adjustable = context.messageView as? MarginAdjustable {
+   81|      0|            bounceOffset = adjustable.bounceAnimationOffset
+   82|      0|        }
+   83|      0|        view.translatesAutoresizingMaskIntoConstraints = false
+   84|      0|        container.addSubview(view)
+   85|      0|        view.leadingAnchor.constraint(equalTo: container.leadingAnchor).isActive = true
+   86|      0|        view.trailingAnchor.constraint(equalTo: container.trailingAnchor).isActive = true
+   87|      0|        switch style {
+   88|      0|        case .top:
+   89|      0|            view.topAnchor.constraint(equalTo: container.topAnchor, constant: -bounceOffset).isActive = true
+   90|      0|        case .bottom:
+   91|      0|            view.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: bounceOffset).isActive = true
+   92|      0|        }
+   93|      0|        // Important to layout now in order to get the right safe area insets
+   94|      0|        container.layoutIfNeeded()
+   95|      0|        adjustMargins()
+   96|      0|        container.layoutIfNeeded()
+   97|      0|        let animationDistance = view.frame.height
+   98|      0|        switch style {
+   99|      0|        case .top:
+  100|      0|            view.transform = CGAffineTransform(translationX: 0, y: -animationDistance)
+  101|      0|        case .bottom:
+  102|      0|            view.transform = CGAffineTransform(translationX: 0, y: animationDistance)
+  103|      0|        }
+  104|      0|        if context.interactiveHide {
+  105|      0|            let pan = UIPanGestureRecognizer()
+  106|      0|            pan.addTarget(self, action: #selector(pan(_:)))
+  107|      0|            if let view = view as? BackgroundViewable {
+  108|      0|                view.backgroundView.addGestureRecognizer(pan)
+  109|      0|            } else {
+  110|      0|                view.addGestureRecognizer(pan)
+  111|      0|            }
+  112|      0|        }
+  113|      0|        if let view = view as? BackgroundViewable,
+  114|      0|            let cornerRoundingView = view.backgroundView as? CornerRoundingView,
+  115|      0|            cornerRoundingView.roundsLeadingCorners {
+  116|      0|            switch style {
+  117|      0|            case .top:
+  118|      0|                cornerRoundingView.roundedCorners = [.bottomLeft, .bottomRight]
+  119|      0|            case .bottom:
+  120|      0|                cornerRoundingView.roundedCorners = [.topLeft, .topRight]
+  121|      0|            }
+  122|      0|        }
+  123|      0|    }
+  124|       |
+  125|      0|    @objc public func adjustMargins() {
+  126|      0|        guard let adjustable = messageView as? MarginAdjustable & UIView,
+  127|      0|            let context = context else { return }
+  128|      0|        adjustable.preservesSuperviewLayoutMargins = false
+  129|      0|        if #available(iOS 11, *) {
+  130|      0|            adjustable.insetsLayoutMarginsFromSafeArea = false
+  131|      0|        }
+  132|      0|        var layoutMargins = adjustable.defaultMarginAdjustment(context: context)
+  133|      0|        switch style {
+  134|      0|        case .top:
+  135|      0|            layoutMargins.top += bounceOffset
+  136|      0|        case .bottom:
+  137|      0|            layoutMargins.bottom += bounceOffset
+  138|      0|        }
+  139|      0|        adjustable.layoutMargins = layoutMargins
+  140|      0|    }
+  141|       |
+  142|      0|    func showAnimation(completion: @escaping AnimationCompletion) {
+  143|      0|        guard let view = messageView else {
+  144|      0|            completion(false)
+  145|      0|            return
+  146|      0|        }
+  147|      0|        let animationDistance = abs(view.transform.ty)
+  148|      0|        // Cap the initial velocity at zero because the bounceOffset may not be great
+  149|      0|        // enough to allow for greater bounce induced by a quick panning motion.
+  150|      0|        let initialSpringVelocity = animationDistance == 0.0 ? 0.0 : min(0.0, closeSpeed / animationDistance)
+  151|      0|        UIView.animate(withDuration: showDuration!, delay: 0.0, usingSpringWithDamping: springDamping, initialSpringVelocity: initialSpringVelocity, options: [.beginFromCurrentState, .curveLinear, .allowUserInteraction], animations: {
+  152|      0|            view.transform = .identity
+  153|      0|        }, completion: { completed in
+  154|      0|            // Fix #131 by always completing if application isn't active.
+  155|      0|            #if SWIFTMESSAGES_APP_EXTENSIONS
+  156|      0|            completion(completed)
+  157|      0|            #else
+  158|      0|            completion(completed || UIApplication.shared.applicationState != .active)
+  159|      0|            #endif
+  160|      0|        })
+  161|      0|    }
+  162|       |
+  163|       |    fileprivate var bounceOffset: CGFloat = 5
+  164|       |
+  165|       |    /*
+  166|       |     MARK: - Pan to close
+  167|       |     */
+  168|       |
+  169|       |    fileprivate var closing = false
+  170|       |    fileprivate var rubberBanding = false
+  171|       |    fileprivate var closeSpeed: CGFloat = 0.0
+  172|       |    fileprivate var closePercent: CGFloat = 0.0
+  173|       |    fileprivate var panTranslationY: CGFloat = 0.0
+  174|       |
+  175|      0|    @objc func pan(_ pan: UIPanGestureRecognizer) {
+  176|      0|        switch pan.state {
+  177|      0|        case .changed:
+  178|      0|            guard let view = messageView else { return }
+  179|      0|            let height = view.bounds.height - bounceOffset
+  180|      0|            if height <= 0 { return }
+  181|      0|            var velocity = pan.velocity(in: view)
+  182|      0|            var translation = pan.translation(in: view)
+  183|      0|            if case .top = style {
+  184|      0|                velocity.y *= -1.0
+  185|      0|                translation.y *= -1.0
+  186|      0|            }
+  187|      0|            var translationAmount = translation.y >= 0 ? translation.y : -pow(abs(translation.y), 0.7)
+  188|      0|            if !closing {
+  189|      0|                // Turn on rubber banding if background view is inset from message view.
+  190|      0|                if let background = (messageView as? BackgroundViewable)?.backgroundView, background != view {
+  191|      0|                    switch style {
+  192|      0|                    case .top:
+  193|      0|                        rubberBanding = background.frame.minY > 0
+  194|      0|                    case .bottom:
+  195|      0|                        rubberBanding = background.frame.maxY < view.bounds.height
+  196|      0|                    }
+  197|      0|                }
+  198|      0|                if !rubberBanding && translationAmount < 0 { return }
+  199|      0|                closing = true
+  200|      0|                delegate?.panStarted(animator: self)
+  201|      0|            }
+  202|      0|            if !rubberBanding && translationAmount < 0 { translationAmount = 0 }
+  203|      0|            switch style {
+  204|      0|            case .top:
+  205|      0|                view.transform = CGAffineTransform(translationX: 0, y: -translationAmount)
+  206|      0|            case .bottom:
+  207|      0|                view.transform = CGAffineTransform(translationX: 0, y: translationAmount)
+  208|      0|            }
+  209|      0|            closeSpeed = velocity.y
+  210|      0|            closePercent = translation.y / height
+  211|      0|            panTranslationY = translation.y
+  212|      0|        case .ended, .cancelled:
+  213|      0|            if closeSpeed > closeSpeedThreshold || closePercent > closePercentThreshold || panTranslationY > closeAbsoluteThreshold {
+  214|      0|                delegate?.hide(animator: self)
+  215|      0|            } else {
+  216|      0|                closing = false
+  217|      0|                rubberBanding = false
+  218|      0|                closeSpeed = 0.0
+  219|      0|                closePercent = 0.0
+  220|      0|                panTranslationY = 0.0
+  221|      0|                showAnimation(completion: { (completed) in
+  222|      0|                    self.delegate?.panEnded(animator: self)
+  223|      0|                })
+  224|      0|            }
+  225|      0|        default:
+  226|      0|            break
+  227|      0|        }
+  228|      0|    }
+  229|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/SwiftMessages/SwiftMessages/UIEdgeInsets+Utils.swift:
+    1|       |//
+    2|       |//  UIEdgeInsets+Utils.swift
+    3|       |//  SwiftMessages
+    4|       |//
+    5|       |//  Created by Timothy Moose on 5/23/18.
+    6|       |//  Copyright © 2018 SwiftKick Mobile. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |
+   11|       |extension UIEdgeInsets {
+   12|      0|    public static func +(left: UIEdgeInsets, right: UIEdgeInsets) -> UIEdgeInsets {
+   13|      0|        let topSum = left.top + right.top
+   14|      0|        let leftSum = left.left + right.left
+   15|      0|        let bottomSum = left.bottom + right.bottom
+   16|      0|        let rightSum = left.right + right.right
+   17|      0|        return UIEdgeInsets(top: topSum, left: leftSum, bottom: bottomSum, right: rightSum)
+   18|      0|    }
+   19|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/SwiftMessages/SwiftMessages/UIViewController+Utils.swift:
+    1|       |//
+    2|       |//  UIViewController+Utils.swift
+    3|       |//  SwiftMessages
+    4|       |//
+    5|       |//  Created by Timothy Moose on 8/5/16.
+    6|       |//  Copyright © 2016 SwiftKick Mobile LLC. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |
+   11|       |private let fullScreenStyles: [UIModalPresentationStyle] = [.fullScreen, .overFullScreen]
+   12|       |
+   13|       |extension UIViewController {
+   14|       |    
+   15|      0|    func sm_selectPresentationContextTopDown(_ config: SwiftMessages.Config) -> UIViewController {
+   16|      0|        let topBottomStyle = config.presentationStyle.topBottomStyle
+   17|      0|        if let presented = sm_presentedFullScreenViewController() {
+   18|      0|            return presented.sm_selectPresentationContextTopDown(config)
+   19|      0|        } else if case .top? = topBottomStyle, let navigationController = sm_selectNavigationControllerTopDown() {
+   20|      0|            return navigationController
+   21|      0|        } else if case .bottom? = topBottomStyle, let tabBarController = sm_selectTabBarControllerTopDown() {
+   22|      0|            return tabBarController
+   23|      0|        }
+   24|      0|        return WindowViewController.newInstance(windowLevel: self.view.window?.windowLevel, config: config)
+   25|      0|    }
+   26|       |    
+   27|       |    fileprivate func sm_selectNavigationControllerTopDown() -> UINavigationController? {
+   28|       |        if let presented = sm_presentedFullScreenViewController() {
+   29|       |            return presented.sm_selectNavigationControllerTopDown()
+   30|       |        } else if let navigationController = self as? UINavigationController {
+   31|       |            if navigationController.sm_isVisible(view: navigationController.navigationBar) {
+   32|       |                return navigationController
+   33|       |            }
+   34|       |            return navigationController.topViewController?.sm_selectNavigationControllerTopDown()
+   35|       |        } else if let tabBarController = self as? UITabBarController {
+   36|       |            return tabBarController.selectedViewController?.sm_selectNavigationControllerTopDown()
+   37|       |        }
+   38|       |        return nil
+   39|       |    }
+   40|       |
+   41|       |    fileprivate func sm_selectTabBarControllerTopDown() -> UITabBarController? {
+   42|       |        if let presented = sm_presentedFullScreenViewController() {
+   43|       |            return presented.sm_selectTabBarControllerTopDown()
+   44|       |        } else if let navigationController = self as? UINavigationController {
+   45|       |            return navigationController.topViewController?.sm_selectTabBarControllerTopDown()
+   46|       |        } else if let tabBarController = self as? UITabBarController {
+   47|       |            if tabBarController.sm_isVisible(view: tabBarController.tabBar) {
+   48|       |                return tabBarController
+   49|       |            }
+   50|       |            return tabBarController.selectedViewController?.sm_selectTabBarControllerTopDown()
+   51|       |        }
+   52|       |        return nil
+   53|       |    }
+   54|       |    
+   55|       |    fileprivate func sm_presentedFullScreenViewController() -> UIViewController? {
+   56|       |        if let presented = self.presentedViewController, fullScreenStyles.contains(presented.modalPresentationStyle) {
+   57|       |            return presented
+   58|       |        }
+   59|       |        return nil
+   60|       |    }
+   61|       |
+   62|      0|    func sm_selectPresentationContextBottomUp(_ config: SwiftMessages.Config) -> UIViewController {
+   63|      0|        let topBottomStyle = config.presentationStyle.topBottomStyle
+   64|      0|        if let parent = parent {
+   65|      0|            if let navigationController = parent as? UINavigationController {
+   66|      0|                if case .top? = topBottomStyle, navigationController.sm_isVisible(view: navigationController.navigationBar) {
+   67|      0|                    return navigationController
+   68|      0|                }
+   69|      0|                return navigationController.sm_selectPresentationContextBottomUp(config)
+   70|      0|            } else if let tabBarController = parent as? UITabBarController {
+   71|      0|                if case .bottom? = topBottomStyle, tabBarController.sm_isVisible(view: tabBarController.tabBar) {
+   72|      0|                    return tabBarController
+   73|      0|                }
+   74|      0|                return tabBarController.sm_selectPresentationContextBottomUp(config)
+   75|      0|            }
+   76|      0|        }
+   77|      0|        if self.view is UITableView {
+   78|      0|            // Never select scroll view as presentation context
+   79|      0|            // because, you know, it scrolls.
+   80|      0|            if let parent = self.parent {
+   81|      0|                return parent.sm_selectPresentationContextBottomUp(config)
+   82|      0|            } else {
+   83|      0|                return WindowViewController.newInstance(windowLevel: self.view.window?.windowLevel, config: config)
+   84|      0|            }
+   85|      0|        }
+   86|      0|        return self
+   87|      0|    }
+   88|       |    
+   89|       |    func sm_isVisible(view: UIView) -> Bool {
+   90|       |        if view.isHidden { return false }
+   91|       |        if view.alpha == 0.0 { return false }
+   92|       |        let frame = self.view.convert(view.bounds, from: view)
+   93|       |        if !self.view.bounds.intersects(frame) { return false }
+   94|       |        return true
+   95|       |    }
+   96|       |}
+   97|       |
+   98|       |extension SwiftMessages.PresentationStyle {
+   99|       |    /// A temporary workaround to allow custom presentation contexts using `TopBottomAnimation`
+  100|       |    /// to display properly behind bars. THe long term solution is to refactor all of the
+  101|       |    /// presentation context logic to work with safe area insets.
+  102|       |    var topBottomStyle: TopBottomAnimation.Style? {
+  103|       |        switch self {
+  104|       |        case .top: return .top
+  105|       |        case .bottom: return .bottom
+  106|       |        case .custom(let animator): return (animator as? TopBottomAnimation)?.style
+  107|       |        case .center: return nil
+  108|       |        }
+  109|       |    }
+  110|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/SwiftMessages/SwiftMessages/ViewControllerContainerView.swift:
+    1|       |//
+    2|       |//  ViewControllerContainerView.swift
+    3|       |//  SwiftMessages
+    4|       |//
+    5|       |//  Created by Timothy Moose on 8/4/18.
+    6|       |//  Copyright © 2018 SwiftKick Mobile. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |
+   11|       |/// A subclass of `CornerRoundingView` intended as the container view
+   12|       |/// of a view controller's view. It's job is to respect the view controller's
+   13|       |/// `preferredContentSize.height` property. (SwiftMessages does not currently
+   14|       |/// consider the value of `preferredContentSize.width`, but this may change in the future).
+   15|       |open class ViewControllerContainerView: CornerRoundingView {
+   16|       |
+   17|       |    open internal(set) weak var viewController: UIViewController?
+   18|       |
+   19|       |    open override var intrinsicContentSize: CGSize {
+   20|       |        if let preferredHeight = viewController?.preferredContentSize.height,
+   21|       |            preferredHeight > 0 {
+   22|       |            return CGSize(width: UIView.noIntrinsicMetric, height: preferredHeight)
+   23|       |        }
+   24|       |        return super.intrinsicContentSize
+   25|       |    }
+   26|       |
+   27|      0|    open override func addSubview(_ view: UIView) {
+   28|      0|        view.translatesAutoresizingMaskIntoConstraints = false
+   29|      0|        super.addSubview(view)
+   30|      0|        view.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
+   31|      0|        view.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
+   32|      0|        view.leftAnchor.constraint(equalTo: self.leftAnchor).isActive = true
+   33|      0|        view.rightAnchor.constraint(equalTo: self.rightAnchor).isActive = true
+   34|      0|    }
+   35|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/SwiftMessages/SwiftMessages/Weak.swift:
+    1|       |//
+    2|       |//  Weak.swift
+    3|       |//  SwiftMessages
+    4|       |//
+    5|       |//  Created by Timothy Moose on 6/4/17.
+    6|       |//  Copyright © 2017 SwiftKick Mobile. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import Foundation
+   10|       |
+   11|       |public class Weak<T: AnyObject> {
+   12|       |    public weak var value : T?
+   13|      0|    public init(value: T?) {
+   14|      0|        self.value = value
+   15|      0|    }
+   16|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/SwiftMessages/SwiftMessages/WindowViewController.swift:
+    1|       |//
+    2|       |//  WindowViewController.swift
+    3|       |//  SwiftMessages
+    4|       |//
+    5|       |//  Created by Timothy Moose on 8/1/16.
+    6|       |//  Copyright © 2016 SwiftKick Mobile LLC. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |
+   11|       |open class WindowViewController: UIViewController
+   12|       |{
+   13|       |    fileprivate var window: UIWindow?
+   14|       |    
+   15|       |    let windowLevel: UIWindow.Level
+   16|       |    let config: SwiftMessages.Config
+   17|       |    
+   18|       |    override open var shouldAutorotate: Bool {
+   19|       |        return config.shouldAutorotate
+   20|       |    }
+   21|       |    
+   22|       |    public init(windowLevel: UIWindow.Level?, config: SwiftMessages.Config)
+   23|      0|    {
+   24|      0|        self.windowLevel = windowLevel ?? UIWindow.Level.normal
+   25|      0|        self.config = config
+   26|      0|        let window = PassthroughWindow(frame: UIScreen.main.bounds)
+   27|      0|        self.window = window
+   28|      0|        super.init(nibName: nil, bundle: nil)
+   29|      0|        self.view = PassthroughView()
+   30|      0|        window.rootViewController = self
+   31|      0|        window.windowLevel = windowLevel ?? UIWindow.Level.normal
+   32|      0|    }
+   33|       |    
+   34|      0|    func install(becomeKey: Bool) {
+   35|      0|        guard let window = window else { return }
+   36|      0|        if becomeKey {
+   37|      0|            window.makeKeyAndVisible()            
+   38|      0|        } else {
+   39|      0|            window.isHidden = false
+   40|      0|        }
+   41|      0|    }
+   42|       |    
+   43|      0|    func uninstall() {
+   44|      0|        window?.isHidden = true
+   45|      0|        window = nil
+   46|      0|    }
+   47|       |    
+   48|      0|    required public init?(coder aDecoder: NSCoder) {
+   49|      0|        fatalError("init(coder:) has not been implemented")
+   50|      0|    }
+   51|       |    
+   52|       |    override open var preferredStatusBarStyle: UIStatusBarStyle {
+   53|      0|        return config.preferredStatusBarStyle ?? super.preferredStatusBarStyle
+   54|       |    }
+   55|       |}
+   56|       |
+   57|       |extension WindowViewController {
+   58|      0|    static func newInstance(windowLevel: UIWindow.Level?, config: SwiftMessages.Config) -> WindowViewController {
+   59|      0|        return config.windowViewController?(windowLevel, config) ?? WindowViewController(windowLevel: windowLevel, config: config)
+   60|      0|    }
+   61|       |}
+

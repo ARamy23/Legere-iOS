@@ -1,11 +1,10 @@
 # Uncomment the next line to define a global platform for your project
 # platform :ios, '9.0'
+use_frameworks!
+# ignore all warnings from all pods
+inhibit_all_warnings!
 
-target 'Legere-iOS' do
-  # Comment the next line if you're not using Swift and don't want to use dynamic frameworks
-  use_frameworks!
-
-  # Pods for Legere-iOS
+def import_pods
     pod 'SwifterSwift', '~> 4.6.0'
     pod 'Moya/RxSwift', '~> 12.0.1'
     pod 'RxSwift', '~> 4.5.0'
@@ -16,14 +15,13 @@ target 'Legere-iOS' do
     pod 'SwiftMessages', '~> 6.0.2'
     pod 'Hero', '~> 1.4.0'
     pod 'AlamofireNetworkActivityLogger', '~> 2.3.0'
-  target 'Legere-iOSTests' do
-    inherit! :search_paths
-    # Pods for testing
-  end
+end
 
-  target 'Legere-iOSUITests' do
-    inherit! :search_paths
-    # Pods for testing
-  end
+target 'Legere-iOS' do
+    import_pods
+end
 
+target 'Legere-iOSTests' do
+    inherit! :search_paths
+    import_pods
 end

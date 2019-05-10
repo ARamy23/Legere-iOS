@@ -16,19 +16,9 @@ final class IsValidUsername: BaseValidator {
     }
     
     func orThrow() throws {
-        
-        let error = NotValidUsernameError()
-        
-        if let value = value {
-            if isValid(username: value) {
-                return
-            }
-            
-            if value.contains(" ") {
-                error.reason = .containsSpaces
-            }
+        if let value = value, value.contains(" ") {
+            throw ValidationError.notValid(reason: .usernameContainsSpaces)
         }
-        throw error
     }
     
     func isValid(username: String) -> Bool {

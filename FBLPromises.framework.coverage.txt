@@ -1,0 +1,1951 @@
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesObjC/Sources/FBLPromises/FBLPromise+All.m:
+    1|       |/**
+    2|       | Copyright 2018 Google Inc. All rights reserved.
+    3|       |
+    4|       | Licensed under the Apache License, Version 2.0 (the "License");
+    5|       | you may not use this file except in compliance with the License.
+    6|       | You may obtain a copy of the License at:
+    7|       |
+    8|       | http://www.apache.org/licenses/LICENSE-2.0
+    9|       |
+   10|       | Unless required by applicable law or agreed to in writing, software
+   11|       | distributed under the License is distributed on an "AS IS" BASIS,
+   12|       | WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   13|       | See the License for the specific language governing permissions and
+   14|       | limitations under the License.
+   15|       | */
+   16|       |
+   17|       |#import "FBLPromise+All.h"
+   18|       |
+   19|       |#import "FBLPromise+Async.h"
+   20|       |#import "FBLPromisePrivate.h"
+   21|       |
+   22|       |@implementation FBLPromise (AllAdditions)
+   23|       |
+   24|      0|+ (FBLPromise<NSArray *> *)all:(NSArray *)promises {
+   25|      0|  return [self onQueue:self.defaultDispatchQueue all:promises];
+   26|      0|}
+   27|       |
+   28|      0|+ (FBLPromise<NSArray *> *)onQueue:(dispatch_queue_t)queue all:(NSArray *)allPromises {
+   29|      0|  NSParameterAssert(queue);
+   30|      0|  NSParameterAssert(allPromises);
+   31|      0|
+   32|      0|  if (allPromises.count == 0) {
+   33|      0|    return [[FBLPromise alloc] initWithResolution:@[]];
+   34|      0|  }
+   35|      0|  NSMutableArray *promises = [allPromises mutableCopy];
+   36|      0|  return [FBLPromise
+   37|      0|      onQueue:queue
+   38|      0|        async:^(FBLPromiseFulfillBlock fulfill, FBLPromiseRejectBlock reject) {
+   39|      0|          for (NSUInteger i = 0; i < promises.count; ++i) {
+   40|      0|            id promise = promises[i];
+   41|      0|            if ([promise isKindOfClass:self]) {
+   42|      0|              continue;
+   43|      0|            } else if ([promise isKindOfClass:[NSError class]]) {
+   44|      0|              reject(promise);
+   45|      0|              return;
+   46|      0|            } else {
+   47|      0|              [promises replaceObjectAtIndex:i
+   48|      0|                                  withObject:[[FBLPromise alloc] initWithResolution:promise]];
+   49|      0|            }
+   50|      0|          }
+   51|      0|          for (FBLPromise *promise in promises) {
+   52|      0|            [promise observeOnQueue:queue
+   53|      0|                fulfill:^(id __unused _) {
+   54|      0|                  // Wait until all are fulfilled.
+   55|      0|                  for (FBLPromise *promise in promises) {
+   56|      0|                    if (!promise.isFulfilled) {
+   57|      0|                      return;
+   58|      0|                    }
+   59|      0|                  }
+   60|      0|                  // If called multiple times, only the first one affects the result.
+   61|      0|                  fulfill([promises valueForKey:NSStringFromSelector(@selector(value))]);
+   62|      0|                }
+   63|      0|                reject:^(NSError *error) {
+   64|      0|                  reject(error);
+   65|      0|                }];
+   66|      0|          }
+   67|      0|        }];
+   68|      0|}
+   69|       |
+   70|       |@end
+   71|       |
+   72|       |@implementation FBLPromise (DotSyntax_AllAdditions)
+   73|       |
+   74|      0|+ (FBLPromise<NSArray *> * (^)(NSArray *))all {
+   75|      0|  return ^(NSArray<FBLPromise *> *promises) {
+   76|      0|    return [self all:promises];
+   77|      0|  };
+   78|      0|}
+   79|       |
+   80|      0|+ (FBLPromise<NSArray *> * (^)(dispatch_queue_t, NSArray *))allOn {
+   81|      0|  return ^(dispatch_queue_t queue, NSArray<FBLPromise *> *promises) {
+   82|      0|    return [self onQueue:queue all:promises];
+   83|      0|  };
+   84|      0|}
+   85|       |
+   86|       |@end
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesObjC/Sources/FBLPromises/FBLPromise+Always.m:
+    1|       |/**
+    2|       | Copyright 2018 Google Inc. All rights reserved.
+    3|       |
+    4|       | Licensed under the Apache License, Version 2.0 (the "License");
+    5|       | you may not use this file except in compliance with the License.
+    6|       | You may obtain a copy of the License at:
+    7|       |
+    8|       | http://www.apache.org/licenses/LICENSE-2.0
+    9|       |
+   10|       | Unless required by applicable law or agreed to in writing, software
+   11|       | distributed under the License is distributed on an "AS IS" BASIS,
+   12|       | WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   13|       | See the License for the specific language governing permissions and
+   14|       | limitations under the License.
+   15|       | */
+   16|       |
+   17|       |#import "FBLPromise+Always.h"
+   18|       |
+   19|       |#import "FBLPromisePrivate.h"
+   20|       |
+   21|       |@implementation FBLPromise (AlwaysAdditions)
+   22|       |
+   23|      0|- (FBLPromise *)always:(FBLPromiseAlwaysWorkBlock)work {
+   24|      0|  return [self onQueue:FBLPromise.defaultDispatchQueue always:work];
+   25|      0|}
+   26|       |
+   27|      0|- (FBLPromise *)onQueue:(dispatch_queue_t)queue always:(FBLPromiseAlwaysWorkBlock)work {
+   28|      0|  NSParameterAssert(queue);
+   29|      0|  NSParameterAssert(work);
+   30|      0|
+   31|      0|  return [self chainOnQueue:queue
+   32|      0|      chainedFulfill:^id(id value) {
+   33|      0|        work();
+   34|      0|        return value;
+   35|      0|      }
+   36|      0|      chainedReject:^id(NSError *error) {
+   37|      0|        work();
+   38|      0|        return error;
+   39|      0|      }];
+   40|      0|}
+   41|       |
+   42|       |@end
+   43|       |
+   44|       |@implementation FBLPromise (DotSyntax_AlwaysAdditions)
+   45|       |
+   46|      0|- (FBLPromise * (^)(FBLPromiseAlwaysWorkBlock))always {
+   47|      0|  return ^(FBLPromiseAlwaysWorkBlock work) {
+   48|      0|    return [self always:work];
+   49|      0|  };
+   50|      0|}
+   51|       |
+   52|      0|- (FBLPromise * (^)(dispatch_queue_t, FBLPromiseAlwaysWorkBlock))alwaysOn {
+   53|      0|  return ^(dispatch_queue_t queue, FBLPromiseAlwaysWorkBlock work) {
+   54|      0|    return [self onQueue:queue always:work];
+   55|      0|  };
+   56|      0|}
+   57|       |
+   58|       |@end
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesObjC/Sources/FBLPromises/FBLPromise+Any.m:
+    1|       |/**
+    2|       | Copyright 2018 Google Inc. All rights reserved.
+    3|       |
+    4|       | Licensed under the Apache License, Version 2.0 (the "License");
+    5|       | you may not use this file except in compliance with the License.
+    6|       | You may obtain a copy of the License at:
+    7|       |
+    8|       | http://www.apache.org/licenses/LICENSE-2.0
+    9|       |
+   10|       | Unless required by applicable law or agreed to in writing, software
+   11|       | distributed under the License is distributed on an "AS IS" BASIS,
+   12|       | WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   13|       | See the License for the specific language governing permissions and
+   14|       | limitations under the License.
+   15|       | */
+   16|       |
+   17|       |#import "FBLPromise+Any.h"
+   18|       |
+   19|       |#import "FBLPromise+Async.h"
+   20|       |#import "FBLPromisePrivate.h"
+   21|       |
+   22|      0|static NSArray *FBLPromiseCombineValuesAndErrors(NSArray<FBLPromise *> *promises) {
+   23|      0|  NSMutableArray *combinedValuesAndErrors = [[NSMutableArray alloc] init];
+   24|      0|  for (FBLPromise *promise in promises) {
+   25|      0|    if (promise.isFulfilled) {
+   26|      0|      [combinedValuesAndErrors addObject:promise.value ?: [NSNull null]];
+   27|      0|      continue;
+   28|      0|    }
+   29|      0|    if (promise.isRejected) {
+   30|      0|      [combinedValuesAndErrors addObject:promise.error];
+   31|      0|      continue;
+   32|      0|    }
+   33|      0|    assert(!promise.isPending);
+   34|      0|  };
+   35|      0|  return combinedValuesAndErrors;
+   36|      0|}
+   37|       |
+   38|       |@implementation FBLPromise (AnyAdditions)
+   39|       |
+   40|      0|+ (FBLPromise<NSArray *> *)any:(NSArray *)promises {
+   41|      0|  return [self onQueue:FBLPromise.defaultDispatchQueue any:promises];
+   42|      0|}
+   43|       |
+   44|      0|+ (FBLPromise<NSArray *> *)onQueue:(dispatch_queue_t)queue any:(NSArray *)anyPromises {
+   45|      0|  NSParameterAssert(queue);
+   46|      0|  NSParameterAssert(anyPromises);
+   47|      0|
+   48|      0|  if (anyPromises.count == 0) {
+   49|      0|    return [[FBLPromise alloc] initWithResolution:@[]];
+   50|      0|  }
+   51|      0|  NSMutableArray *promises = [anyPromises mutableCopy];
+   52|      0|  return [FBLPromise
+   53|      0|      onQueue:queue
+   54|      0|        async:^(FBLPromiseFulfillBlock fulfill, FBLPromiseRejectBlock reject) {
+   55|      0|          for (NSUInteger i = 0; i < promises.count; ++i) {
+   56|      0|            id promise = promises[i];
+   57|      0|            if ([promise isKindOfClass:self]) {
+   58|      0|              continue;
+   59|      0|            } else {
+   60|      0|              [promises replaceObjectAtIndex:i
+   61|      0|                                  withObject:[[FBLPromise alloc] initWithResolution:promise]];
+   62|      0|            }
+   63|      0|          }
+   64|      0|          for (FBLPromise *promise in promises) {
+   65|      0|            [promise observeOnQueue:queue
+   66|      0|                fulfill:^(id __unused _) {
+   67|      0|                  // Wait until all are resolved.
+   68|      0|                  for (FBLPromise *promise in promises) {
+   69|      0|                    if (promise.isPending) {
+   70|      0|                      return;
+   71|      0|                    }
+   72|      0|                  }
+   73|      0|                  // If called multiple times, only the first one affects the result.
+   74|      0|                  fulfill(FBLPromiseCombineValuesAndErrors(promises));
+   75|      0|                }
+   76|      0|                reject:^(NSError *error) {
+   77|      0|                  BOOL atLeastOneIsFulfilled = NO;
+   78|      0|                  for (FBLPromise *promise in promises) {
+   79|      0|                    if (promise.isPending) {
+   80|      0|                      return;
+   81|      0|                    }
+   82|      0|                    if (promise.isFulfilled) {
+   83|      0|                      atLeastOneIsFulfilled = YES;
+   84|      0|                    }
+   85|      0|                  }
+   86|      0|                  if (atLeastOneIsFulfilled) {
+   87|      0|                    fulfill(FBLPromiseCombineValuesAndErrors(promises));
+   88|      0|                  } else {
+   89|      0|                    reject(error);
+   90|      0|                  }
+   91|      0|                }];
+   92|      0|          }
+   93|      0|        }];
+   94|      0|}
+   95|       |
+   96|       |@end
+   97|       |
+   98|       |@implementation FBLPromise (DotSyntax_AnyAdditions)
+   99|       |
+  100|      0|+ (FBLPromise<NSArray *> * (^)(NSArray *))any {
+  101|      0|  return ^(NSArray *promises) {
+  102|      0|    return [self any:promises];
+  103|      0|  };
+  104|      0|}
+  105|       |
+  106|      0|+ (FBLPromise<NSArray *> * (^)(dispatch_queue_t, NSArray *))anyOn {
+  107|      0|  return ^(dispatch_queue_t queue, NSArray *promises) {
+  108|      0|    return [self onQueue:queue any:promises];
+  109|      0|  };
+  110|      0|}
+  111|       |
+  112|       |@end
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesObjC/Sources/FBLPromises/FBLPromise+Async.m:
+    1|       |/**
+    2|       | Copyright 2018 Google Inc. All rights reserved.
+    3|       |
+    4|       | Licensed under the Apache License, Version 2.0 (the "License");
+    5|       | you may not use this file except in compliance with the License.
+    6|       | You may obtain a copy of the License at:
+    7|       |
+    8|       | http://www.apache.org/licenses/LICENSE-2.0
+    9|       |
+   10|       | Unless required by applicable law or agreed to in writing, software
+   11|       | distributed under the License is distributed on an "AS IS" BASIS,
+   12|       | WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   13|       | See the License for the specific language governing permissions and
+   14|       | limitations under the License.
+   15|       | */
+   16|       |
+   17|       |#import "FBLPromise+Async.h"
+   18|       |
+   19|       |#import "FBLPromisePrivate.h"
+   20|       |
+   21|       |@implementation FBLPromise (AsyncAdditions)
+   22|       |
+   23|      0|+ (instancetype)async:(FBLPromiseAsyncWorkBlock)work {
+   24|      0|  return [self onQueue:self.defaultDispatchQueue async:work];
+   25|      0|}
+   26|       |
+   27|     22|+ (instancetype)onQueue:(dispatch_queue_t)queue async:(FBLPromiseAsyncWorkBlock)work {
+   28|     22|  NSParameterAssert(queue);
+   29|     22|  NSParameterAssert(work);
+   30|     22|
+   31|     22|  FBLPromise *promise = [[FBLPromise alloc] initPending];
+   32|     22|  dispatch_group_async(FBLPromise.dispatchGroup, queue, ^{
+   33|     22|    work(
+   34|     22|        ^(id __nullable value) {
+   35|     12|          if ([value isKindOfClass:[FBLPromise class]]) {
+   36|      0|            [(FBLPromise *)value observeOnQueue:queue
+   37|      0|                fulfill:^(id __nullable value) {
+   38|      0|                  [promise fulfill:value];
+   39|      0|                }
+   40|      0|                reject:^(NSError *error) {
+   41|      0|                  [promise reject:error];
+   42|      0|                }];
+   43|     12|          } else {
+   44|     12|            [promise fulfill:value];
+   45|     12|          }
+   46|     12|        },
+   47|     22|        ^(NSError *error) {
+   48|     10|          [promise reject:error];
+   49|     10|        });
+   50|     22|  });
+   51|     22|  return promise;
+   52|     22|}
+   53|       |
+   54|       |@end
+   55|       |
+   56|       |@implementation FBLPromise (DotSyntax_AsyncAdditions)
+   57|       |
+   58|      0|+ (FBLPromise* (^)(FBLPromiseAsyncWorkBlock))async {
+   59|      0|  return ^(FBLPromiseAsyncWorkBlock work) {
+   60|      0|    return [self async:work];
+   61|      0|  };
+   62|      0|}
+   63|       |
+   64|      0|+ (FBLPromise* (^)(dispatch_queue_t, FBLPromiseAsyncWorkBlock))asyncOn {
+   65|      0|  return ^(dispatch_queue_t queue, FBLPromiseAsyncWorkBlock work) {
+   66|      0|    return [self onQueue:queue async:work];
+   67|      0|  };
+   68|      0|}
+   69|       |
+   70|       |@end
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesObjC/Sources/FBLPromises/FBLPromise+Await.m:
+    1|       |/**
+    2|       | Copyright 2018 Google Inc. All rights reserved.
+    3|       |
+    4|       | Licensed under the Apache License, Version 2.0 (the "License");
+    5|       | you may not use this file except in compliance with the License.
+    6|       | You may obtain a copy of the License at:
+    7|       |
+    8|       | http://www.apache.org/licenses/LICENSE-2.0
+    9|       |
+   10|       | Unless required by applicable law or agreed to in writing, software
+   11|       | distributed under the License is distributed on an "AS IS" BASIS,
+   12|       | WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   13|       | See the License for the specific language governing permissions and
+   14|       | limitations under the License.
+   15|       | */
+   16|       |
+   17|       |#import "FBLPromise+Await.h"
+   18|       |
+   19|       |#import "FBLPromisePrivate.h"
+   20|       |
+   21|      0|id __nullable FBLPromiseAwait(FBLPromise *promise, NSError **outError) {
+   22|      0|  assert(promise);
+   23|      0|
+   24|      0|  static dispatch_once_t onceToken;
+   25|      0|  static dispatch_queue_t queue;
+   26|      0|  dispatch_once(&onceToken, ^{
+   27|      0|    queue = dispatch_queue_create("com.google.FBLPromises.Await", DISPATCH_QUEUE_CONCURRENT);
+   28|      0|  });
+   29|      0|  dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+   30|      0|  id __block resolution;
+   31|      0|  NSError __block *blockError;
+   32|      0|  [promise chainOnQueue:queue
+   33|      0|      chainedFulfill:^id(id value) {
+   34|      0|        resolution = value;
+   35|      0|        dispatch_semaphore_signal(semaphore);
+   36|      0|        return value;
+   37|      0|      }
+   38|      0|      chainedReject:^id(NSError *error) {
+   39|      0|        blockError = error;
+   40|      0|        dispatch_semaphore_signal(semaphore);
+   41|      0|        return error;
+   42|      0|      }];
+   43|      0|  dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+   44|      0|  if (outError) {
+   45|      0|    *outError = blockError;
+   46|      0|  }
+   47|      0|  return resolution;
+   48|      0|}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesObjC/Sources/FBLPromises/FBLPromise+Catch.m:
+    1|       |/**
+    2|       | Copyright 2018 Google Inc. All rights reserved.
+    3|       |
+    4|       | Licensed under the Apache License, Version 2.0 (the "License");
+    5|       | you may not use this file except in compliance with the License.
+    6|       | You may obtain a copy of the License at:
+    7|       |
+    8|       | http://www.apache.org/licenses/LICENSE-2.0
+    9|       |
+   10|       | Unless required by applicable law or agreed to in writing, software
+   11|       | distributed under the License is distributed on an "AS IS" BASIS,
+   12|       | WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   13|       | See the License for the specific language governing permissions and
+   14|       | limitations under the License.
+   15|       | */
+   16|       |
+   17|       |#import "FBLPromise+Catch.h"
+   18|       |
+   19|       |#import "FBLPromisePrivate.h"
+   20|       |
+   21|       |@implementation FBLPromise (CatchAdditions)
+   22|       |
+   23|      0|- (FBLPromise *)catch:(FBLPromiseCatchWorkBlock)reject {
+   24|      0|  return [self onQueue:FBLPromise.defaultDispatchQueue catch:reject];
+   25|      0|}
+   26|       |
+   27|     37|- (FBLPromise *)onQueue:(dispatch_queue_t)queue catch:(FBLPromiseCatchWorkBlock)reject {
+   28|     37|  NSParameterAssert(queue);
+   29|     37|  NSParameterAssert(reject);
+   30|     37|
+   31|     37|  return [self chainOnQueue:queue
+   32|     37|             chainedFulfill:nil
+   33|     37|              chainedReject:^id(NSError *error) {
+   34|     25|                reject(error);
+   35|     25|                return error;
+   36|     25|              }];
+   37|     37|}
+   38|       |
+   39|       |@end
+   40|       |
+   41|       |@implementation FBLPromise (DotSyntax_CatchAdditions)
+   42|       |
+   43|      0|- (FBLPromise* (^)(FBLPromiseCatchWorkBlock))catch {
+   44|      0|  return ^(FBLPromiseCatchWorkBlock catch) {
+   45|      0|    return [self catch:catch];
+   46|      0|  };
+   47|      0|}
+   48|       |
+   49|      0|- (FBLPromise* (^)(dispatch_queue_t, FBLPromiseCatchWorkBlock))catchOn {
+   50|      0|  return ^(dispatch_queue_t queue, FBLPromiseCatchWorkBlock catch) {
+   51|      0|    return [self onQueue:queue catch:catch];
+   52|      0|  };
+   53|      0|}
+   54|       |
+   55|       |@end
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesObjC/Sources/FBLPromises/FBLPromise+Delay.m:
+    1|       |/**
+    2|       | Copyright 2018 Google Inc. All rights reserved.
+    3|       |
+    4|       | Licensed under the Apache License, Version 2.0 (the "License");
+    5|       | you may not use this file except in compliance with the License.
+    6|       | You may obtain a copy of the License at:
+    7|       |
+    8|       | http://www.apache.org/licenses/LICENSE-2.0
+    9|       |
+   10|       | Unless required by applicable law or agreed to in writing, software
+   11|       | distributed under the License is distributed on an "AS IS" BASIS,
+   12|       | WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   13|       | See the License for the specific language governing permissions and
+   14|       | limitations under the License.
+   15|       | */
+   16|       |
+   17|       |#import "FBLPromise+Delay.h"
+   18|       |
+   19|       |#import "FBLPromisePrivate.h"
+   20|       |
+   21|       |@implementation FBLPromise (DelayAdditions)
+   22|       |
+   23|      0|- (FBLPromise *)delay:(NSTimeInterval)interval {
+   24|      0|  return [self onQueue:FBLPromise.defaultDispatchQueue delay:interval];
+   25|      0|}
+   26|       |
+   27|      0|- (FBLPromise *)onQueue:(dispatch_queue_t)queue delay:(NSTimeInterval)interval {
+   28|      0|  NSParameterAssert(queue);
+   29|      0|
+   30|      0|  FBLPromise *promise = [[FBLPromise alloc] initPending];
+   31|      0|  [self observeOnQueue:queue
+   32|      0|      fulfill:^(id __nullable value) {
+   33|      0|        dispatch_after(dispatch_time(0, (int64_t)(interval * NSEC_PER_SEC)), queue, ^{
+   34|      0|          [promise fulfill:value];
+   35|      0|        });
+   36|      0|      }
+   37|      0|      reject:^(NSError *error) {
+   38|      0|        [promise reject:error];
+   39|      0|      }];
+   40|      0|  return promise;
+   41|      0|}
+   42|       |
+   43|       |@end
+   44|       |
+   45|       |@implementation FBLPromise (DotSyntax_DelayAdditions)
+   46|       |
+   47|      0|- (FBLPromise * (^)(NSTimeInterval))delay {
+   48|      0|  return ^(NSTimeInterval interval) {
+   49|      0|    return [self delay:interval];
+   50|      0|  };
+   51|      0|}
+   52|       |
+   53|      0|- (FBLPromise * (^)(dispatch_queue_t, NSTimeInterval))delayOn {
+   54|      0|  return ^(dispatch_queue_t queue, NSTimeInterval interval) {
+   55|      0|    return [self onQueue:queue delay:interval];
+   56|      0|  };
+   57|      0|}
+   58|       |
+   59|       |@end
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesObjC/Sources/FBLPromises/FBLPromise+Do.m:
+    1|       |/**
+    2|       | Copyright 2018 Google Inc. All rights reserved.
+    3|       |
+    4|       | Licensed under the Apache License, Version 2.0 (the "License");
+    5|       | you may not use this file except in compliance with the License.
+    6|       | You may obtain a copy of the License at:
+    7|       |
+    8|       | http://www.apache.org/licenses/LICENSE-2.0
+    9|       |
+   10|       | Unless required by applicable law or agreed to in writing, software
+   11|       | distributed under the License is distributed on an "AS IS" BASIS,
+   12|       | WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   13|       | See the License for the specific language governing permissions and
+   14|       | limitations under the License.
+   15|       | */
+   16|       |
+   17|       |#import "FBLPromise+Do.h"
+   18|       |
+   19|       |#import "FBLPromisePrivate.h"
+   20|       |
+   21|       |@implementation FBLPromise (DoAdditions)
+   22|       |
+   23|      0|+ (instancetype)do:(FBLPromiseDoWorkBlock)work {
+   24|      0|  return [self onQueue:self.defaultDispatchQueue do:work];
+   25|      0|}
+   26|       |
+   27|      0|+ (instancetype)onQueue:(dispatch_queue_t)queue do:(FBLPromiseDoWorkBlock)work {
+   28|      0|  NSParameterAssert(queue);
+   29|      0|  NSParameterAssert(work);
+   30|      0|
+   31|      0|  FBLPromise *promise = [[FBLPromise alloc] initPending];
+   32|      0|  dispatch_group_async(FBLPromise.dispatchGroup, queue, ^{
+   33|      0|    id value = work();
+   34|      0|    if ([value isKindOfClass:[FBLPromise class]]) {
+   35|      0|      [(FBLPromise *)value observeOnQueue:queue
+   36|      0|          fulfill:^(id __nullable value) {
+   37|      0|            [promise fulfill:value];
+   38|      0|          }
+   39|      0|          reject:^(NSError *error) {
+   40|      0|            [promise reject:error];
+   41|      0|          }];
+   42|      0|    } else {
+   43|      0|      [promise fulfill:value];
+   44|      0|    }
+   45|      0|  });
+   46|      0|  return promise;
+   47|      0|}
+   48|       |
+   49|       |@end
+   50|       |
+   51|       |@implementation FBLPromise (DotSyntax_DoAdditions)
+   52|       |
+   53|      0|+ (FBLPromise* (^)(dispatch_queue_t, FBLPromiseDoWorkBlock))doOn {
+   54|      0|  return ^(dispatch_queue_t queue, FBLPromiseDoWorkBlock work) {
+   55|      0|    return [self onQueue:queue do:work];
+   56|      0|  };
+   57|      0|}
+   58|       |
+   59|       |@end
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesObjC/Sources/FBLPromises/FBLPromise+Race.m:
+    1|       |/**
+    2|       | Copyright 2018 Google Inc. All rights reserved.
+    3|       |
+    4|       | Licensed under the Apache License, Version 2.0 (the "License");
+    5|       | you may not use this file except in compliance with the License.
+    6|       | You may obtain a copy of the License at:
+    7|       |
+    8|       | http://www.apache.org/licenses/LICENSE-2.0
+    9|       |
+   10|       | Unless required by applicable law or agreed to in writing, software
+   11|       | distributed under the License is distributed on an "AS IS" BASIS,
+   12|       | WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   13|       | See the License for the specific language governing permissions and
+   14|       | limitations under the License.
+   15|       | */
+   16|       |
+   17|       |#import "FBLPromise+Race.h"
+   18|       |
+   19|       |#import "FBLPromise+Async.h"
+   20|       |#import "FBLPromisePrivate.h"
+   21|       |
+   22|       |@implementation FBLPromise (RaceAdditions)
+   23|       |
+   24|      0|+ (instancetype)race:(NSArray *)promises {
+   25|      0|  return [self onQueue:self.defaultDispatchQueue race:promises];
+   26|      0|}
+   27|       |
+   28|      0|+ (instancetype)onQueue:(dispatch_queue_t)queue race:(NSArray *)racePromises {
+   29|      0|  NSParameterAssert(queue);
+   30|      0|  NSAssert(racePromises.count > 0, @"No promises to observe");
+   31|      0|
+   32|      0|  NSArray *promises = [racePromises copy];
+   33|      0|  return [FBLPromise onQueue:queue
+   34|      0|                       async:^(FBLPromiseFulfillBlock fulfill, FBLPromiseRejectBlock reject) {
+   35|      0|                         for (id promise in promises) {
+   36|      0|                           if (![promise isKindOfClass:self]) {
+   37|      0|                             fulfill(promise);
+   38|      0|                             return;
+   39|      0|                           }
+   40|      0|                         }
+   41|      0|                         // Subscribe all, but only the first one to resolve will change
+   42|      0|                         // the resulting promise's state.
+   43|      0|                         for (FBLPromise *promise in promises) {
+   44|      0|                           [promise observeOnQueue:queue fulfill:fulfill reject:reject];
+   45|      0|                         }
+   46|      0|                       }];
+   47|      0|}
+   48|       |
+   49|       |@end
+   50|       |
+   51|       |@implementation FBLPromise (DotSyntax_RaceAdditions)
+   52|       |
+   53|      0|+ (FBLPromise * (^)(NSArray *))race {
+   54|      0|  return ^(NSArray *promises) {
+   55|      0|    return [self race:promises];
+   56|      0|  };
+   57|      0|}
+   58|       |
+   59|      0|+ (FBLPromise * (^)(dispatch_queue_t, NSArray *))raceOn {
+   60|      0|  return ^(dispatch_queue_t queue, NSArray *promises) {
+   61|      0|    return [self onQueue:queue race:promises];
+   62|      0|  };
+   63|      0|}
+   64|       |
+   65|       |@end
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesObjC/Sources/FBLPromises/FBLPromise+Recover.m:
+    1|       |/**
+    2|       | Copyright 2018 Google Inc. All rights reserved.
+    3|       |
+    4|       | Licensed under the Apache License, Version 2.0 (the "License");
+    5|       | you may not use this file except in compliance with the License.
+    6|       | You may obtain a copy of the License at:
+    7|       |
+    8|       | http://www.apache.org/licenses/LICENSE-2.0
+    9|       |
+   10|       | Unless required by applicable law or agreed to in writing, software
+   11|       | distributed under the License is distributed on an "AS IS" BASIS,
+   12|       | WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   13|       | See the License for the specific language governing permissions and
+   14|       | limitations under the License.
+   15|       | */
+   16|       |
+   17|       |#import "FBLPromise+Recover.h"
+   18|       |
+   19|       |#import "FBLPromisePrivate.h"
+   20|       |
+   21|       |@implementation FBLPromise (RecoverAdditions)
+   22|       |
+   23|      0|- (FBLPromise *)recover:(FBLPromiseRecoverWorkBlock)recovery {
+   24|      0|  return [self onQueue:FBLPromise.defaultDispatchQueue recover:recovery];
+   25|      0|}
+   26|       |
+   27|      0|- (FBLPromise *)onQueue:(dispatch_queue_t)queue recover:(FBLPromiseRecoverWorkBlock)recovery {
+   28|      0|  NSParameterAssert(queue);
+   29|      0|  NSParameterAssert(recovery);
+   30|      0|
+   31|      0|  return [self chainOnQueue:queue
+   32|      0|             chainedFulfill:nil
+   33|      0|              chainedReject:^id(NSError *error) {
+   34|      0|                return recovery(error);
+   35|      0|              }];
+   36|      0|}
+   37|       |
+   38|       |@end
+   39|       |
+   40|       |@implementation FBLPromise (DotSyntax_RecoverAdditions)
+   41|       |
+   42|      0|- (FBLPromise * (^)(FBLPromiseRecoverWorkBlock))recover {
+   43|      0|  return ^(FBLPromiseRecoverWorkBlock recovery) {
+   44|      0|    return [self recover:recovery];
+   45|      0|  };
+   46|      0|}
+   47|       |
+   48|      0|- (FBLPromise * (^)(dispatch_queue_t, FBLPromiseRecoverWorkBlock))recoverOn {
+   49|      0|  return ^(dispatch_queue_t queue, FBLPromiseRecoverWorkBlock recovery) {
+   50|      0|    return [self onQueue:queue recover:recovery];
+   51|      0|  };
+   52|      0|}
+   53|       |
+   54|       |@end
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesObjC/Sources/FBLPromises/FBLPromise+Reduce.m:
+    1|       |/**
+    2|       | Copyright 2018 Google Inc. All rights reserved.
+    3|       |
+    4|       | Licensed under the Apache License, Version 2.0 (the "License");
+    5|       | you may not use this file except in compliance with the License.
+    6|       | You may obtain a copy of the License at:
+    7|       |
+    8|       | http://www.apache.org/licenses/LICENSE-2.0
+    9|       |
+   10|       | Unless required by applicable law or agreed to in writing, software
+   11|       | distributed under the License is distributed on an "AS IS" BASIS,
+   12|       | WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   13|       | See the License for the specific language governing permissions and
+   14|       | limitations under the License.
+   15|       | */
+   16|       |
+   17|       |#import "FBLPromise+Reduce.h"
+   18|       |
+   19|       |#import "FBLPromisePrivate.h"
+   20|       |
+   21|       |@implementation FBLPromise (ReduceAdditions)
+   22|       |
+   23|      0|- (FBLPromise *)reduce:(NSArray *)items combine:(FBLPromiseReducerBlock)reducer {
+   24|      0|  return [self onQueue:FBLPromise.defaultDispatchQueue reduce:items combine:reducer];
+   25|      0|}
+   26|       |
+   27|       |- (FBLPromise *)onQueue:(dispatch_queue_t)queue
+   28|       |                 reduce:(NSArray *)items
+   29|      0|                combine:(FBLPromiseReducerBlock)reducer {
+   30|      0|  NSParameterAssert(queue);
+   31|      0|  NSParameterAssert(items);
+   32|      0|  NSParameterAssert(reducer);
+   33|      0|
+   34|      0|  FBLPromise *promise = self;
+   35|      0|  for (id item in items) {
+   36|      0|    promise = [promise chainOnQueue:queue
+   37|      0|                     chainedFulfill:^id(id value) {
+   38|      0|                       return reducer(value, item);
+   39|      0|                     }
+   40|      0|                      chainedReject:nil];
+   41|      0|  }
+   42|      0|  return promise;
+   43|      0|}
+   44|       |
+   45|       |@end
+   46|       |
+   47|       |@implementation FBLPromise (DotSyntax_ReduceAdditions)
+   48|       |
+   49|      0|- (FBLPromise * (^)(NSArray *, FBLPromiseReducerBlock))reduce {
+   50|      0|  return ^(NSArray *items, FBLPromiseReducerBlock reducer) {
+   51|      0|    return [self reduce:items combine:reducer];
+   52|      0|  };
+   53|      0|}
+   54|       |
+   55|      0|- (FBLPromise * (^)(dispatch_queue_t, NSArray *, FBLPromiseReducerBlock))reduceOn {
+   56|      0|  return ^(dispatch_queue_t queue, NSArray *items, FBLPromiseReducerBlock reducer) {
+   57|      0|    return [self onQueue:queue reduce:items combine:reducer];
+   58|      0|  };
+   59|      0|}
+   60|       |
+   61|       |@end
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesObjC/Sources/FBLPromises/FBLPromise+Retry.m:
+    1|       |/**
+    2|       | Copyright 2018 Google Inc. All rights reserved.
+    3|       |
+    4|       | Licensed under the Apache License, Version 2.0 (the "License");
+    5|       | you may not use this file except in compliance with the License.
+    6|       | You may obtain a copy of the License at:
+    7|       |
+    8|       | http://www.apache.org/licenses/LICENSE-2.0
+    9|       |
+   10|       | Unless required by applicable law or agreed to in writing, software
+   11|       | distributed under the License is distributed on an "AS IS" BASIS,
+   12|       | WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   13|       | See the License for the specific language governing permissions and
+   14|       | limitations under the License.
+   15|       | */
+   16|       |
+   17|       |#import "FBLPromise+Retry.h"
+   18|       |
+   19|       |#import "FBLPromisePrivate.h"
+   20|       |
+   21|       |NSInteger const FBLPromiseRetryDefaultAttemptsCount = 1;
+   22|       |NSTimeInterval const FBLPromiseRetryDefaultDelayInterval = 1.0;
+   23|       |
+   24|       |static void FBLPromiseRetryAttempt(FBLPromise *promise, dispatch_queue_t queue, NSInteger count,
+   25|       |                                   NSTimeInterval interval, FBLPromiseRetryPredicateBlock predicate,
+   26|      0|                                   FBLPromiseRetryWorkBlock work) {
+   27|      0|  __auto_type retrier = ^(id __nullable value) {
+   28|      0|    if ([value isKindOfClass:[NSError class]]) {
+   29|      0|      if (count <= 0 || (predicate && !predicate(count, value))) {
+   30|      0|        [promise reject:value];
+   31|      0|      } else {
+   32|      0|        dispatch_after(dispatch_time(0, (int64_t)(interval * NSEC_PER_SEC)), queue, ^{
+   33|      0|          FBLPromiseRetryAttempt(promise, queue, count - 1, interval, predicate, work);
+   34|      0|        });
+   35|      0|      }
+   36|      0|    } else {
+   37|      0|      [promise fulfill:value];
+   38|      0|    }
+   39|      0|  };
+   40|      0|  id value = work();
+   41|      0|  if ([value isKindOfClass:[FBLPromise class]]) {
+   42|      0|    [(FBLPromise *)value observeOnQueue:queue fulfill:retrier reject:retrier];
+   43|      0|  } else  {
+   44|      0|    retrier(value);
+   45|      0|  }
+   46|      0|}
+   47|       |
+   48|       |@implementation FBLPromise (RetryAdditions)
+   49|       |
+   50|      0|+ (FBLPromise *)retry:(FBLPromiseRetryWorkBlock)work {
+   51|      0|  return [self onQueue:FBLPromise.defaultDispatchQueue retry:work];
+   52|      0|}
+   53|       |
+   54|      0|+ (FBLPromise *)onQueue:(dispatch_queue_t)queue retry:(FBLPromiseRetryWorkBlock)work {
+   55|      0|  return [self onQueue:queue attempts:FBLPromiseRetryDefaultAttemptsCount retry:work];
+   56|      0|}
+   57|       |
+   58|      0|+ (FBLPromise *)attempts:(NSInteger)count retry:(FBLPromiseRetryWorkBlock)work {
+   59|      0|  return [self onQueue:FBLPromise.defaultDispatchQueue attempts:count retry:work];
+   60|      0|}
+   61|       |
+   62|       |+ (FBLPromise *)onQueue:(dispatch_queue_t)queue
+   63|       |               attempts:(NSInteger)count
+   64|      0|                  retry:(FBLPromiseRetryWorkBlock)work {
+   65|      0|  return [self onQueue:queue
+   66|      0|              attempts:count
+   67|      0|                 delay:FBLPromiseRetryDefaultDelayInterval
+   68|      0|             condition:nil
+   69|      0|                 retry:work];
+   70|      0|}
+   71|       |
+   72|       |+ (FBLPromise *)attempts:(NSInteger)count
+   73|       |                   delay:(NSTimeInterval)interval
+   74|       |               condition:(nullable FBLPromiseRetryPredicateBlock)predicate
+   75|      0|                   retry:(FBLPromiseRetryWorkBlock)work {
+   76|      0|  return [self onQueue:FBLPromise.defaultDispatchQueue
+   77|      0|              attempts:count
+   78|      0|                 delay:interval
+   79|      0|             condition:predicate
+   80|      0|                 retry:work];
+   81|      0|}
+   82|       |
+   83|       |+ (FBLPromise *)onQueue:(dispatch_queue_t)queue
+   84|       |               attempts:(NSInteger)count
+   85|       |                  delay:(NSTimeInterval)interval
+   86|       |              condition:(nullable FBLPromiseRetryPredicateBlock)predicate
+   87|      0|                  retry:(FBLPromiseRetryWorkBlock)work {
+   88|      0|  NSParameterAssert(queue);
+   89|      0|  NSParameterAssert(work);
+   90|      0|
+   91|      0|  FBLPromise *promise = [[FBLPromise alloc] initPending];
+   92|      0|  FBLPromiseRetryAttempt(promise, queue, count, interval, predicate, work);
+   93|      0|  return promise;
+   94|      0|}
+   95|       |
+   96|       |@end
+   97|       |
+   98|       |@implementation FBLPromise (DotSyntax_RetryAdditions)
+   99|       |
+  100|      0|+ (FBLPromise * (^)(FBLPromiseRetryWorkBlock))retry {
+  101|      0|  return ^id(FBLPromiseRetryWorkBlock work) {
+  102|      0|    return [self retry:work];
+  103|      0|  };
+  104|      0|}
+  105|       |
+  106|      0|+ (FBLPromise * (^)(dispatch_queue_t, FBLPromiseRetryWorkBlock))retryOn {
+  107|      0|  return ^id(dispatch_queue_t queue, FBLPromiseRetryWorkBlock work) {
+  108|      0|    return [self onQueue:queue retry:work];
+  109|      0|  };
+  110|      0|}
+  111|       |
+  112|       |+ (FBLPromise * (^)(NSInteger, NSTimeInterval, FBLPromiseRetryPredicateBlock,
+  113|      0|                    FBLPromiseRetryWorkBlock))retryAgain {
+  114|      0|  return ^id(NSInteger count, NSTimeInterval interval, FBLPromiseRetryPredicateBlock predicate,
+  115|      0|             FBLPromiseRetryWorkBlock work) {
+  116|      0|    return [self attempts:count delay:interval condition:predicate retry:work];
+  117|      0|  };
+  118|      0|}
+  119|       |
+  120|       |+ (FBLPromise * (^)(dispatch_queue_t, NSInteger, NSTimeInterval, FBLPromiseRetryPredicateBlock,
+  121|      0|                    FBLPromiseRetryWorkBlock))retryAgainOn {
+  122|      0|  return ^id(dispatch_queue_t queue, NSInteger count, NSTimeInterval interval,
+  123|      0|             FBLPromiseRetryPredicateBlock predicate, FBLPromiseRetryWorkBlock work) {
+  124|      0|    return [self onQueue:queue attempts:count delay:interval condition:predicate retry:work];
+  125|      0|  };
+  126|      0|}
+  127|       |
+  128|       |@end
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesObjC/Sources/FBLPromises/FBLPromise+Testing.m:
+    1|       |/**
+    2|       | Copyright 2018 Google Inc. All rights reserved.
+    3|       |
+    4|       | Licensed under the Apache License, Version 2.0 (the "License");
+    5|       | you may not use this file except in compliance with the License.
+    6|       | You may obtain a copy of the License at:
+    7|       |
+    8|       | http://www.apache.org/licenses/LICENSE-2.0
+    9|       |
+   10|       | Unless required by applicable law or agreed to in writing, software
+   11|       | distributed under the License is distributed on an "AS IS" BASIS,
+   12|       | WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   13|       | See the License for the specific language governing permissions and
+   14|       | limitations under the License.
+   15|       | */
+   16|       |
+   17|       |#import "FBLPromise+Testing.h"
+   18|       |
+   19|     37|BOOL FBLWaitForPromisesWithTimeout(NSTimeInterval timeout) {
+   20|     37|  BOOL isTimedOut = NO;
+   21|     37|  NSDate *timeoutDate = [NSDate dateWithTimeIntervalSinceNow:timeout];
+   22|     37|  static NSTimeInterval const minimalTimeout = 0.01;
+   23|     37|  static int64_t const minimalTimeToWait = (int64_t)(minimalTimeout * NSEC_PER_SEC);
+   24|     37|  dispatch_time_t waitTime = dispatch_time(DISPATCH_TIME_NOW, minimalTimeToWait);
+   25|     37|  dispatch_group_t dispatchGroup = FBLPromise.dispatchGroup;
+   26|     37|  NSRunLoop *runLoop = NSRunLoop.currentRunLoop;
+   27|     75|  while (dispatch_group_wait(dispatchGroup, waitTime)) {
+   28|     38|    isTimedOut = timeoutDate.timeIntervalSinceNow < 0.0;
+   29|     38|    if (isTimedOut) {
+   30|      0|      break;
+   31|      0|    }
+   32|     38|    [runLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:minimalTimeout]];
+   33|     38|  }
+   34|     37|  return !isTimedOut;
+   35|     37|}
+   36|       |
+   37|       |@implementation FBLPromise (TestingAdditions)
+   38|       |
+   39|       |// These properties are implemented in the FBLPromise class itself.
+   40|       |@dynamic isPending;
+   41|       |@dynamic isFulfilled;
+   42|       |@dynamic isRejected;
+   43|       |@dynamic pendingObjects;
+   44|       |@dynamic value;
+   45|       |@dynamic error;
+   46|       |
+   47|    325|+ (dispatch_group_t)dispatchGroup {
+   48|    325|  static dispatch_group_t gDispatchGroup;
+   49|    325|  static dispatch_once_t onceToken;
+   50|    325|  dispatch_once(&onceToken, ^{
+   51|      1|    gDispatchGroup = dispatch_group_create();
+   52|      1|  });
+   53|    325|  return gDispatchGroup;
+   54|    325|}
+   55|       |
+   56|       |@end
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesObjC/Sources/FBLPromises/FBLPromise+Then.m:
+    1|       |/**
+    2|       | Copyright 2018 Google Inc. All rights reserved.
+    3|       |
+    4|       | Licensed under the Apache License, Version 2.0 (the "License");
+    5|       | you may not use this file except in compliance with the License.
+    6|       | You may obtain a copy of the License at:
+    7|       |
+    8|       | http://www.apache.org/licenses/LICENSE-2.0
+    9|       |
+   10|       | Unless required by applicable law or agreed to in writing, software
+   11|       | distributed under the License is distributed on an "AS IS" BASIS,
+   12|       | WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   13|       | See the License for the specific language governing permissions and
+   14|       | limitations under the License.
+   15|       | */
+   16|       |
+   17|       |#import "FBLPromise+Then.h"
+   18|       |
+   19|       |#import "FBLPromisePrivate.h"
+   20|       |
+   21|       |@implementation FBLPromise (ThenAdditions)
+   22|       |
+   23|      0|- (FBLPromise *)then:(FBLPromiseThenWorkBlock)work {
+   24|      0|  return [self onQueue:FBLPromise.defaultDispatchQueue then:work];
+   25|      0|}
+   26|       |
+   27|     37|- (FBLPromise *)onQueue:(dispatch_queue_t)queue then:(FBLPromiseThenWorkBlock)work {
+   28|     37|  NSParameterAssert(queue);
+   29|     37|  NSParameterAssert(work);
+   30|     37|
+   31|     37|  return [self chainOnQueue:queue chainedFulfill:work chainedReject:nil];
+   32|     37|}
+   33|       |
+   34|       |@end
+   35|       |
+   36|       |@implementation FBLPromise (DotSyntax_ThenAdditions)
+   37|       |
+   38|      0|- (FBLPromise* (^)(FBLPromiseThenWorkBlock))then {
+   39|      0|  return ^(FBLPromiseThenWorkBlock work) {
+   40|      0|    return [self then:work];
+   41|      0|  };
+   42|      0|}
+   43|       |
+   44|      0|- (FBLPromise* (^)(dispatch_queue_t, FBLPromiseThenWorkBlock))thenOn {
+   45|      0|  return ^(dispatch_queue_t queue, FBLPromiseThenWorkBlock work) {
+   46|      0|    return [self onQueue:queue then:work];
+   47|      0|  };
+   48|      0|}
+   49|       |
+   50|       |@end
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesObjC/Sources/FBLPromises/FBLPromise+Timeout.m:
+    1|       |/**
+    2|       | Copyright 2018 Google Inc. All rights reserved.
+    3|       |
+    4|       | Licensed under the Apache License, Version 2.0 (the "License");
+    5|       | you may not use this file except in compliance with the License.
+    6|       | You may obtain a copy of the License at:
+    7|       |
+    8|       | http://www.apache.org/licenses/LICENSE-2.0
+    9|       |
+   10|       | Unless required by applicable law or agreed to in writing, software
+   11|       | distributed under the License is distributed on an "AS IS" BASIS,
+   12|       | WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   13|       | See the License for the specific language governing permissions and
+   14|       | limitations under the License.
+   15|       | */
+   16|       |
+   17|       |#import "FBLPromise+Timeout.h"
+   18|       |
+   19|       |#import "FBLPromisePrivate.h"
+   20|       |
+   21|       |@implementation FBLPromise (TimeoutAdditions)
+   22|       |
+   23|      0|- (FBLPromise *)timeout:(NSTimeInterval)interval {
+   24|      0|  return [self onQueue:FBLPromise.defaultDispatchQueue timeout:interval];
+   25|      0|}
+   26|       |
+   27|      0|- (FBLPromise *)onQueue:(dispatch_queue_t)queue timeout:(NSTimeInterval)interval {
+   28|      0|  NSParameterAssert(queue);
+   29|      0|
+   30|      0|  FBLPromise *promise = [[FBLPromise alloc] initPending];
+   31|      0|  [self observeOnQueue:queue
+   32|      0|      fulfill:^(id __nullable value) {
+   33|      0|        [promise fulfill:value];
+   34|      0|      }
+   35|      0|      reject:^(NSError *error) {
+   36|      0|        [promise reject:error];
+   37|      0|      }];
+   38|      0|  typeof(self) __weak weakPromise = promise;
+   39|      0|  dispatch_after(dispatch_time(0, (int64_t)(interval * NSEC_PER_SEC)), queue, ^{
+   40|      0|    NSError *timedOutError = [[NSError alloc] initWithDomain:FBLPromiseErrorDomain
+   41|      0|                                                        code:FBLPromiseErrorCodeTimedOut
+   42|      0|                                                    userInfo:nil];
+   43|      0|    [weakPromise reject:timedOutError];
+   44|      0|  });
+   45|      0|  return promise;
+   46|      0|}
+   47|       |
+   48|       |@end
+   49|       |
+   50|       |@implementation FBLPromise (DotSyntax_TimeoutAdditions)
+   51|       |
+   52|      0|- (FBLPromise* (^)(NSTimeInterval))timeout {
+   53|      0|  return ^(NSTimeInterval interval) {
+   54|      0|    return [self timeout:interval];
+   55|      0|  };
+   56|      0|}
+   57|       |
+   58|      0|- (FBLPromise* (^)(dispatch_queue_t, NSTimeInterval))timeoutOn {
+   59|      0|  return ^(dispatch_queue_t queue, NSTimeInterval interval) {
+   60|      0|    return [self onQueue:queue timeout:interval];
+   61|      0|  };
+   62|      0|}
+   63|       |
+   64|       |@end
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesObjC/Sources/FBLPromises/FBLPromise+Validate.m:
+    1|       |/**
+    2|       | Copyright 2018 Google Inc. All rights reserved.
+    3|       |
+    4|       | Licensed under the Apache License, Version 2.0 (the "License");
+    5|       | you may not use this file except in compliance with the License.
+    6|       | You may obtain a copy of the License at:
+    7|       |
+    8|       | http://www.apache.org/licenses/LICENSE-2.0
+    9|       |
+   10|       | Unless required by applicable law or agreed to in writing, software
+   11|       | distributed under the License is distributed on an "AS IS" BASIS,
+   12|       | WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   13|       | See the License for the specific language governing permissions and
+   14|       | limitations under the License.
+   15|       | */
+   16|       |
+   17|       |#import "FBLPromise+Validate.h"
+   18|       |
+   19|       |#import "FBLPromisePrivate.h"
+   20|       |
+   21|       |@implementation FBLPromise (ValidateAdditions)
+   22|       |
+   23|      0|- (FBLPromise*)validate:(FBLPromiseValidateWorkBlock)predicate {
+   24|      0|  return [self onQueue:FBLPromise.defaultDispatchQueue validate:predicate];
+   25|      0|}
+   26|       |
+   27|      0|- (FBLPromise*)onQueue:(dispatch_queue_t)queue validate:(FBLPromiseValidateWorkBlock)predicate {
+   28|      0|  NSParameterAssert(queue);
+   29|      0|  NSParameterAssert(predicate);
+   30|      0|
+   31|      0|  FBLPromiseChainedFulfillBlock chainedFulfill = ^id(id value) {
+   32|      0|    return predicate(value) ? value :
+   33|      0|                              [[NSError alloc] initWithDomain:FBLPromiseErrorDomain
+   34|      0|                                                         code:FBLPromiseErrorCodeValidationFailure
+   35|      0|                                                     userInfo:nil];
+   36|      0|  };
+   37|      0|  return [self chainOnQueue:queue chainedFulfill:chainedFulfill chainedReject:nil];
+   38|      0|}
+   39|       |
+   40|       |@end
+   41|       |
+   42|       |@implementation FBLPromise (DotSyntax_ValidateAdditions)
+   43|       |
+   44|      0|- (FBLPromise* (^)(FBLPromiseValidateWorkBlock))validate {
+   45|      0|  return ^(FBLPromiseValidateWorkBlock predicate) {
+   46|      0|    return [self validate:predicate];
+   47|      0|  };
+   48|      0|}
+   49|       |
+   50|      0|- (FBLPromise* (^)(dispatch_queue_t, FBLPromiseValidateWorkBlock))validateOn {
+   51|      0|  return ^(dispatch_queue_t queue, FBLPromiseValidateWorkBlock predicate) {
+   52|      0|    return [self onQueue:queue validate:predicate];
+   53|      0|  };
+   54|      0|}
+   55|       |
+   56|       |@end
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesObjC/Sources/FBLPromises/FBLPromise+Wrap.m:
+    1|       |/**
+    2|       | Copyright 2018 Google Inc. All rights reserved.
+    3|       |
+    4|       | Licensed under the Apache License, Version 2.0 (the "License");
+    5|       | you may not use this file except in compliance with the License.
+    6|       | You may obtain a copy of the License at:
+    7|       |
+    8|       | http://www.apache.org/licenses/LICENSE-2.0
+    9|       |
+   10|       | Unless required by applicable law or agreed to in writing, software
+   11|       | distributed under the License is distributed on an "AS IS" BASIS,
+   12|       | WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   13|       | See the License for the specific language governing permissions and
+   14|       | limitations under the License.
+   15|       | */
+   16|       |
+   17|       |#import "FBLPromise+Wrap.h"
+   18|       |
+   19|       |#import "FBLPromise+Async.h"
+   20|       |
+   21|       |@implementation FBLPromise (WrapAdditions)
+   22|       |
+   23|      0|+ (instancetype)wrapCompletion:(void (^)(FBLPromiseCompletion))work {
+   24|      0|  return [self onQueue:self.defaultDispatchQueue wrapCompletion:work];
+   25|      0|}
+   26|       |
+   27|       |+ (instancetype)onQueue:(dispatch_queue_t)queue
+   28|      0|         wrapCompletion:(void (^)(FBLPromiseCompletion))work {
+   29|      0|  NSParameterAssert(queue);
+   30|      0|  NSParameterAssert(work);
+   31|      0|
+   32|      0|  return [self onQueue:queue
+   33|      0|                 async:^(FBLPromiseFulfillBlock fulfill, FBLPromiseRejectBlock __unused _) {
+   34|      0|                   work(^{
+   35|      0|                     fulfill(nil);
+   36|      0|                   });
+   37|      0|                 }];
+   38|      0|}
+   39|       |
+   40|      0|+ (instancetype)wrapObjectCompletion:(void (^)(FBLPromiseObjectCompletion))work {
+   41|      0|  return [self onQueue:self.defaultDispatchQueue wrapObjectCompletion:work];
+   42|      0|}
+   43|       |
+   44|       |+ (instancetype)onQueue:(dispatch_queue_t)queue
+   45|      0|    wrapObjectCompletion:(void (^)(FBLPromiseObjectCompletion))work {
+   46|      0|  NSParameterAssert(queue);
+   47|      0|  NSParameterAssert(work);
+   48|      0|
+   49|      0|  return [self onQueue:queue
+   50|      0|                 async:^(FBLPromiseFulfillBlock fulfill, FBLPromiseRejectBlock __unused _) {
+   51|      0|                   work(^(id __nullable value) {
+   52|      0|                     fulfill(value);
+   53|      0|                   });
+   54|      0|                 }];
+   55|      0|}
+   56|       |
+   57|      0|+ (instancetype)wrapErrorCompletion:(void (^)(FBLPromiseErrorCompletion))work {
+   58|      0|  return [self onQueue:self.defaultDispatchQueue wrapErrorCompletion:work];
+   59|      0|}
+   60|       |
+   61|       |+ (instancetype)onQueue:(dispatch_queue_t)queue
+   62|      0|    wrapErrorCompletion:(void (^)(FBLPromiseErrorCompletion))work {
+   63|      0|  NSParameterAssert(queue);
+   64|      0|  NSParameterAssert(work);
+   65|      0|
+   66|      0|  return [self onQueue:queue
+   67|      0|                 async:^(FBLPromiseFulfillBlock fulfill, FBLPromiseRejectBlock reject) {
+   68|      0|                   work(^(NSError *__nullable error) {
+   69|      0|                     if (error) {
+   70|      0|                       reject(error);
+   71|      0|                     } else {
+   72|      0|                       fulfill(nil);
+   73|      0|                     }
+   74|      0|                   });
+   75|      0|                 }];
+   76|      0|}
+   77|       |
+   78|      0|+ (instancetype)wrapObjectOrErrorCompletion:(void (^)(FBLPromiseObjectOrErrorCompletion))work {
+   79|      0|  return [self onQueue:self.defaultDispatchQueue wrapObjectOrErrorCompletion:work];
+   80|      0|}
+   81|       |
+   82|       |+ (instancetype)onQueue:(dispatch_queue_t)queue
+   83|      0|    wrapObjectOrErrorCompletion:(void (^)(FBLPromiseObjectOrErrorCompletion))work {
+   84|      0|  NSParameterAssert(queue);
+   85|      0|  NSParameterAssert(work);
+   86|      0|
+   87|      0|  return [self onQueue:queue
+   88|      0|                 async:^(FBLPromiseFulfillBlock fulfill, FBLPromiseRejectBlock reject) {
+   89|      0|                   work(^(id __nullable value, NSError *__nullable error) {
+   90|      0|                     if (error) {
+   91|      0|                       reject(error);
+   92|      0|                     } else {
+   93|      0|                       fulfill(value);
+   94|      0|                     }
+   95|      0|                   });
+   96|      0|                 }];
+   97|      0|}
+   98|       |
+   99|      0|+ (instancetype)wrapErrorOrObjectCompletion:(void (^)(FBLPromiseErrorOrObjectCompletion))work {
+  100|      0|  return [self onQueue:self.defaultDispatchQueue wrapErrorOrObjectCompletion:work];
+  101|      0|}
+  102|       |
+  103|       |+ (instancetype)onQueue:(dispatch_queue_t)queue
+  104|      0|    wrapErrorOrObjectCompletion:(void (^)(FBLPromiseErrorOrObjectCompletion))work {
+  105|      0|  NSParameterAssert(queue);
+  106|      0|  NSParameterAssert(work);
+  107|      0|
+  108|      0|  return [self onQueue:queue
+  109|      0|                 async:^(FBLPromiseFulfillBlock fulfill, FBLPromiseRejectBlock reject) {
+  110|      0|                   work(^(NSError *__nullable error, id __nullable value) {
+  111|      0|                     if (error) {
+  112|      0|                       reject(error);
+  113|      0|                     } else {
+  114|      0|                       fulfill(value);
+  115|      0|                     }
+  116|      0|                   });
+  117|      0|                 }];
+  118|      0|}
+  119|       |
+  120|       |+ (FBLPromise<NSArray *> *)wrap2ObjectsOrErrorCompletion:
+  121|      0|    (void (^)(FBLPromise2ObjectsOrErrorCompletion))work {
+  122|      0|  return [self onQueue:self.defaultDispatchQueue wrap2ObjectsOrErrorCompletion:work];
+  123|      0|}
+  124|       |
+  125|       |+ (FBLPromise<NSArray *> *)onQueue:(dispatch_queue_t)queue
+  126|      0|     wrap2ObjectsOrErrorCompletion:(void (^)(FBLPromise2ObjectsOrErrorCompletion))work {
+  127|      0|  NSParameterAssert(queue);
+  128|      0|  NSParameterAssert(work);
+  129|      0|
+  130|      0|  return [self onQueue:queue
+  131|      0|                 async:^(FBLPromiseFulfillBlock fulfill, FBLPromiseRejectBlock reject) {
+  132|      0|                   work(^(id __nullable value1, id __nullable value2, NSError *__nullable error) {
+  133|      0|                     if (error) {
+  134|      0|                       reject(error);
+  135|      0|                     } else {
+  136|      0|                       fulfill(@[ value1, value2 ]);
+  137|      0|                     }
+  138|      0|                   });
+  139|      0|                 }];
+  140|      0|}
+  141|       |
+  142|      0|+ (FBLPromise<NSNumber *> *)wrapBoolCompletion:(void (^)(FBLPromiseBoolCompletion))work {
+  143|      0|  return [self onQueue:self.defaultDispatchQueue wrapBoolCompletion:work];
+  144|      0|}
+  145|       |
+  146|       |+ (FBLPromise<NSNumber *> *)onQueue:(dispatch_queue_t)queue
+  147|      0|                 wrapBoolCompletion:(void (^)(FBLPromiseBoolCompletion))work {
+  148|      0|  NSParameterAssert(queue);
+  149|      0|  NSParameterAssert(work);
+  150|      0|
+  151|      0|  return [self onQueue:queue
+  152|      0|                 async:^(FBLPromiseFulfillBlock fulfill, FBLPromiseRejectBlock __unused _) {
+  153|      0|                   work(^(BOOL value) {
+  154|      0|                     fulfill(@(value));
+  155|      0|                   });
+  156|      0|                 }];
+  157|      0|}
+  158|       |
+  159|       |+ (FBLPromise<NSNumber *> *)wrapBoolOrErrorCompletion:
+  160|      0|    (void (^)(FBLPromiseBoolOrErrorCompletion))work {
+  161|      0|  return [self onQueue:self.defaultDispatchQueue wrapBoolOrErrorCompletion:work];
+  162|      0|}
+  163|       |
+  164|       |+ (FBLPromise<NSNumber *> *)onQueue:(dispatch_queue_t)queue
+  165|      0|          wrapBoolOrErrorCompletion:(void (^)(FBLPromiseBoolOrErrorCompletion))work {
+  166|      0|  NSParameterAssert(queue);
+  167|      0|  NSParameterAssert(work);
+  168|      0|
+  169|      0|  return [self onQueue:queue
+  170|      0|                 async:^(FBLPromiseFulfillBlock fulfill, FBLPromiseRejectBlock reject) {
+  171|      0|                   work(^(BOOL value, NSError *__nullable error) {
+  172|      0|                     if (error) {
+  173|      0|                       reject(error);
+  174|      0|                     } else {
+  175|      0|                       fulfill(@(value));
+  176|      0|                     }
+  177|      0|                   });
+  178|      0|                 }];
+  179|      0|}
+  180|       |
+  181|      0|+ (FBLPromise<NSNumber *> *)wrapIntegerCompletion:(void (^)(FBLPromiseIntegerCompletion))work {
+  182|      0|  return [self onQueue:self.defaultDispatchQueue wrapIntegerCompletion:work];
+  183|      0|}
+  184|       |
+  185|       |+ (FBLPromise<NSNumber *> *)onQueue:(dispatch_queue_t)queue
+  186|      0|              wrapIntegerCompletion:(void (^)(FBLPromiseIntegerCompletion))work {
+  187|      0|  NSParameterAssert(queue);
+  188|      0|  NSParameterAssert(work);
+  189|      0|
+  190|      0|  return [self onQueue:queue
+  191|      0|                 async:^(FBLPromiseFulfillBlock fulfill, FBLPromiseRejectBlock __unused _) {
+  192|      0|                   work(^(NSInteger value) {
+  193|      0|                     fulfill(@(value));
+  194|      0|                   });
+  195|      0|                 }];
+  196|      0|}
+  197|       |
+  198|       |+ (FBLPromise<NSNumber *> *)wrapIntegerOrErrorCompletion:
+  199|      0|    (void (^)(FBLPromiseIntegerOrErrorCompletion))work {
+  200|      0|  return [self onQueue:self.defaultDispatchQueue wrapIntegerOrErrorCompletion:work];
+  201|      0|}
+  202|       |
+  203|       |+ (FBLPromise<NSNumber *> *)onQueue:(dispatch_queue_t)queue
+  204|      0|       wrapIntegerOrErrorCompletion:(void (^)(FBLPromiseIntegerOrErrorCompletion))work {
+  205|      0|  NSParameterAssert(queue);
+  206|      0|  NSParameterAssert(work);
+  207|      0|
+  208|      0|  return [self onQueue:queue
+  209|      0|                 async:^(FBLPromiseFulfillBlock fulfill, FBLPromiseRejectBlock reject) {
+  210|      0|                   work(^(NSInteger value, NSError *__nullable error) {
+  211|      0|                     if (error) {
+  212|      0|                       reject(error);
+  213|      0|                     } else {
+  214|      0|                       fulfill(@(value));
+  215|      0|                     }
+  216|      0|                   });
+  217|      0|                 }];
+  218|      0|}
+  219|       |
+  220|      0|+ (FBLPromise<NSNumber *> *)wrapDoubleCompletion:(void (^)(FBLPromiseDoubleCompletion))work {
+  221|      0|  return [self onQueue:self.defaultDispatchQueue wrapDoubleCompletion:work];
+  222|      0|}
+  223|       |
+  224|       |+ (FBLPromise<NSNumber *> *)onQueue:(dispatch_queue_t)queue
+  225|      0|               wrapDoubleCompletion:(void (^)(FBLPromiseDoubleCompletion))work {
+  226|      0|  NSParameterAssert(queue);
+  227|      0|  NSParameterAssert(work);
+  228|      0|
+  229|      0|  return [self onQueue:(dispatch_queue_t)queue
+  230|      0|                 async:^(FBLPromiseFulfillBlock fulfill, FBLPromiseRejectBlock __unused _) {
+  231|      0|                   work(^(double value) {
+  232|      0|                     fulfill(@(value));
+  233|      0|                   });
+  234|      0|                 }];
+  235|      0|}
+  236|       |
+  237|       |+ (FBLPromise<NSNumber *> *)wrapDoubleOrErrorCompletion:
+  238|      0|    (void (^)(FBLPromiseDoubleOrErrorCompletion))work {
+  239|      0|  return [self onQueue:self.defaultDispatchQueue wrapDoubleOrErrorCompletion:work];
+  240|      0|}
+  241|       |
+  242|       |+ (FBLPromise<NSNumber *> *)onQueue:(dispatch_queue_t)queue
+  243|      0|        wrapDoubleOrErrorCompletion:(void (^)(FBLPromiseDoubleOrErrorCompletion))work {
+  244|      0|  NSParameterAssert(queue);
+  245|      0|  NSParameterAssert(work);
+  246|      0|
+  247|      0|  return [self onQueue:queue
+  248|      0|                 async:^(FBLPromiseFulfillBlock fulfill, FBLPromiseRejectBlock reject) {
+  249|      0|                   work(^(double value, NSError *__nullable error) {
+  250|      0|                     if (error) {
+  251|      0|                       reject(error);
+  252|      0|                     } else {
+  253|      0|                       fulfill(@(value));
+  254|      0|                     }
+  255|      0|                   });
+  256|      0|                 }];
+  257|      0|}
+  258|       |
+  259|       |@end
+  260|       |
+  261|       |@implementation FBLPromise (DotSyntax_WrapAdditions)
+  262|       |
+  263|      0|+ (FBLPromise * (^)(void (^)(FBLPromiseCompletion)))wrapCompletion {
+  264|      0|  return ^(void (^work)(FBLPromiseCompletion)) {
+  265|      0|    return [self wrapCompletion:work];
+  266|      0|  };
+  267|      0|}
+  268|       |
+  269|      0|+ (FBLPromise * (^)(dispatch_queue_t, void (^)(FBLPromiseCompletion)))wrapCompletionOn {
+  270|      0|  return ^(dispatch_queue_t queue, void (^work)(FBLPromiseCompletion)) {
+  271|      0|    return [self onQueue:queue wrapCompletion:work];
+  272|      0|  };
+  273|      0|}
+  274|       |
+  275|      0|+ (FBLPromise * (^)(void (^)(FBLPromiseObjectCompletion)))wrapObjectCompletion {
+  276|      0|  return ^(void (^work)(FBLPromiseObjectCompletion)) {
+  277|      0|    return [self wrapObjectCompletion:work];
+  278|      0|  };
+  279|      0|}
+  280|       |
+  281|      0|+ (FBLPromise * (^)(dispatch_queue_t, void (^)(FBLPromiseObjectCompletion)))wrapObjectCompletionOn {
+  282|      0|  return ^(dispatch_queue_t queue, void (^work)(FBLPromiseObjectCompletion)) {
+  283|      0|    return [self onQueue:queue wrapObjectCompletion:work];
+  284|      0|  };
+  285|      0|}
+  286|       |
+  287|      0|+ (FBLPromise * (^)(void (^)(FBLPromiseErrorCompletion)))wrapErrorCompletion {
+  288|      0|  return ^(void (^work)(FBLPromiseErrorCompletion)) {
+  289|      0|    return [self wrapErrorCompletion:work];
+  290|      0|  };
+  291|      0|}
+  292|       |
+  293|      0|+ (FBLPromise * (^)(dispatch_queue_t, void (^)(FBLPromiseErrorCompletion)))wrapErrorCompletionOn {
+  294|      0|  return ^(dispatch_queue_t queue, void (^work)(FBLPromiseErrorCompletion)) {
+  295|      0|    return [self onQueue:queue wrapErrorCompletion:work];
+  296|      0|  };
+  297|      0|}
+  298|       |
+  299|      0|+ (FBLPromise * (^)(void (^)(FBLPromiseObjectOrErrorCompletion)))wrapObjectOrErrorCompletion {
+  300|      0|  return ^(void (^work)(FBLPromiseObjectOrErrorCompletion)) {
+  301|      0|    return [self wrapObjectOrErrorCompletion:work];
+  302|      0|  };
+  303|      0|}
+  304|       |
+  305|       |+ (FBLPromise * (^)(dispatch_queue_t,
+  306|      0|                    void (^)(FBLPromiseObjectOrErrorCompletion)))wrapObjectOrErrorCompletionOn {
+  307|      0|  return ^(dispatch_queue_t queue, void (^work)(FBLPromiseObjectOrErrorCompletion)) {
+  308|      0|    return [self onQueue:queue wrapObjectOrErrorCompletion:work];
+  309|      0|  };
+  310|      0|}
+  311|       |
+  312|      0|+ (FBLPromise * (^)(void (^)(FBLPromiseErrorOrObjectCompletion)))wrapErrorOrObjectCompletion {
+  313|      0|  return ^(void (^work)(FBLPromiseErrorOrObjectCompletion)) {
+  314|      0|    return [self wrapErrorOrObjectCompletion:work];
+  315|      0|  };
+  316|      0|}
+  317|       |
+  318|       |+ (FBLPromise * (^)(dispatch_queue_t,
+  319|      0|                    void (^)(FBLPromiseErrorOrObjectCompletion)))wrapErrorOrObjectCompletionOn {
+  320|      0|  return ^(dispatch_queue_t queue, void (^work)(FBLPromiseErrorOrObjectCompletion)) {
+  321|      0|    return [self onQueue:queue wrapErrorOrObjectCompletion:work];
+  322|      0|  };
+  323|      0|}
+  324|       |
+  325|       |+ (FBLPromise<NSArray *> * (^)(void (^)(FBLPromise2ObjectsOrErrorCompletion)))
+  326|      0|    wrap2ObjectsOrErrorCompletion {
+  327|      0|  return ^(void (^work)(FBLPromise2ObjectsOrErrorCompletion)) {
+  328|      0|    return [self wrap2ObjectsOrErrorCompletion:work];
+  329|      0|  };
+  330|      0|}
+  331|       |
+  332|       |+ (FBLPromise<NSArray *> * (^)(dispatch_queue_t, void (^)(FBLPromise2ObjectsOrErrorCompletion)))
+  333|      0|    wrap2ObjectsOrErrorCompletionOn {
+  334|      0|  return ^(dispatch_queue_t queue, void (^work)(FBLPromise2ObjectsOrErrorCompletion)) {
+  335|      0|    return [self onQueue:queue wrap2ObjectsOrErrorCompletion:work];
+  336|      0|  };
+  337|      0|}
+  338|       |
+  339|      0|+ (FBLPromise<NSNumber *> * (^)(void (^)(FBLPromiseBoolCompletion)))wrapBoolCompletion {
+  340|      0|  return ^(void (^work)(FBLPromiseBoolCompletion)) {
+  341|      0|    return [self wrapBoolCompletion:work];
+  342|      0|  };
+  343|      0|}
+  344|       |
+  345|       |+ (FBLPromise<NSNumber *> * (^)(dispatch_queue_t,
+  346|      0|                                void (^)(FBLPromiseBoolCompletion)))wrapBoolCompletionOn {
+  347|      0|  return ^(dispatch_queue_t queue, void (^work)(FBLPromiseBoolCompletion)) {
+  348|      0|    return [self onQueue:queue wrapBoolCompletion:work];
+  349|      0|  };
+  350|      0|}
+  351|       |
+  352|       |+ (FBLPromise<NSNumber *> * (^)(void (^)(FBLPromiseBoolOrErrorCompletion)))
+  353|      0|    wrapBoolOrErrorCompletion {
+  354|      0|  return ^(void (^work)(FBLPromiseBoolOrErrorCompletion)) {
+  355|      0|    return [self wrapBoolOrErrorCompletion:work];
+  356|      0|  };
+  357|      0|}
+  358|       |
+  359|       |+ (FBLPromise<NSNumber *> * (^)(dispatch_queue_t, void (^)(FBLPromiseBoolOrErrorCompletion)))
+  360|      0|    wrapBoolOrErrorCompletionOn {
+  361|      0|  return ^(dispatch_queue_t queue, void (^work)(FBLPromiseBoolOrErrorCompletion)) {
+  362|      0|    return [self onQueue:queue wrapBoolOrErrorCompletion:work];
+  363|      0|  };
+  364|      0|}
+  365|       |
+  366|      0|+ (FBLPromise<NSNumber *> * (^)(void (^)(FBLPromiseIntegerCompletion)))wrapIntegerCompletion {
+  367|      0|  return ^(void (^work)(FBLPromiseIntegerCompletion)) {
+  368|      0|    return [self wrapIntegerCompletion:work];
+  369|      0|  };
+  370|      0|}
+  371|       |
+  372|       |+ (FBLPromise<NSNumber *> * (^)(dispatch_queue_t,
+  373|      0|                                void (^)(FBLPromiseIntegerCompletion)))wrapIntegerCompletionOn {
+  374|      0|  return ^(dispatch_queue_t queue, void (^work)(FBLPromiseIntegerCompletion)) {
+  375|      0|    return [self onQueue:queue wrapIntegerCompletion:work];
+  376|      0|  };
+  377|      0|}
+  378|       |
+  379|       |+ (FBLPromise<NSNumber *> * (^)(void (^)(FBLPromiseIntegerOrErrorCompletion)))
+  380|      0|    wrapIntegerOrErrorCompletion {
+  381|      0|  return ^(void (^work)(FBLPromiseIntegerOrErrorCompletion)) {
+  382|      0|    return [self wrapIntegerOrErrorCompletion:work];
+  383|      0|  };
+  384|      0|}
+  385|       |
+  386|       |+ (FBLPromise<NSNumber *> * (^)(dispatch_queue_t, void (^)(FBLPromiseIntegerOrErrorCompletion)))
+  387|      0|    wrapIntegerOrErrorCompletionOn {
+  388|      0|  return ^(dispatch_queue_t queue, void (^work)(FBLPromiseIntegerOrErrorCompletion)) {
+  389|      0|    return [self onQueue:queue wrapIntegerOrErrorCompletion:work];
+  390|      0|  };
+  391|      0|}
+  392|       |
+  393|      0|+ (FBLPromise<NSNumber *> * (^)(void (^)(FBLPromiseDoubleCompletion)))wrapDoubleCompletion {
+  394|      0|  return ^(void (^work)(FBLPromiseDoubleCompletion)) {
+  395|      0|    return [self wrapDoubleCompletion:work];
+  396|      0|  };
+  397|      0|}
+  398|       |
+  399|       |+ (FBLPromise<NSNumber *> * (^)(dispatch_queue_t,
+  400|      0|                                void (^)(FBLPromiseDoubleCompletion)))wrapDoubleCompletionOn {
+  401|      0|  return ^(dispatch_queue_t queue, void (^work)(FBLPromiseDoubleCompletion)) {
+  402|      0|    return [self onQueue:queue wrapDoubleCompletion:work];
+  403|      0|  };
+  404|      0|}
+  405|       |
+  406|       |+ (FBLPromise<NSNumber *> * (^)(void (^)(FBLPromiseDoubleOrErrorCompletion)))
+  407|      0|    wrapDoubleOrErrorCompletion {
+  408|      0|  return ^(void (^work)(FBLPromiseDoubleOrErrorCompletion)) {
+  409|      0|    return [self wrapDoubleOrErrorCompletion:work];
+  410|      0|  };
+  411|      0|}
+  412|       |
+  413|       |+ (FBLPromise<NSNumber *> * (^)(dispatch_queue_t, void (^)(FBLPromiseDoubleOrErrorCompletion)))
+  414|      0|    wrapDoubleOrErrorCompletionOn {
+  415|      0|  return ^(dispatch_queue_t queue, void (^work)(FBLPromiseDoubleOrErrorCompletion)) {
+  416|      0|    return [self onQueue:queue wrapDoubleOrErrorCompletion:work];
+  417|      0|  };
+  418|      0|}
+  419|       |
+  420|       |@end
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesObjC/Sources/FBLPromises/FBLPromise.m:
+    1|       |/**
+    2|       | Copyright 2018 Google Inc. All rights reserved.
+    3|       |
+    4|       | Licensed under the Apache License, Version 2.0 (the "License");
+    5|       | you may not use this file except in compliance with the License.
+    6|       | You may obtain a copy of the License at:
+    7|       |
+    8|       | http://www.apache.org/licenses/LICENSE-2.0
+    9|       |
+   10|       | Unless required by applicable law or agreed to in writing, software
+   11|       | distributed under the License is distributed on an "AS IS" BASIS,
+   12|       | WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   13|       | See the License for the specific language governing permissions and
+   14|       | limitations under the License.
+   15|       | */
+   16|       |
+   17|       |#import "FBLPromisePrivate.h"
+   18|       |
+   19|       |/** All states a promise can be in. */
+   20|       |typedef NS_ENUM(NSInteger, FBLPromiseState) {
+   21|       |  FBLPromiseStatePending = 0,
+   22|       |  FBLPromiseStateFulfilled,
+   23|       |  FBLPromiseStateRejected,
+   24|       |};
+   25|       |
+   26|       |typedef void (^FBLPromiseObserver)(FBLPromiseState state, id __nullable resolution);
+   27|       |
+   28|       |static dispatch_queue_t gFBLPromiseDefaultDispatchQueue;
+   29|       |
+   30|       |@implementation FBLPromise {
+   31|       |  /** Current state of the promise. */
+   32|       |  FBLPromiseState _state;
+   33|       |  /**
+   34|       |   Set of arbitrary objects to keep strongly while the promise is pending.
+   35|       |   Becomes nil after the promise has been resolved.
+   36|       |   */
+   37|       |  NSMutableSet *__nullable _pendingObjects;
+   38|       |  /**
+   39|       |   Value to fulfill the promise with.
+   40|       |   Can be nil if the promise is still pending, was resolved with nil or after it has been rejected.
+   41|       |   */
+   42|       |  id __nullable _value;
+   43|       |  /**
+   44|       |   Error to reject the promise with.
+   45|       |   Can be nil if the promise is still pending or after it has been fulfilled.
+   46|       |   */
+   47|       |  NSError *__nullable _error;
+   48|       |  /** List of observers to notify when the promise gets resolved. */
+   49|       |  NSMutableArray<FBLPromiseObserver> *_observers;
+   50|       |}
+   51|       |
+   52|      1|+ (void)initialize {
+   53|      1|  if (self == [FBLPromise class]) {
+   54|      1|    gFBLPromiseDefaultDispatchQueue = dispatch_get_main_queue();
+   55|      1|  }
+   56|      1|}
+   57|       |
+   58|     74|+ (dispatch_queue_t)defaultDispatchQueue {
+   59|     74|  @synchronized(self) {
+   60|     74|    return gFBLPromiseDefaultDispatchQueue;
+   61|     74|  }
+   62|     74|}
+   63|       |
+   64|      0|+ (void)setDefaultDispatchQueue:(dispatch_queue_t)queue {
+   65|      0|  NSParameterAssert(queue);
+   66|      0|
+   67|      0|  @synchronized(self) {
+   68|      0|    gFBLPromiseDefaultDispatchQueue = queue;
+   69|      0|  }
+   70|      0|}
+   71|       |
+   72|      0|+ (instancetype)pendingPromise {
+   73|      0|  return [[self alloc] initPending];
+   74|      0|}
+   75|       |
+   76|     15|+ (instancetype)resolvedWith:(nullable id)resolution {
+   77|     15|  return [[self alloc] initWithResolution:resolution];
+   78|     15|}
+   79|       |
+   80|     86|- (void)fulfill:(nullable id)value {
+   81|     86|  if ([value isKindOfClass:[NSError class]]) {
+   82|     50|    [self reject:(NSError *)value];
+   83|     50|  } else {
+   84|     36|    @synchronized(self) {
+   85|     36|      if (_state == FBLPromiseStatePending) {
+   86|     36|        _state = FBLPromiseStateFulfilled;
+   87|     36|        _value = value;
+   88|     36|        _pendingObjects = nil;
+   89|     36|        for (FBLPromiseObserver observer in _observers) {
+   90|     24|          observer(_state, _value);
+   91|     24|        }
+   92|     36|        _observers = nil;
+   93|     36|        dispatch_group_leave(FBLPromise.dispatchGroup);
+   94|     36|      }
+   95|     36|    }
+   96|     36|  }
+   97|     86|}
+   98|       |
+   99|     60|- (void)reject:(NSError *)error {
+  100|     60|  NSAssert([error isKindOfClass:[NSError class]], @"Invalid error type.");
+  101|     60|
+  102|     60|  if (![error isKindOfClass:[NSError class]]) {
+  103|      0|    // Give up on invalid error type in Release mode.
+  104|      0|    @throw error;  // NOLINT
+  105|      0|  }
+  106|     60|  @synchronized(self) {
+  107|     60|    if (_state == FBLPromiseStatePending) {
+  108|     60|      _state = FBLPromiseStateRejected;
+  109|     60|      _error = error;
+  110|     60|      _pendingObjects = nil;
+  111|     60|      for (FBLPromiseObserver observer in _observers) {
+  112|     35|        observer(_state, _error);
+  113|     35|      }
+  114|     60|      _observers = nil;
+  115|     60|      dispatch_group_leave(FBLPromise.dispatchGroup);
+  116|     60|    }
+  117|     60|  }
+  118|     60|}
+  119|       |
+  120|       |#pragma mark - NSObject
+  121|       |
+  122|      0|- (NSString *)description {
+  123|      0|  if (self.isFulfilled) {
+  124|      0|    return [NSString stringWithFormat:@"<%@ %p> Fulfilled: %@", NSStringFromClass([self class]),
+  125|      0|                                      self, self.value];
+  126|      0|  }
+  127|      0|  if (self.isRejected) {
+  128|      0|    return [NSString stringWithFormat:@"<%@ %p> Rejected: %@", NSStringFromClass([self class]),
+  129|      0|                                      self, self.error];
+  130|      0|  }
+  131|      0|  return [NSString stringWithFormat:@"<%@ %p> Pending", NSStringFromClass([self class]), self];
+  132|      0|}
+  133|       |
+  134|       |#pragma mark - Private
+  135|       |
+  136|     96|- (instancetype)initPending {
+  137|     96|  self = [super init];
+  138|     96|  if (self) {
+  139|     96|    dispatch_group_enter(FBLPromise.dispatchGroup);
+  140|     96|  }
+  141|     96|  return self;
+  142|     96|}
+  143|       |
+  144|     15|- (instancetype)initWithResolution:(nullable id)resolution {
+  145|     15|  self = [super init];
+  146|     15|  if (self) {
+  147|     15|    if ([resolution isKindOfClass:[NSError class]]) {
+  148|     15|      _state = FBLPromiseStateRejected;
+  149|     15|      _error = (NSError *)resolution;
+  150|     15|    } else {
+  151|      0|      _state = FBLPromiseStateFulfilled;
+  152|      0|      _value = resolution;
+  153|      0|    }
+  154|     15|  }
+  155|     15|  return self;
+  156|     15|}
+  157|       |
+  158|    111|- (void)dealloc {
+  159|    111|  if (_state == FBLPromiseStatePending) {
+  160|      0|    dispatch_group_leave(FBLPromise.dispatchGroup);
+  161|      0|  }
+  162|    111|}
+  163|       |
+  164|      0|- (BOOL)isPending {
+  165|      0|  @synchronized(self) {
+  166|      0|    return _state == FBLPromiseStatePending;
+  167|      0|  }
+  168|      0|}
+  169|       |
+  170|      0|- (BOOL)isFulfilled {
+  171|      0|  @synchronized(self) {
+  172|      0|    return _state == FBLPromiseStateFulfilled;
+  173|      0|  }
+  174|      0|}
+  175|       |
+  176|      0|- (BOOL)isRejected {
+  177|      0|  @synchronized(self) {
+  178|      0|    return _state == FBLPromiseStateRejected;
+  179|      0|  }
+  180|      0|}
+  181|       |
+  182|      0|- (nullable id)value {
+  183|      0|  @synchronized(self) {
+  184|      0|    return _value;
+  185|      0|  }
+  186|      0|}
+  187|       |
+  188|      0|- (NSError *__nullable)error {
+  189|      0|  @synchronized(self) {
+  190|      0|    return _error;
+  191|      0|  }
+  192|      0|}
+  193|       |
+  194|     96|- (NSMutableSet *__nullable)pendingObjects {
+  195|     96|  @synchronized(self) {
+  196|     96|    if (_state == FBLPromiseStatePending) {
+  197|     81|      if (!_pendingObjects) {
+  198|     59|        _pendingObjects = [[NSMutableSet alloc] init];
+  199|     59|      }
+  200|     81|    }
+  201|     96|    return _pendingObjects;
+  202|     96|  }
+  203|     96|}
+  204|       |
+  205|       |- (void)observeOnQueue:(dispatch_queue_t)queue
+  206|       |               fulfill:(FBLPromiseOnFulfillBlock)onFulfill
+  207|     74|                reject:(FBLPromiseOnRejectBlock)onReject {
+  208|     74|  NSParameterAssert(queue);
+  209|     74|  NSParameterAssert(onFulfill);
+  210|     74|  NSParameterAssert(onReject);
+  211|     74|
+  212|     74|  @synchronized(self) {
+  213|     74|    switch (_state) {
+  214|     74|      case FBLPromiseStatePending: {
+  215|     59|        if (!_observers) {
+  216|     59|          _observers = [[NSMutableArray alloc] init];
+  217|     59|        }
+  218|     59|        [_observers addObject:^(FBLPromiseState state, id __nullable resolution) {
+  219|     59|          dispatch_group_async(FBLPromise.dispatchGroup, queue, ^{
+  220|     59|            switch (state) {
+  221|     59|              case FBLPromiseStatePending:
+  222|      0|                break;
+  223|     59|              case FBLPromiseStateFulfilled:
+  224|     24|                onFulfill(resolution);
+  225|     24|                break;
+  226|     59|              case FBLPromiseStateRejected:
+  227|     35|                onReject(resolution);
+  228|     35|                break;
+  229|     59|            }
+  230|     59|          });
+  231|     59|        }];
+  232|     59|        break;
+  233|     74|      }
+  234|     74|      case FBLPromiseStateFulfilled: {
+  235|      0|        dispatch_group_async(FBLPromise.dispatchGroup, queue, ^{
+  236|      0|          onFulfill(self->_value);
+  237|      0|        });
+  238|      0|        break;
+  239|     74|      }
+  240|     74|      case FBLPromiseStateRejected: {
+  241|     15|        dispatch_group_async(FBLPromise.dispatchGroup, queue, ^{
+  242|     15|          onReject(self->_error);
+  243|     15|        });
+  244|     15|        break;
+  245|     74|      }
+  246|     74|    }
+  247|     74|  }
+  248|     74|}
+  249|       |
+  250|       |- (FBLPromise *)chainOnQueue:(dispatch_queue_t)queue
+  251|       |              chainedFulfill:(FBLPromiseChainedFulfillBlock)chainedFulfill
+  252|     74|               chainedReject:(FBLPromiseChainedRejectBlock)chainedReject {
+  253|     74|  NSParameterAssert(queue);
+  254|     74|
+  255|     74|  FBLPromise *promise = [[FBLPromise alloc] initPending];
+  256|     74|  __auto_type resolver = ^(id __nullable value) {
+  257|     74|    if ([value isKindOfClass:[FBLPromise class]]) {
+  258|      0|      [(FBLPromise *)value observeOnQueue:queue
+  259|      0|          fulfill:^(id __nullable value) {
+  260|      0|            [promise fulfill:value];
+  261|      0|          }
+  262|      0|          reject:^(NSError *error) {
+  263|      0|            [promise reject:error];
+  264|      0|          }];
+  265|     74|    } else {
+  266|     74|      [promise fulfill:value];
+  267|     74|    }
+  268|     74|  };
+  269|     74|  [self observeOnQueue:queue
+  270|     74|      fulfill:^(id __nullable value) {
+  271|     24|        value = chainedFulfill ? chainedFulfill(value) : value;
+  272|     24|        resolver(value);
+  273|     24|      }
+  274|     74|      reject:^(NSError *error) {
+  275|     50|        id value = chainedReject ? chainedReject(error) : error;
+  276|     50|        resolver(value);
+  277|     50|      }];
+  278|     74|  return promise;
+  279|     74|}
+  280|       |
+  281|       |@end
+  282|       |
+  283|       |@implementation FBLPromise (DotSyntaxAdditions)
+  284|       |
+  285|      0|+ (FBLPromise* (^)(id __nullable))resolved {
+  286|      0|  return ^(id resolution) {
+  287|      0|    return [self resolvedWith:resolution];
+  288|      0|  };
+  289|      0|}
+  290|       |
+  291|       |@end
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesObjC/Sources/FBLPromises/include/FBLPromiseError.h:
+    1|       |/**
+    2|       | Copyright 2018 Google Inc. All rights reserved.
+    3|       |
+    4|       | Licensed under the Apache License, Version 2.0 (the "License");
+    5|       | you may not use this file except in compliance with the License.
+    6|       | You may obtain a copy of the License at:
+    7|       |
+    8|       | http://www.apache.org/licenses/LICENSE-2.0
+    9|       |
+   10|       | Unless required by applicable law or agreed to in writing, software
+   11|       | distributed under the License is distributed on an "AS IS" BASIS,
+   12|       | WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   13|       | See the License for the specific language governing permissions and
+   14|       | limitations under the License.
+   15|       | */
+   16|       |
+   17|       |#import <Foundation/Foundation.h>
+   18|       |
+   19|       |NS_ASSUME_NONNULL_BEGIN
+   20|       |
+   21|       |FOUNDATION_EXTERN NSErrorDomain const FBLPromiseErrorDomain NS_REFINED_FOR_SWIFT;
+   22|       |
+   23|       |/**
+   24|       | Possible error codes in `FBLPromiseErrorDomain`.
+   25|       | */
+   26|       |typedef NS_ENUM(NSInteger, FBLPromiseErrorCode) {
+   27|       |  /** Promise failed to resolve in time. */
+   28|       |  FBLPromiseErrorCodeTimedOut = 1,
+   29|       |  /** Validation predicate returned false. */
+   30|       |  FBLPromiseErrorCodeValidationFailure = 2,
+   31|       |} NS_REFINED_FOR_SWIFT;
+   32|       |
+   33|      0|NS_INLINE BOOL FBLPromiseErrorIsTimedOut(NSError *error) NS_SWIFT_UNAVAILABLE("") {
+   34|      0|  return error.domain == FBLPromiseErrorDomain &&
+   35|      0|         error.code == FBLPromiseErrorCodeTimedOut;
+   36|      0|}
+  ------------------
+  | Unexecuted instantiation: FBLPromise+All.m:FBLPromiseErrorIsTimedOut
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Always.m:FBLPromiseErrorIsTimedOut
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Any.m:FBLPromiseErrorIsTimedOut
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Async.m:FBLPromiseErrorIsTimedOut
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Await.m:FBLPromiseErrorIsTimedOut
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Catch.m:FBLPromiseErrorIsTimedOut
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Delay.m:FBLPromiseErrorIsTimedOut
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Do.m:FBLPromiseErrorIsTimedOut
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Race.m:FBLPromiseErrorIsTimedOut
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Recover.m:FBLPromiseErrorIsTimedOut
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Reduce.m:FBLPromiseErrorIsTimedOut
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Retry.m:FBLPromiseErrorIsTimedOut
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Testing.m:FBLPromiseErrorIsTimedOut
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Then.m:FBLPromiseErrorIsTimedOut
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Timeout.m:FBLPromiseErrorIsTimedOut
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Validate.m:FBLPromiseErrorIsTimedOut
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Wrap.m:FBLPromiseErrorIsTimedOut
+  ------------------
+  | Unexecuted instantiation: FBLPromise.m:FBLPromiseErrorIsTimedOut
+  ------------------
+  | Unexecuted instantiation: FBLPromiseError.m:FBLPromiseErrorIsTimedOut
+  ------------------
+   37|       |
+   38|      0|NS_INLINE BOOL FBLPromiseErrorIsValidationFailure(NSError *error) NS_SWIFT_UNAVAILABLE("") {
+   39|      0|  return error.domain == FBLPromiseErrorDomain &&
+   40|      0|         error.code == FBLPromiseErrorCodeValidationFailure;
+   41|      0|}
+  ------------------
+  | Unexecuted instantiation: FBLPromise+All.m:FBLPromiseErrorIsValidationFailure
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Always.m:FBLPromiseErrorIsValidationFailure
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Any.m:FBLPromiseErrorIsValidationFailure
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Async.m:FBLPromiseErrorIsValidationFailure
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Await.m:FBLPromiseErrorIsValidationFailure
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Catch.m:FBLPromiseErrorIsValidationFailure
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Delay.m:FBLPromiseErrorIsValidationFailure
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Do.m:FBLPromiseErrorIsValidationFailure
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Race.m:FBLPromiseErrorIsValidationFailure
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Recover.m:FBLPromiseErrorIsValidationFailure
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Reduce.m:FBLPromiseErrorIsValidationFailure
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Retry.m:FBLPromiseErrorIsValidationFailure
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Testing.m:FBLPromiseErrorIsValidationFailure
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Then.m:FBLPromiseErrorIsValidationFailure
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Timeout.m:FBLPromiseErrorIsValidationFailure
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Validate.m:FBLPromiseErrorIsValidationFailure
+  ------------------
+  | Unexecuted instantiation: FBLPromise+Wrap.m:FBLPromiseErrorIsValidationFailure
+  ------------------
+  | Unexecuted instantiation: FBLPromise.m:FBLPromiseErrorIsValidationFailure
+  ------------------
+  | Unexecuted instantiation: FBLPromiseError.m:FBLPromiseErrorIsValidationFailure
+  ------------------
+   42|       |
+   43|       |NS_ASSUME_NONNULL_END
+

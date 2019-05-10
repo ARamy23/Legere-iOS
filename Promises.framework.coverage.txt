@@ -1,0 +1,1557 @@
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesSwift/Sources/Promises/Promise+All.swift:
+    1|       |// Copyright 2018 Google Inc. All rights reserved.
+    2|       |//
+    3|       |// Licensed under the Apache License, Version 2.0 (the "License");
+    4|       |// you may not use this file except in compliance with the License.
+    5|       |// You may obtain a copy of the License at:
+    6|       |//
+    7|       |// http://www.apache.org/licenses/LICENSE-2.0
+    8|       |//
+    9|       |// Unless required by applicable law or agreed to in writing, software
+   10|       |// distributed under the License is distributed on an "AS IS" BASIS,
+   11|       |// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   12|       |// See the License for the specific language governing permissions and
+   13|       |// limitations under the License.
+   14|       |
+   15|       |import Dispatch
+   16|       |
+   17|       |/// Waits until all of the promises have been fulfilled.
+   18|       |/// If one of the promises is rejected, then the returned promise is rejected with the same error.
+   19|       |/// If any other arbitrary value or `Error` appears in the array instead of `Promise`,
+   20|       |/// it's implicitly considered a pre-fulfilled or pre-rejected `Promise` correspondingly.
+   21|       |/// - parameters:
+   22|       |///   - queue: A queue to dispatch on.
+   23|       |///   - promises: Promises to wait for.
+   24|       |/// - returns: Promise of an array containing the values of input promises in the same order.
+   25|       |public func all<Value>(
+   26|       |  on queue: DispatchQueue = .promises,
+   27|       |  _ promises: Promise<Value>...
+   28|      0|) -> Promise<[Value]> {
+   29|      0|  return all(on: queue, promises)
+   30|      0|}
+   31|       |
+   32|       |/// Waits until all of the promises have been fulfilled.
+   33|       |/// If one of the promises is rejected, then the returned promise is rejected with same error.
+   34|       |/// If any other arbitrary value or `Error` appears in the array instead of `Promise`,
+   35|       |/// it's implicitly considered a pre-fulfilled or pre-rejected `Promise` correspondingly.
+   36|       |/// - parameters:
+   37|       |///   - queue: A queue to dispatch on.
+   38|       |///   - promises: Promises to wait for.
+   39|       |/// - returns: Promise of an array containing the values of input promises in the same order.
+   40|       |public func all<Value, Container: Sequence>(
+   41|       |  on queue: DispatchQueue = .promises,
+   42|       |  _ promises: Container
+   43|       |) -> Promise<[Value]> where Container.Element == Promise<Value> {
+   44|      0|  let promises = promises.map { $0.objCPromise }
+   45|       |  let promise = Promise<[Value]>(
+   46|       |    Promise<[Value]>.ObjCPromise<AnyObject>.__onQueue(queue, all: promises)
+   47|       |  )
+   48|       |  // Keep Swift wrapper alive for chained promises until `ObjCPromise` counterpart is resolved.
+   49|       |  promises.forEach {
+   50|       |    $0.__pendingObjects?.add(promise)
+   51|       |  }
+   52|       |  return promise
+   53|       |}
+   54|       |
+   55|       |/// Waits until all of the promises have been fulfilled.
+   56|       |/// If one of the promises is rejected, then the returned promise is rejected with same error.
+   57|       |/// If any other arbitrary value or `Error` appears in the array instead of `Promise`,
+   58|       |/// it's implicitly considered a pre-fulfilled or pre-rejected `Promise` correspondingly.
+   59|       |/// - parameters:
+   60|       |///   - queue: A queue to dispatch on.
+   61|       |///   - promiseA: Promise of type `A`.
+   62|       |///   - promiseB: Promise of type `B`.
+   63|       |/// - returns: Promise of a tuple containing the values of input promises in the same order.
+   64|       |public func all<A, B>(
+   65|       |  on queue: DispatchQueue = .promises,
+   66|       |  _ promiseA: Promise<A>,
+   67|       |  _ promiseB: Promise<B>
+   68|      0|) -> Promise<(A, B)> {
+   69|      0|  let promises = [
+   70|      0|    promiseA.objCPromise,
+   71|      0|    promiseB.objCPromise
+   72|      0|  ]
+   73|      0|  let promise = Promise<(A, B)>(
+   74|      0|    Promise<(A, B)>.ObjCPromise<AnyObject>.__onQueue(
+   75|      0|      queue,
+   76|      0|      all: promises
+   77|      0|    ).__onQueue(queue, then: { objCValues in
+   78|      0|      guard let values = objCValues as [AnyObject]?,
+   79|      0|            let valueA = Promise<A>.asValue(values[0]),
+   80|      0|            let valueB = Promise<B>.asValue(values[1])
+   81|      0|      else {
+   82|      0|        preconditionFailure("Cannot convert \(type(of: objCValues)) to \((A, B).self)")
+   83|      0|      }
+   84|      0|      return (valueA, valueB)
+   85|      0|    })
+   86|      0|  )
+   87|      0|  // Keep Swift wrapper alive for chained promises until `ObjCPromise` counterpart is resolved.
+   88|      0|  promises.forEach {
+   89|      0|    $0.__pendingObjects?.add(promise)
+   90|      0|  }
+   91|      0|  return promise
+   92|      0|}
+   93|       |
+   94|       |/// Waits until all of the promises have been fulfilled.
+   95|       |/// If one of the promises is rejected, then the returned promise is rejected with same error.
+   96|       |/// If any other arbitrary value or `Error` appears in the array instead of `Promise`,
+   97|       |/// it's implicitly considered a pre-fulfilled or pre-rejected `Promise` correspondingly.
+   98|       |/// - parameters:
+   99|       |///   - queue: A queue to dispatch on.
+  100|       |///   - promiseA: Promise of type `A`.
+  101|       |///   - promiseB: Promise of type `B`.
+  102|       |///   - promiseC: Promise of type `C`.
+  103|       |/// - returns: Promise of a tuple containing the values of input promises in the same order.
+  104|       |public func all<A, B, C>(
+  105|       |  on queue: DispatchQueue = .promises,
+  106|       |  _ promiseA: Promise<A>,
+  107|       |  _ promiseB: Promise<B>,
+  108|       |  _ promiseC: Promise<C>
+  109|      0|) -> Promise<(A, B, C)> {
+  110|      0|  let promises = [
+  111|      0|    promiseA.objCPromise,
+  112|      0|    promiseB.objCPromise,
+  113|      0|    promiseC.objCPromise
+  114|      0|  ]
+  115|      0|  let promise = Promise<(A, B, C)>(
+  116|      0|    Promise<(A, B, C)>.ObjCPromise<AnyObject>.__onQueue(
+  117|      0|      queue,
+  118|      0|      all: promises
+  119|      0|    ).__onQueue(queue, then: { objCValues in
+  120|      0|      guard let values = objCValues as [AnyObject]?,
+  121|      0|            let valueA = Promise<A>.asValue(values[0]),
+  122|      0|            let valueB = Promise<B>.asValue(values[1]),
+  123|      0|            let valueC = Promise<C>.asValue(values[2])
+  124|      0|      else {
+  125|      0|        preconditionFailure("Cannot convert \(type(of: objCValues)) to \((A, B, C).self)")
+  126|      0|      }
+  127|      0|      return (valueA, valueB, valueC)
+  128|      0|    })
+  129|      0|  )
+  130|      0|  // Keep Swift wrapper alive for chained promises until `ObjCPromise` counterpart is resolved.
+  131|      0|  promises.forEach {
+  132|      0|    $0.__pendingObjects?.add(promise)
+  133|      0|  }
+  134|      0|  return promise
+  135|      0|}
+  136|       |
+  137|       |/// Waits until all of the promises have been fulfilled.
+  138|       |/// If one of the promises is rejected, then the returned promise is rejected with same error.
+  139|       |/// If any other arbitrary value or `Error` appears in the array instead of `Promise`,
+  140|       |/// it's implicitly considered a pre-fulfilled or pre-rejected `Promise` correspondingly.
+  141|       |/// - parameters:
+  142|       |///   - queue: A queue to dispatch on.
+  143|       |///   - promiseA: Promise of type `A`.
+  144|       |///   - promiseB: Promise of type `B`.
+  145|       |///   - promiseC: Promise of type `C`.
+  146|       |///   - promiseD: Promise of type `D`.
+  147|       |/// - returns: Promise of a tuple containing the values of input promises in the same order.
+  148|       |public func all<A, B, C, D>(
+  149|       |  on queue: DispatchQueue = .promises,
+  150|       |  _ promiseA: Promise<A>,
+  151|       |  _ promiseB: Promise<B>,
+  152|       |  _ promiseC: Promise<C>,
+  153|       |  _ promiseD: Promise<D>
+  154|      0|) -> Promise<(A, B, C, D)> {
+  155|      0|  let promises = [
+  156|      0|    promiseA.objCPromise,
+  157|      0|    promiseB.objCPromise,
+  158|      0|    promiseC.objCPromise,
+  159|      0|    promiseD.objCPromise
+  160|      0|  ]
+  161|      0|  let promise = Promise<(A, B, C, D)>(
+  162|      0|    Promise<(A, B, C, D)>.ObjCPromise<AnyObject>.__onQueue(
+  163|      0|      queue,
+  164|      0|      all: promises
+  165|      0|    ).__onQueue(queue, then: { objCValues in
+  166|      0|      guard let values = objCValues as [AnyObject]?,
+  167|      0|            let valueA = Promise<A>.asValue(values[0]),
+  168|      0|            let valueB = Promise<B>.asValue(values[1]),
+  169|      0|            let valueC = Promise<C>.asValue(values[2]),
+  170|      0|            let valueD = Promise<D>.asValue(values[3])
+  171|      0|      else {
+  172|      0|        preconditionFailure("Cannot convert \(type(of: objCValues)) to \((A, B, C, D).self)")
+  173|      0|      }
+  174|      0|      return (valueA, valueB, valueC, valueD)
+  175|      0|    })
+  176|      0|  )
+  177|      0|  // Keep Swift wrapper alive for chained promises until `ObjCPromise` counterpart is resolved.
+  178|      0|  promises.forEach {
+  179|      0|    $0.__pendingObjects?.add(promise)
+  180|      0|  }
+  181|      0|  return promise
+  182|      0|}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesSwift/Sources/Promises/Promise+Always.swift:
+    1|       |// Copyright 2018 Google Inc. All rights reserved.
+    2|       |//
+    3|       |// Licensed under the Apache License, Version 2.0 (the "License");
+    4|       |// you may not use this file except in compliance with the License.
+    5|       |// You may obtain a copy of the License at:
+    6|       |//
+    7|       |// http://www.apache.org/licenses/LICENSE-2.0
+    8|       |//
+    9|       |// Unless required by applicable law or agreed to in writing, software
+   10|       |// distributed under the License is distributed on an "AS IS" BASIS,
+   11|       |// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   12|       |// See the License for the specific language governing permissions and
+   13|       |// limitations under the License.
+   14|       |
+   15|       |import Dispatch
+   16|       |
+   17|       |public extension Promise {
+   18|       |
+   19|       |  /// Provides a way to always execute a given chained block.
+   20|       |  /// - parameters:
+   21|       |  ///   - queue: A queue to dispatch on.
+   22|       |  ///   - work: A block that always executes, no matter if `self` is rejected or fulfilled.
+   23|       |  /// - returns: A new pending promise to be resolved with same resolution as `self`.
+   24|       |  @discardableResult
+   25|      0|  func always(on queue: DispatchQueue = .promises, _ work: @escaping () -> Void) -> Promise {
+   26|      0|    let promise = Promise(objCPromise.__onQueue(queue, always: work))
+   27|      0|    // Keep Swift wrapper alive for chained promise until `ObjCPromise` counterpart is resolved.
+   28|      0|    objCPromise.__pendingObjects?.add(promise)
+   29|      0|    return promise
+   30|      0|  }
+   31|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesSwift/Sources/Promises/Promise+Any.swift:
+    1|       |// Copyright 2018 Google Inc. All rights reserved.
+    2|       |//
+    3|       |// Licensed under the Apache License, Version 2.0 (the "License");
+    4|       |// you may not use this file except in compliance with the License.
+    5|       |// You may obtain a copy of the License at:
+    6|       |//
+    7|       |// http://www.apache.org/licenses/LICENSE-2.0
+    8|       |//
+    9|       |// Unless required by applicable law or agreed to in writing, software
+   10|       |// distributed under the License is distributed on an "AS IS" BASIS,
+   11|       |// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   12|       |// See the License for the specific language governing permissions and
+   13|       |// limitations under the License.
+   14|       |
+   15|       |import Foundation
+   16|       |
+   17|       |/// Waits for all of the given promises to be fulfilled or rejected.
+   18|       |/// If all promises are rejected, then the returned promise is rejected with same error
+   19|       |/// as the last one rejected.
+   20|       |/// If at least one of the promises is fulfilled, the resulting promise is fulfilled with an array
+   21|       |/// of `Maybe` enums containing values or `Error`s, matching the original order of fulfilled or
+   22|       |/// rejected promises respectively.
+   23|       |/// - parameters:
+   24|       |///   - queue: A queue to dispatch on.
+   25|       |///   - promises: Promises to wait for.
+   26|       |/// - returns: Promise of an array of `Maybe` enums containing the values or `Error`s of input
+   27|       |///            promises in their original order.
+   28|       |public func any<Value>(
+   29|       |  on queue: DispatchQueue = .promises,
+   30|       |  _ promises: Promise<Value>...
+   31|      0|) -> Promise<[Maybe<Value>]> {
+   32|      0|  return any(on: queue, promises)
+   33|      0|}
+   34|       |
+   35|       |/// Waits for all of the given promises to be fulfilled or rejected.
+   36|       |/// If all promises are rejected, then the returned promise is rejected with same error
+   37|       |/// as the last one rejected.
+   38|       |/// If at least one of the promises is fulfilled, the resulting promise is fulfilled with an array
+   39|       |/// of `Maybe` enums containing values or `Error`s, matching the original order of fulfilled or
+   40|       |/// rejected promises respectively.
+   41|       |/// - parameters:
+   42|       |///   - queue: A queue to dispatch on.
+   43|       |///   - promises: Promises to wait for.
+   44|       |/// - returns: Promise of an array of `Maybe` enums containing the values or `Error`s of input
+   45|       |///            promises in their original order.
+   46|       |public func any<Value, Container: Sequence>(
+   47|       |  on queue: DispatchQueue = .promises,
+   48|       |  _ promises: Container
+   49|       |) -> Promise<[Maybe<Value>]> where Container.Element == Promise<Value> {
+   50|      0|  let promises = promises.map { $0.objCPromise }
+   51|       |  let promise = Promise<[Maybe<Value>]>(
+   52|       |    Promise<[Maybe<Value>]>.ObjCPromise<AnyObject>.__onQueue(
+   53|       |      queue,
+   54|       |      any: promises
+   55|      0|    ).__onQueue(queue, then: { values in
+   56|      0|      guard let values = values as [AnyObject]? else { preconditionFailure() }
+   57|      0|      return Promise<[Maybe<Value>]>.asAnyObject(values.map { asMaybe($0) as Maybe<Value> })
+   58|      0|    })
+   59|       |  )
+   60|       |  // Keep Swift wrapper alive for chained promises until `ObjCPromise` counterpart is resolved.
+   61|       |  promises.forEach {
+   62|       |    $0.__pendingObjects?.add(promise)
+   63|       |  }
+   64|       |  return promise
+   65|       |}
+   66|       |
+   67|       |/// Waits for all of the given promises to be fulfilled or rejected.
+   68|       |/// If all promises are rejected, then the returned promise is rejected with same error
+   69|       |/// as the last one rejected.
+   70|       |/// If at least one of the promises is fulfilled, the resulting promise is fulfilled with a tuple
+   71|       |/// of `Maybe` enums containing values or `Error`s, matching the original order of fulfilled or
+   72|       |/// rejected promises respectively.
+   73|       |/// - parameters:
+   74|       |///   - queue: A queue to dispatch on.
+   75|       |///   - promiseA: Promise of type `A`.
+   76|       |///   - promiseB: Promise of type `B`.
+   77|       |/// - returns: Promise of a tuple of `Maybe` enums containing the values or `Error`s of input
+   78|       |///            promises in their original order.
+   79|       |public func any<A, B>(
+   80|       |  on queue: DispatchQueue = .promises,
+   81|       |  _ promiseA: Promise<A>,
+   82|       |  _ promiseB: Promise<B>
+   83|      0|) -> Promise<(Maybe<A>, Maybe<B>)> {
+   84|      0|  let promises = [
+   85|      0|    promiseA.objCPromise,
+   86|      0|    promiseB.objCPromise
+   87|      0|  ]
+   88|      0|  let promise = Promise<(Maybe<A>, Maybe<B>)>(
+   89|      0|    Promise<(Maybe<A>, Maybe<B>)>.ObjCPromise<AnyObject>.__onQueue(
+   90|      0|      queue,
+   91|      0|      any: promises
+   92|      0|    ).__onQueue(queue, then: { objCValues in
+   93|      0|      guard let values = objCValues as [AnyObject]? else { preconditionFailure() }
+   94|      0|      let valueA = asMaybe(values[0]) as Maybe<A>
+   95|      0|      let valueB = asMaybe(values[1]) as Maybe<B>
+   96|      0|      return (valueA, valueB)
+   97|      0|    })
+   98|      0|  )
+   99|      0|  // Keep Swift wrapper alive for chained promises until `ObjCPromise` counterpart is resolved.
+  100|      0|  promises.forEach {
+  101|      0|    $0.__pendingObjects?.add(promise)
+  102|      0|  }
+  103|      0|  return promise
+  104|      0|}
+  105|       |
+  106|       |/// Waits for all of the given promises to be fulfilled or rejected.
+  107|       |/// If all promises are rejected, then the returned promise is rejected with same error
+  108|       |/// as the last one rejected.
+  109|       |/// If at least one of the promises is fulfilled, the resulting promise is fulfilled with a tuple
+  110|       |/// of `Maybe` enums containing values or `Error`s, matching the original order of fulfilled or
+  111|       |/// rejected promises respectively.
+  112|       |/// - parameters:
+  113|       |///   - queue: A queue to dispatch on.
+  114|       |///   - promiseA: Promise of type `A`.
+  115|       |///   - promiseB: Promise of type `B`.
+  116|       |///   - promiseC: Promise of type `C`.
+  117|       |/// - returns: Promise of a tuple of `Maybe` enums containing the values or `Error`s of input
+  118|       |///            promises in their original order.
+  119|       |public func any<A, B, C>(
+  120|       |  on queue: DispatchQueue = .promises,
+  121|       |  _ promiseA: Promise<A>,
+  122|       |  _ promiseB: Promise<B>,
+  123|       |  _ promiseC: Promise<C>
+  124|      0|) -> Promise<(Maybe<A>, Maybe<B>, Maybe<C>)> {
+  125|      0|  let promises = [
+  126|      0|    promiseA.objCPromise,
+  127|      0|    promiseB.objCPromise,
+  128|      0|    promiseC.objCPromise
+  129|      0|  ]
+  130|      0|  let promise = Promise<(Maybe<A>, Maybe<B>, Maybe<C>)>(
+  131|      0|    Promise<(Maybe<A>, Maybe<B>, Maybe<C>)>.ObjCPromise<AnyObject>.__onQueue(
+  132|      0|      queue,
+  133|      0|      any: promises
+  134|      0|    ).__onQueue(queue, then: { objCValues in
+  135|      0|      guard let values = objCValues as [AnyObject]? else { preconditionFailure() }
+  136|      0|      let valueA = asMaybe(values[0]) as Maybe<A>
+  137|      0|      let valueB = asMaybe(values[1]) as Maybe<B>
+  138|      0|      let valueC = asMaybe(values[2]) as Maybe<C>
+  139|      0|      return (valueA, valueB, valueC)
+  140|      0|    })
+  141|      0|  )
+  142|      0|  // Keep Swift wrapper alive for chained promises until `ObjCPromise` counterpart is resolved.
+  143|      0|  promises.forEach {
+  144|      0|    $0.__pendingObjects?.add(promise)
+  145|      0|  }
+  146|      0|  return promise
+  147|      0|}
+  148|       |
+  149|       |/// Wrapper enum for `any` results.
+  150|       |/// - value: Contains the value that corresponding promise was fulfilled with.
+  151|       |/// - error: Contains the error that corresponding promise was rejected with.
+  152|       |public enum Maybe<Value> {
+  153|       |  case value(Value)
+  154|       |  case error(Error)
+  155|       |
+  156|      0|  public init(_ value: Value) { self = .value(value) }
+  157|       |
+  158|      0|  public init(_ error: Error) { self = .error(error) }
+  159|       |
+  160|      0|  public var value: Value? {
+  161|      0|    if case .value(let value) = self { return value } else { return nil }
+  162|      0|  }
+  163|       |
+  164|      0|  public var error: Error? {
+  165|      0|    if case .error(let error) = self { return error } else { return nil }
+  166|      0|  }
+  167|       |}
+  168|       |
+  169|       |// MARK: - Conversion
+  170|       |
+  171|       |/// Helper functions that facilitates conversion of `Promise.any` results to the results normally
+  172|       |/// expected from `ObjCPromise.any`.
+  173|       |///
+  174|       |/// Convert a promise created with `any` in Swift to Objective-C:
+  175|       |///
+  176|       |/// any([promise1, promise2, promise3]).then { arrayOfMaybeEnums in
+  177|       |///   return arrayOfMaybeEnums.map { $0.asAnyObject() }
+  178|       |/// }.asObjCPromise() as Promise<[AnyObject?]>.ObjCPromise<AnyObject>
+  179|       |///
+  180|       |/// Convert a promise created with `any` in Objective-C to Swift:
+  181|       |///
+  182|       |/// Promise<[AnyObject]>(objCPromise).then { arrayOfAnyObjects in
+  183|       |///   return arrayOfAnyObjects.map { asMaybe($0) as Maybe<SomeValue> }
+  184|       |/// }
+  185|       |public extension Maybe {
+  186|       |
+  187|       |  /// Converts generic `Value` to `AnyObject`.
+  188|      0|  func asAnyObject() -> AnyObject? {
+  189|      0|    switch self {
+  190|      0|    case .value(let value):
+  191|      0|      return Promise<Value>.asAnyObject(value)
+  192|      0|    case .error(let error):
+  193|      0|      return error as NSError
+  194|      0|    }
+  195|      0|  }
+  196|       |}
+  197|       |
+  198|       |/// Helper function to wrap the results of `ObjCPromise.any` with the safe `Maybe` enum.
+  199|       |public func asMaybe<Value>(_ value: AnyObject) -> Maybe<Value> {
+  200|       |  switch value {
+  201|       |  case let error as NSError:
+  202|       |    return .error(error)
+  203|       |  case let value:
+  204|       |    guard let value = Promise<Value>.asValue(value) else { preconditionFailure() }
+  205|       |    return .value(value)
+  206|       |  }
+  207|       |}
+  208|       |
+  209|       |// MARK: - Equatable
+  210|       |
+  211|       |/// Equality operators for `Maybe`.
+  212|       |#if !swift(>=4.1)
+  213|       |extension Maybe where Value: Equatable {}
+  214|       |#else
+  215|       |extension Maybe: Equatable where Value: Equatable {}
+  216|       |#endif  // !swift(>=4.1)
+  217|       |
+  218|       |public func == <Value: Equatable>(lhs: Maybe<Value>, rhs: Maybe<Value>) -> Bool {
+  219|       |  switch (lhs, rhs) {
+  220|       |  case (.value(let lhs), .value(let rhs)):
+  221|       |    return lhs == rhs
+  222|       |  case (.error(let lhs), .error(let rhs)):
+  223|       |    return (lhs as NSError).isEqual(rhs as NSError)
+  224|       |  case (.value, .error), (.error, .value):
+  225|       |    return false
+  226|       |  }
+  227|       |}
+  228|       |
+  229|      0|public func != <Value: Equatable>(lhs: Maybe<Value>, rhs: Maybe<Value>) -> Bool {
+  230|      0|  return !(lhs == rhs)
+  231|      0|}
+  232|       |
+  233|       |#if !swift(>=4.1)
+  234|       |
+  235|       |public func == <Value: Equatable>(lhs: Maybe<Value?>, rhs: Maybe<Value?>) -> Bool {
+  236|       |  switch (lhs, rhs) {
+  237|       |  case (.value(let lhs), .value(let rhs)):
+  238|       |    switch (lhs, rhs) {
+  239|       |    case (nil, nil):
+  240|       |      return true
+  241|       |    case (nil, _?), (_?, nil):
+  242|       |      return false
+  243|       |    case let (lhs?, rhs?):
+  244|       |      return lhs == rhs
+  245|       |    }
+  246|       |  case (.error(let lhs), .error(let rhs)):
+  247|       |    return (lhs as NSError).isEqual(rhs as NSError)
+  248|       |  case (.value, .error), (.error, .value):
+  249|       |    return false
+  250|       |  }
+  251|       |}
+  252|       |
+  253|       |public func != <Value: Equatable>(lhs: Maybe<Value?>, rhs: Maybe<Value?>) -> Bool {
+  254|       |  return !(lhs == rhs)
+  255|       |}
+  256|       |
+  257|       |public func == <Value: Equatable>(lhs: [Maybe<Value>], rhs: [Maybe<Value>]) -> Bool {
+  258|       |  if lhs.count != rhs.count { return false }
+  259|       |  for (lhs, rhs) in zip(lhs, rhs) where lhs != rhs { return false }
+  260|       |  return true
+  261|       |}
+  262|       |
+  263|       |public func != <Value: Equatable>(lhs: [Maybe<Value>], rhs: [Maybe<Value>]) -> Bool {
+  264|       |  return !(lhs == rhs)
+  265|       |}
+  266|       |
+  267|       |public func == <Value: Equatable>(lhs: [Maybe<Value?>], rhs: [Maybe<Value?>]) -> Bool {
+  268|       |  if lhs.count != rhs.count { return false }
+  269|       |  for (lhs, rhs) in zip(lhs, rhs) where lhs != rhs { return false }
+  270|       |  return true
+  271|       |}
+  272|       |
+  273|       |public func != <Value: Equatable>(lhs: [Maybe<Value?>], rhs: [Maybe<Value?>]) -> Bool {
+  274|       |  return !(lhs == rhs)
+  275|       |}
+  276|       |
+  277|       |#endif  // !swift(>=4.1)
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesSwift/Sources/Promises/Promise+Async.swift:
+    1|       |// Copyright 2018 Google Inc. All rights reserved.
+    2|       |//
+    3|       |// Licensed under the Apache License, Version 2.0 (the "License");
+    4|       |// you may not use this file except in compliance with the License.
+    5|       |// You may obtain a copy of the License at:
+    6|       |//
+    7|       |// http://www.apache.org/licenses/LICENSE-2.0
+    8|       |//
+    9|       |// Unless required by applicable law or agreed to in writing, software
+   10|       |// distributed under the License is distributed on an "AS IS" BASIS,
+   11|       |// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   12|       |// See the License for the specific language governing permissions and
+   13|       |// limitations under the License.
+   14|       |
+   15|       |import Foundation
+   16|       |
+   17|       |public extension Promise {
+   18|       |  typealias Async = (@escaping (Value) -> Void, @escaping (Error) -> Void) throws -> Void
+   19|       |
+   20|       |  /// Creates a pending promise and executes `work` block asynchronously on the given `queue`.
+   21|       |  /// - parameters:
+   22|       |  ///   - queue: A queue to invoke the `work` block on.
+   23|       |  ///   - work: A block to perform any operations needed to resolve the promise.
+   24|     22|  convenience init(on queue: DispatchQueue = .promises, _ work: @escaping Async) {
+   25|     22|    let objCPromise = ObjCPromise<AnyObject>.__onQueue(queue) { fulfill, reject in
+   26|     22|      do {
+   27|     22|        try work({ value in
+   28|     12|          if let error = value as? NSError {
+   29|      0|            reject(error)
+   30|     12|          } else {
+   31|     12|            fulfill(Promise<Value>.asAnyObject(value))
+   32|     12|          }
+   33|     12|        }, reject)
+   34|     22|      } catch let error {
+   35|      0|        reject(error as NSError)
+   36|     22|      }
+   37|     22|    }
+   38|     22|    self.init(objCPromise)
+   39|     22|    // Keep Swift wrapper alive for chained promise until `ObjCPromise` counterpart is resolved.
+   40|     22|    objCPromise.__pendingObjects?.add(self)
+   41|     22|  }
+   42|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesSwift/Sources/Promises/Promise+Await.swift:
+    1|       |// Copyright 2018 Google Inc. All rights reserved.
+    2|       |//
+    3|       |// Licensed under the Apache License, Version 2.0 (the "License");
+    4|       |// you may not use this file except in compliance with the License.
+    5|       |// You may obtain a copy of the License at:
+    6|       |//
+    7|       |// http://www.apache.org/licenses/LICENSE-2.0
+    8|       |//
+    9|       |// Unless required by applicable law or agreed to in writing, software
+   10|       |// distributed under the License is distributed on an "AS IS" BASIS,
+   11|       |// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   12|       |// See the License for the specific language governing permissions and
+   13|       |// limitations under the License.
+   14|       |
+   15|       |import FBLPromises
+   16|       |
+   17|       |/// Waits for promise resolution. The current thread blocks until the promise is resolved.
+   18|       |/// - parameters:
+   19|       |///   - promise: Promise to wait for.
+   20|       |/// - throws: Error the promise was rejected with.
+   21|       |/// - returns: Value the promise was fulfilled with.
+   22|      0|public func await<Value>(_ promise: Promise<Value>) throws -> Value {
+   23|      0|  var outError: NSError?
+   24|      0|  let outValue = __FBLPromiseAwait(promise.objCPromise, &outError) as AnyObject
+   25|      0|  if let error = outError { throw error }
+   26|      0|  guard let value = Promise<Value>.asValue(outValue) else { preconditionFailure() }
+   27|      0|  return value
+   28|      0|}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesSwift/Sources/Promises/Promise+Catch.swift:
+    1|       |// Copyright 2018 Google Inc. All rights reserved.
+    2|       |//
+    3|       |// Licensed under the Apache License, Version 2.0 (the "License");
+    4|       |// you may not use this file except in compliance with the License.
+    5|       |// You may obtain a copy of the License at:
+    6|       |//
+    7|       |// http://www.apache.org/licenses/LICENSE-2.0
+    8|       |//
+    9|       |// Unless required by applicable law or agreed to in writing, software
+   10|       |// distributed under the License is distributed on an "AS IS" BASIS,
+   11|       |// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   12|       |// See the License for the specific language governing permissions and
+   13|       |// limitations under the License.
+   14|       |
+   15|       |import Foundation
+   16|       |
+   17|       |public extension Promise {
+   18|       |  typealias Catch = (Error) -> Void
+   19|       |
+   20|       |  /// Creates a pending promise which eventually gets resolved with same resolution as `self`.
+   21|       |  /// If `self` is rejected, then `reject` block is executed asynchronously on the given queue.
+   22|       |  /// - parameters:
+   23|       |  ///   - queue: A queue to invoke the `reject` block on.
+   24|       |  ///   - reject: A block to handle the error that `self` was rejected with.
+   25|       |  /// - returns: A new pending promise.
+   26|       |  @discardableResult
+   27|     37|  func `catch`(on queue: DispatchQueue = .promises, _ reject: @escaping Catch) -> Promise {
+   28|     37|    let promise = Promise(objCPromise.__onQueue(queue, catch: {
+   29|     25|      // Convert `NSError` to `PromiseError`, if applicable.
+   30|     25|      let error = PromiseError($0) ?? $0
+   31|     25|      return reject(error as NSError)
+   32|     25|    }))
+   33|     37|    // Keep Swift wrapper alive for chained promise until `ObjCPromise` counterpart is resolved.
+   34|     37|    objCPromise.__pendingObjects?.add(promise)
+   35|     37|    return promise
+   36|     37|  }
+   37|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesSwift/Sources/Promises/Promise+Delay.swift:
+    1|       |// Copyright 2018 Google Inc. All rights reserved.
+    2|       |//
+    3|       |// Licensed under the Apache License, Version 2.0 (the "License");
+    4|       |// you may not use this file except in compliance with the License.
+    5|       |// You may obtain a copy of the License at:
+    6|       |//
+    7|       |// http://www.apache.org/licenses/LICENSE-2.0
+    8|       |//
+    9|       |// Unless required by applicable law or agreed to in writing, software
+   10|       |// distributed under the License is distributed on an "AS IS" BASIS,
+   11|       |// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   12|       |// See the License for the specific language governing permissions and
+   13|       |// limitations under the License.
+   14|       |
+   15|       |import Foundation
+   16|       |
+   17|       |public extension Promise {
+   18|       |
+   19|       |  /// Creates a new pending promise that fulfills with the same value as `self` after the `delay`,
+   20|       |  /// or rejects with the same error immediately.
+   21|       |  /// - parameters:
+   22|       |  ///   - queue: A queue to dispatch on.
+   23|       |  ///   - interval: Time to wait in seconds.
+   24|       |  /// - returns: A new pending promise that fulfills at least `interval` seconds later than `self`,
+   25|       |  ///            or rejects with the same error immediately.
+   26|       |  func delay(
+   27|       |    on queue: DispatchQueue = .promises,
+   28|       |    _ interval: TimeInterval
+   29|      0|  ) -> Promise<Value> {
+   30|      0|    let promise = Promise(objCPromise.__onQueue(queue, delay: interval))
+   31|      0|    // Keep Swift wrapper alive for chained promise until `ObjCPromise` counterpart is resolved.
+   32|      0|    objCPromise.__pendingObjects?.add(promise)
+   33|      0|    return promise
+   34|      0|  }
+   35|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesSwift/Sources/Promises/Promise+Do.swift:
+    1|       |// Copyright 2018 Google Inc. All rights reserved.
+    2|       |//
+    3|       |// Licensed under the Apache License, Version 2.0 (the "License");
+    4|       |// you may not use this file except in compliance with the License.
+    5|       |// You may obtain a copy of the License at:
+    6|       |//
+    7|       |// http://www.apache.org/licenses/LICENSE-2.0
+    8|       |//
+    9|       |// Unless required by applicable law or agreed to in writing, software
+   10|       |// distributed under the License is distributed on an "AS IS" BASIS,
+   11|       |// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   12|       |// See the License for the specific language governing permissions and
+   13|       |// limitations under the License.
+   14|       |
+   15|       |import Foundation
+   16|       |
+   17|       |public extension Promise {
+   18|       |  // swiftlint:disable:next type_name
+   19|       |  typealias Do<Value> = () throws -> Value
+   20|       |
+   21|       |  /// Creates a pending promise to be resolved with the return value of `work` block which is
+   22|       |  /// executed asynchronously on the given `queue`.
+   23|       |  /// - parameters:
+   24|       |  ///   - queue: A queue to invoke the `work` block on.
+   25|       |  ///   - work: A block that returns a value used to resolve the new promise.
+   26|      0|  convenience init<Value>(on queue: DispatchQueue = .promises, _ work: @escaping Do<Value>) {
+   27|      0|    let objCPromise = ObjCPromise<AnyObject>.__onQueue(queue) {
+   28|      0|      do {
+   29|      0|        let resolution = try work()
+   30|      0|        return resolution as? NSError ?? Promise<Value>.asAnyObject(resolution)
+   31|      0|      } catch let error {
+   32|      0|        return error as NSError
+   33|      0|      }
+   34|      0|    }
+   35|      0|    self.init(objCPromise)
+   36|      0|    // Keep Swift wrapper alive for chained promise until `ObjCPromise` counterpart is resolved.
+   37|      0|    objCPromise.__pendingObjects?.add(self)
+   38|      0|  }
+   39|       |
+   40|       |  /// Creates a pending promise to be resolved with the same resolution as the promise returned from
+   41|       |  /// `work` block which is executed asynchronously on the given `queue`.
+   42|       |  /// - parameters:
+   43|       |  ///   - queue: A queue to invoke the `work` block on.
+   44|       |  ///   - work: A block that returns a promise used to resolve the new promise.
+   45|       |  convenience init<Value>(
+   46|       |    on queue: DispatchQueue = .promises,
+   47|       |    _ work: @escaping Do<Promise<Value>>
+   48|      0|  ) {
+   49|      0|    let objCPromise = ObjCPromise<AnyObject>.__onQueue(queue) {
+   50|      0|      do {
+   51|      0|        return try work().objCPromise
+   52|      0|      } catch let error {
+   53|      0|        return error as NSError
+   54|      0|      }
+   55|      0|    }
+   56|      0|    self.init(objCPromise)
+   57|      0|    // Keep Swift wrapper alive for chained promise until `ObjCPromise` counterpart is resolved.
+   58|      0|    objCPromise.__pendingObjects?.add(self)
+   59|      0|  }
+   60|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesSwift/Sources/Promises/Promise+Race.swift:
+    1|       |// Copyright 2018 Google Inc. All rights reserved.
+    2|       |//
+    3|       |// Licensed under the Apache License, Version 2.0 (the "License");
+    4|       |// you may not use this file except in compliance with the License.
+    5|       |// You may obtain a copy of the License at:
+    6|       |//
+    7|       |// http://www.apache.org/licenses/LICENSE-2.0
+    8|       |//
+    9|       |// Unless required by applicable law or agreed to in writing, software
+   10|       |// distributed under the License is distributed on an "AS IS" BASIS,
+   11|       |// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   12|       |// See the License for the specific language governing permissions and
+   13|       |// limitations under the License.
+   14|       |
+   15|       |import Dispatch
+   16|       |
+   17|       |/// Wait until any of the given promises are fulfilled.
+   18|       |/// If one of the given promises is rejected, then the returned promise is rejected with same
+   19|       |/// error. If any other arbitrary value or `Error` appears in the array instead of `Promise`,
+   20|       |/// it's implicitly considered a pre-fulfilled or pre-rejected `Promise` correspondingly.
+   21|       |/// - parameters:
+   22|       |///   - queue: A queue to dispatch on.
+   23|       |///   - promises: Promises to wait for.
+   24|       |/// - returns: First promise, among the given ones, which was fulfilled.
+   25|       |public func race<Value>(
+   26|       |  on queue: DispatchQueue = .promises,
+   27|       |  _ promises: Promise<Value>...
+   28|      0|) -> Promise<Value> {
+   29|      0|  return race(on: queue, promises)
+   30|      0|}
+   31|       |
+   32|       |/// Wait until any of the given promises are fulfilled.
+   33|       |/// If one of the given promises is rejected, then the returned promise is rejected with same
+   34|       |/// error. If any other arbitrary value or `Error` appears in the array instead of `Promise`,
+   35|       |/// it's implicitly considered a pre-fulfilled or pre-rejected `Promise` correspondingly.
+   36|       |/// - parameters:
+   37|       |///   - queue: A queue to dispatch on.
+   38|       |///   - promises: Promises to wait for.
+   39|       |/// - returns: First promise, among the given ones, which was fulfilled.
+   40|       |public func race<Value>(
+   41|       |  on queue: DispatchQueue = .promises,
+   42|       |  _ promises: [Promise<Value>]
+   43|       |) -> Promise<Value> {
+   44|      0|  let promises = promises.map { $0.objCPromise }
+   45|       |  let promise = Promise<Value>(
+   46|       |    Promise<Value>.ObjCPromise<AnyObject>.__onQueue(queue, race: promises)
+   47|       |  )
+   48|       |  // Keep Swift wrapper alive for chained promises until `ObjCPromise` counterpart is resolved.
+   49|       |  promises.forEach {
+   50|       |    $0.__pendingObjects?.add(promise)
+   51|       |  }
+   52|       |  return promise
+   53|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesSwift/Sources/Promises/Promise+Recover.swift:
+    1|       |// Copyright 2018 Google Inc. All rights reserved.
+    2|       |//
+    3|       |// Licensed under the Apache License, Version 2.0 (the "License");
+    4|       |// you may not use this file except in compliance with the License.
+    5|       |// You may obtain a copy of the License at:
+    6|       |//
+    7|       |// http://www.apache.org/licenses/LICENSE-2.0
+    8|       |//
+    9|       |// Unless required by applicable law or agreed to in writing, software
+   10|       |// distributed under the License is distributed on an "AS IS" BASIS,
+   11|       |// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   12|       |// See the License for the specific language governing permissions and
+   13|       |// limitations under the License.
+   14|       |
+   15|       |import Foundation
+   16|       |
+   17|       |public extension Promise {
+   18|       |
+   19|       |  /// Provides a new promise to recover in case `self` gets rejected.
+   20|       |  /// - parameters:
+   21|       |  ///   - queue: A queue to execute `recovery` block on.
+   22|       |  ///   - recovery: A block to handle the error that `self` was rejected with.
+   23|       |  /// - returns: A new pending promise to use instead of the rejected one that gets resolved with
+   24|       |  ///            the same resolution as the promise returned from `recovery` block.
+   25|       |  @discardableResult
+   26|       |  func recover(
+   27|       |    on queue: DispatchQueue = .promises,
+   28|       |    _ recovery: @escaping (Error) throws -> Promise
+   29|      0|  ) -> Promise {
+   30|      0|    let promise = Promise(objCPromise.__onQueue(queue, recover: {
+   31|      0|      do {
+   32|      0|        // Convert `NSError` to `PromiseError`, if applicable.
+   33|      0|        let error = PromiseError($0) ?? $0
+   34|      0|        return try recovery(error).objCPromise
+   35|      0|      } catch let error {
+   36|      0|        return error as NSError
+   37|      0|      }
+   38|      0|    }))
+   39|      0|    // Keep Swift wrapper alive for chained promise until `ObjCPromise` counterpart is resolved.
+   40|      0|    objCPromise.__pendingObjects?.add(promise)
+   41|      0|    return promise
+   42|      0|  }
+   43|       |
+   44|       |  /// Provides a new promise to recover in case `self` gets rejected.
+   45|       |  /// - parameters:
+   46|       |  ///   - queue: A queue to execute `recovery` block on.
+   47|       |  ///   - recovery: A block to handle the error that `self` was rejected with.
+   48|       |  /// - returns: A new pending promise to use instead of the rejected one that gets resolved with
+   49|       |  ///            the value returned from `recovery` block.
+   50|       |  @discardableResult
+   51|       |  func recover(
+   52|       |    on queue: DispatchQueue = .promises,
+   53|       |    _ recovery: @escaping (Error) throws -> Value
+   54|      0|  ) -> Promise {
+   55|      0|    let promise = Promise(objCPromise.__onQueue(queue, recover: {
+   56|      0|      do {
+   57|      0|        // Convert `NSError` to `PromiseError`, if applicable.
+   58|      0|        let error = PromiseError($0) ?? $0
+   59|      0|        return Promise<Value>.asAnyObject(try recovery(error)) as Any
+   60|      0|      } catch let error {
+   61|      0|        return error as NSError
+   62|      0|      }
+   63|      0|    }))
+   64|      0|    // Keep Swift wrapper alive for chained promise until `ObjCPromise` counterpart is resolved.
+   65|      0|    objCPromise.__pendingObjects?.add(promise)
+   66|      0|    return promise
+   67|      0|  }
+   68|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesSwift/Sources/Promises/Promise+Reduce.swift:
+    1|       |// Copyright 2018 Google Inc. All rights reserved.
+    2|       |//
+    3|       |// Licensed under the Apache License, Version 2.0 (the "License");
+    4|       |// you may not use this file except in compliance with the License.
+    5|       |// You may obtain a copy of the License at:
+    6|       |//
+    7|       |// http://www.apache.org/licenses/LICENSE-2.0
+    8|       |//
+    9|       |// Unless required by applicable law or agreed to in writing, software
+   10|       |// distributed under the License is distributed on an "AS IS" BASIS,
+   11|       |// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   12|       |// See the License for the specific language governing permissions and
+   13|       |// limitations under the License.
+   14|       |
+   15|       |import Dispatch
+   16|       |
+   17|       |public extension Promise {
+   18|       |  typealias Reducer<Element> = (Value, Element) throws -> Promise<Value>
+   19|       |
+   20|       |  /// Sequentially reduces a collection of values to a single promise using a given combining block
+   21|       |  /// and the value `self` resolves with as initial value.
+   22|       |  /// - parameters:
+   23|       |  ///   - queue: A queue to execute `reducer` block on.
+   24|       |  ///   - items: A sequence of values to process in order.
+   25|       |  ///   - reducer: A block to combine an accumulating value and an element of the sequence into
+   26|       |  ///              a promise resolved with the new accumulating value, to be used in the next call
+   27|       |  ///              of the `reducer` or returned to the caller.
+   28|       |  /// - returns: A new pending promise returned from the last `reducer` invocation.
+   29|       |  ///            Or `self` if `items` is empty.
+   30|       |  @discardableResult
+   31|       |  func reduce<Element>(
+   32|       |    on queue: DispatchQueue = .promises,
+   33|       |    _ items: Element...,
+   34|       |    combine reducer: @escaping Reducer<Element>
+   35|      0|  ) -> Promise<Value> {
+   36|      0|    return reduce(on: queue, items, reducer)
+   37|      0|  }
+   38|       |
+   39|       |  /// Sequentially reduces a collection of values to a single promise using a given combining block
+   40|       |  /// and the value `self` resolves with as initial value.
+   41|       |  /// - parameters:
+   42|       |  ///   - queue: A queue to execute `reducer` block on.
+   43|       |  ///   - items: A sequence of values to process in order.
+   44|       |  ///   - reducer: A block to combine an accumulating value and an element of the sequence into
+   45|       |  ///              a promise resolved with the new accumulating value, to be used in the next call
+   46|       |  ///              of the `reducer` or returned to the caller.
+   47|       |  /// - returns: A new pending promise returned from the last `reducer` invocation.
+   48|       |  ///            Or `self` if `items` is empty.
+   49|       |  @discardableResult
+   50|       |  func reduce<Container: Sequence>(
+   51|       |    on queue: DispatchQueue = .promises,
+   52|       |    _ items: Container,
+   53|       |    _ reducer: @escaping Reducer<Container.Element>
+   54|       |  ) -> Promise<Value> {
+   55|      0|    return items.reduce(self) { promise, item in
+   56|      0|      promise.then { value in
+   57|      0|        try reducer(value, item)
+   58|      0|      }
+   59|      0|    }
+   60|       |  }
+   61|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesSwift/Sources/Promises/Promise+Retry.swift:
+    1|       |// Copyright 2018 Google Inc. All rights reserved.
+    2|       |//
+    3|       |// Licensed under the Apache License, Version 2.0 (the "License");
+    4|       |// you may not use this file except in compliance with the License.
+    5|       |// You may obtain a copy of the License at:
+    6|       |//
+    7|       |// http://www.apache.org/licenses/LICENSE-2.0
+    8|       |//
+    9|       |// Unless required by applicable law or agreed to in writing, software
+   10|       |// distributed under the License is distributed on an "AS IS" BASIS,
+   11|       |// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   12|       |// See the License for the specific language governing permissions and
+   13|       |// limitations under the License.
+   14|       |
+   15|       |import FBLPromises
+   16|       |
+   17|       |/// Creates a pending promise that fulfills with the same value as the promise returned from `work`
+   18|       |/// block, which executes asynchronously on the given `queue`, or rejects with the same error after
+   19|       |/// all retry attempts have been exhausted. On rejection, the `work` block is retried after the
+   20|       |/// given delay `interval` and will continue to retry until the number of specified attempts have
+   21|       |/// been exhausted or will bail early if the given condition is not met.
+   22|       |///
+   23|       |/// - parameters:
+   24|       |///   - queue: A queue to invoke the `work` block on.
+   25|       |///   - count: Max number of retry attempts. The `work` block will be executed once if the specified
+   26|       |///            count is less than or equal to zero. The default is
+   27|       |///            `__FBLPromiseRetryDefaultAttemptsCount`.
+   28|       |///   - interval: Time to wait before the next retry attempt. The default is
+   29|       |///               `__FBLPromiseRetryDefaultDelayInterval`.
+   30|       |///   - predicate: Condition to check before the next retry attempt. The block takes the following
+   31|       |///                parameters:
+   32|       |///     - count: Number of remaining retry attempts.
+   33|       |///     - error: The error the promise was rejected with.
+   34|       |///   - work: A block that executes asynchronously on the given `queue` and returns a value or an
+   35|       |///           error used to resolve the promise.
+   36|       |/// - returns: A new pending promise that fulfills with the same value as the promise returned from
+   37|       |///            `work` block, or rejects with the same error after all retry attempts have been
+   38|       |///            exhausted or if the given condition is not met.
+   39|       |public func retry<Value>(
+   40|       |  on queue: DispatchQueue = .promises,
+   41|       |  attempts count: Int = __FBLPromiseRetryDefaultAttemptsCount,
+   42|       |  delay interval: TimeInterval = __FBLPromiseRetryDefaultDelayInterval,
+   43|       |  condition predicate: ((_ count: Int, _ error: Error) -> Bool)? = nil,
+   44|       |  _ work: @escaping () throws -> Promise<Value>
+   45|      0|) -> Promise<Value> {
+   46|      0|#if (swift(>=4.1) || (!swift(>=4.0) && swift(>=3.3)))
+   47|      0|  let predicateBlock = predicate
+   48|      0|#else
+   49|      0|  var predicateBlock: ((_ count: Int, _ error: Error) -> ObjCBool)?
+   50|      0|  if predicate != nil {
+   51|      0|    predicateBlock = { count, error -> ObjCBool in
+   52|      0|      guard let predicate = predicate else { return true }
+   53|      0|      return ObjCBool(predicate(count, error))
+   54|      0|    }
+   55|      0|  }
+   56|      0|#endif  // (swift(>=4.1) || (!swift(>=4.0) && swift(>=3.3)))
+   57|      0|  let objCPromise = Promise<Value>.ObjCPromise<AnyObject>.__onQueue(
+   58|      0|    queue,
+   59|      0|    attempts: count,
+   60|      0|    delay: interval,
+   61|      0|    condition: predicateBlock
+   62|      0|  ) {
+   63|      0|    do {
+   64|      0|      return try work().objCPromise
+   65|      0|    } catch let error {
+   66|      0|      return error as NSError
+   67|      0|    }
+   68|      0|  }
+   69|      0|  let promise = Promise<Value>(objCPromise)
+   70|      0|  // Keep Swift wrapper alive for chained promise until `ObjCPromise` counterpart is resolved.
+   71|      0|  objCPromise.__pendingObjects?.add(promise)
+   72|      0|  return promise
+   73|      0|}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesSwift/Sources/Promises/Promise+Testing.swift:
+    1|       |// Copyright 2018 Google Inc. All rights reserved.
+    2|       |//
+    3|       |// Licensed under the Apache License, Version 2.0 (the "License");
+    4|       |// you may not use this file except in compliance with the License.
+    5|       |// You may obtain a copy of the License at:
+    6|       |//
+    7|       |// http://www.apache.org/licenses/LICENSE-2.0
+    8|       |//
+    9|       |// Unless required by applicable law or agreed to in writing, software
+   10|       |// distributed under the License is distributed on an "AS IS" BASIS,
+   11|       |// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   12|       |// See the License for the specific language governing permissions and
+   13|       |// limitations under the License.
+   14|       |
+   15|       |import FBLPromises
+   16|       |
+   17|       |extension DispatchGroup {
+   18|       |  /// Dispatch group for promises that is typically used to wait for all scheduled blocks.
+   19|      0|  static var promises: DispatchGroup { return Promise<Any>.ObjCPromise<AnyObject>.__dispatchGroup }
+   20|       |}
+   21|       |
+   22|       |/// Waits for all scheduled promise blocks.
+   23|       |/// - parameter timeout: Maximum time to wait.
+   24|       |/// - returns: `true` if all promise blocks have completed before `timeout` and `false` otherwise.
+   25|     37|func waitForPromises(timeout: TimeInterval) -> Bool {
+   26|     37|  return __FBLWaitForPromisesWithTimeout(timeout)
+   27|     37|}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesSwift/Sources/Promises/Promise+Then.swift:
+    1|       |// Copyright 2018 Google Inc. All rights reserved.
+    2|       |//
+    3|       |// Licensed under the Apache License, Version 2.0 (the "License");
+    4|       |// you may not use this file except in compliance with the License.
+    5|       |// You may obtain a copy of the License at:
+    6|       |//
+    7|       |// http://www.apache.org/licenses/LICENSE-2.0
+    8|       |//
+    9|       |// Unless required by applicable law or agreed to in writing, software
+   10|       |// distributed under the License is distributed on an "AS IS" BASIS,
+   11|       |// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   12|       |// See the License for the specific language governing permissions and
+   13|       |// limitations under the License.
+   14|       |
+   15|       |import Foundation
+   16|       |
+   17|       |public extension Promise {
+   18|       |  typealias Then<Result> = (Value) throws -> Result
+   19|       |
+   20|       |  /// Creates a pending promise which eventually gets resolved with the same resolution as the
+   21|       |  /// promise returned from `work` block. The `work` block is executed asynchronously on the given
+   22|       |  /// `queue` only when `self` is fulfilled. If `self` is rejected, the returned promise is also
+   23|       |  /// rejected with the same error.
+   24|       |  /// - parameters:
+   25|       |  ///   - queue: A queue to invoke the `work` block on.
+   26|       |  ///   - work:  A block to handle the value that `self` was fulfilled with.
+   27|       |  /// - returns: A new pending promise to be resolved with the same resolution as the promise
+   28|       |  ///            returned from the `work` block.
+   29|       |  @discardableResult
+   30|       |  func then<Result>(
+   31|       |    on queue: DispatchQueue = .promises,
+   32|       |    _ work: @escaping Then<Promise<Result>>
+   33|      0|  ) -> Promise<Result> {
+   34|      0|    let promise = Promise<Result>(objCPromise.__onQueue(queue, then: { objCValue in
+   35|      0|      guard let value = Promise<Value>.asValue(objCValue) else {
+   36|      0|        preconditionFailure("Cannot cast \(type(of: objCValue)) to \(Value.self)")
+   37|      0|      }
+   38|      0|      do {
+   39|      0|        return try work(value).objCPromise
+   40|      0|      } catch let error {
+   41|      0|        return error as NSError
+   42|      0|      }
+   43|      0|    }))
+   44|      0|    // Keep Swift wrapper alive for chained promise until `ObjCPromise` counterpart is resolved.
+   45|      0|    objCPromise.__pendingObjects?.add(promise)
+   46|      0|    return promise
+   47|      0|  }
+   48|       |
+   49|       |  /// Creates a pending promise which eventually gets resolved with the value returned from `work`
+   50|       |  /// block. The `work` block is executed asynchronously on the given `queue` only when `self` is
+   51|       |  /// fulfilled. If `self` is rejected, the returned promise is also rejected with the same error.
+   52|       |  /// - parameters:
+   53|       |  ///   - queue: A queue to invoke the `work` block on.
+   54|       |  ///   - work:  A block to handle the value that `self` was fulfilled with.
+   55|       |  /// - returns: A new pending promise to be resolved with the value returned from the `work` block.
+   56|       |  @discardableResult
+   57|       |  func then<Result>(
+   58|       |    on queue: DispatchQueue = .promises,
+   59|       |    _ work: @escaping Then<Result>
+   60|      0|  ) -> Promise<Result> {
+   61|      0|    let promise = Promise<Result>(objCPromise.__onQueue(queue, then: { objCValue in
+   62|      0|      guard let value = Promise<Value>.asValue(objCValue) else {
+   63|      0|        preconditionFailure("Cannot cast \(type(of: objCValue)) to \(Value.self)")
+   64|      0|      }
+   65|      0|      do {
+   66|      0|        let value = try work(value)
+   67|      0|        return value as? NSError ?? Promise<Result>.asAnyObject(value)
+   68|      0|      } catch let error {
+   69|      0|        return error as NSError
+   70|      0|      }
+   71|      0|    }))
+   72|      0|    // Keep Swift wrapper alive for chained promise until `ObjCPromise` counterpart is resolved.
+   73|      0|    objCPromise.__pendingObjects?.add(promise)
+   74|      0|    return promise
+   75|      0|  }
+   76|       |
+   77|       |  /// Creates a pending promise which eventually gets resolved with the same resolution as `self`.
+   78|       |  /// `work` block is executed asynchronously on the given `queue` only when `self` is fulfilled.
+   79|       |  /// If `self` is rejected, the returned promise is also rejected with the same error.
+   80|       |  /// - parameters:
+   81|       |  ///   - queue: A queue to invoke the `work` block on.
+   82|       |  ///   - work:  A block to handle the value that `self` was fulfilled with.
+   83|       |  /// - returns: A new pending promise to be resolved with the value passed into the `work` block.
+   84|       |  @discardableResult
+   85|       |  func then(
+   86|       |    on queue: DispatchQueue = .promises,
+   87|       |    _ work: @escaping Then<Void>
+   88|     37|  ) -> Promise {
+   89|     37|    let promise = Promise(objCPromise.__onQueue(queue, then: { objCValue in
+   90|     12|      guard let value = Promise<Value>.asValue(objCValue) else {
+   91|      0|        preconditionFailure("Cannot cast \(type(of: objCValue)) to \(Value.self)")
+   92|     12|      }
+   93|     12|      do {
+   94|     12|        try work(value)
+   95|     12|        return Promise<Value>.asAnyObject(value)
+   96|     12|      } catch let error {
+   97|      0|        return error as NSError
+   98|      0|      }
+   99|      0|    }))
+  100|     37|    // Keep Swift wrapper alive for chained promise until `ObjCPromise` counterpart is resolved.
+  101|     37|    objCPromise.__pendingObjects?.add(promise)
+  102|     37|    return promise
+  103|     37|  }
+  104|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesSwift/Sources/Promises/Promise+Timeout.swift:
+    1|       |// Copyright 2018 Google Inc. All rights reserved.
+    2|       |//
+    3|       |// Licensed under the Apache License, Version 2.0 (the "License");
+    4|       |// you may not use this file except in compliance with the License.
+    5|       |// You may obtain a copy of the License at:
+    6|       |//
+    7|       |// http://www.apache.org/licenses/LICENSE-2.0
+    8|       |//
+    9|       |// Unless required by applicable law or agreed to in writing, software
+   10|       |// distributed under the License is distributed on an "AS IS" BASIS,
+   11|       |// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   12|       |// See the License for the specific language governing permissions and
+   13|       |// limitations under the License.
+   14|       |
+   15|       |import Foundation
+   16|       |
+   17|       |public extension Promise {
+   18|       |
+   19|       |  /// Waits on a promise for a given interval or rejects the promise if it exceeds the time limit.
+   20|       |  /// - parameters:
+   21|       |  ///   - queue: A queue to dispatch on.
+   22|       |  ///   - interval: Time to wait in seconds.
+   23|       |  /// - returns: A new pending promise that gets either resolved with same resolution as `self` or
+   24|       |  ///            rejected with `PromiseError.timedOut` error.
+   25|       |  @discardableResult
+   26|      0|  func timeout(on queue: DispatchQueue = .promises, _ interval: TimeInterval) -> Promise {
+   27|      0|    let promise = Promise(objCPromise.__onQueue(queue, timeout: interval))
+   28|      0|    // Keep Swift wrapper alive for chained promise until `ObjCPromise` counterpart is resolved.
+   29|      0|    objCPromise.__pendingObjects?.add(promise)
+   30|      0|    return promise
+   31|      0|  }
+   32|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesSwift/Sources/Promises/Promise+Validate.swift:
+    1|       |// Copyright 2018 Google Inc. All rights reserved.
+    2|       |//
+    3|       |// Licensed under the Apache License, Version 2.0 (the "License");
+    4|       |// you may not use this file except in compliance with the License.
+    5|       |// You may obtain a copy of the License at:
+    6|       |//
+    7|       |// http://www.apache.org/licenses/LICENSE-2.0
+    8|       |//
+    9|       |// Unless required by applicable law or agreed to in writing, software
+   10|       |// distributed under the License is distributed on an "AS IS" BASIS,
+   11|       |// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   12|       |// See the License for the specific language governing permissions and
+   13|       |// limitations under the License.
+   14|       |
+   15|       |import Foundation
+   16|       |
+   17|       |public extension Promise {
+   18|       |
+   19|       |  /// Validates a fulfilled value or rejects the value if it can not be validated.
+   20|       |  /// - parameters:
+   21|       |  ///   - queue: A queue to dispatch on.
+   22|       |  ///   - predicate: An expression to validate.
+   23|       |  /// - returns: A new pending promise that gets either resolved with same resolution as `self` or
+   24|       |  ///            rejected with `PromiseError.validationFailure` error.
+   25|       |  @discardableResult
+   26|       |  func validate(
+   27|       |    on queue: DispatchQueue = .promises,
+   28|       |    _ predicate: @escaping (Value) -> Bool
+   29|      0|  ) -> Promise {
+   30|      0|    let promise = Promise(objCPromise.__onQueue(
+   31|      0|      queue,
+   32|      0|      validate: { objCValue in
+   33|      0|        guard let value = Promise<Value>.asValue(objCValue) else {
+   34|      0|          preconditionFailure("Cannot cast \(type(of: objCValue)) to \(Value.self)")
+   35|      0|        }
+   36|      0|#if (swift(>=4.1) || (!swift(>=4.0) && swift(>=3.3)))
+   37|      0|        return predicate(value)
+   38|      0|#else
+   39|      0|        return ObjCBool(predicate(value))
+   40|      0|#endif  // (swift(>=4.1) || (!swift(>=4.0) && swift(>=3.3)))
+   41|      0|      }
+   42|      0|    ))
+   43|      0|    // Keep Swift wrapper alive for chained promise until `ObjCPromise` counterpart is resolved.
+   44|      0|    objCPromise.__pendingObjects?.add(promise)
+   45|      0|    return promise
+   46|      0|  }
+   47|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesSwift/Sources/Promises/Promise+Wrap.swift:
+    1|       |// Copyright 2018 Google Inc. All rights reserved.
+    2|       |//
+    3|       |// Licensed under the Apache License, Version 2.0 (the "License");
+    4|       |// you may not use this file except in compliance with the License.
+    5|       |// You may obtain a copy of the License at:
+    6|       |//
+    7|       |// http://www.apache.org/licenses/LICENSE-2.0
+    8|       |//
+    9|       |// Unless required by applicable law or agreed to in writing, software
+   10|       |// distributed under the License is distributed on an "AS IS" BASIS,
+   11|       |// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   12|       |// See the License for the specific language governing permissions and
+   13|       |// limitations under the License.
+   14|       |
+   15|       |import Dispatch
+   16|       |
+   17|       |/// Provides a convenient way to convert methods that use common callback patterns into `Promise`s.
+   18|       |
+   19|       |/// Creates a new promise to be resolved when completion handler gets invoked.
+   20|       |/// - parameter work: A block to execute asynchronously to invoke some API that requires
+   21|       |///                   a completion handler with no arguments.
+   22|       |/// - returns: A new pending promise to be resolved with `nil` when completion handler finishes.
+   23|       |public func wrap(
+   24|       |  on queue: DispatchQueue = .promises,
+   25|       |  _ work: @escaping (@escaping () -> Void) throws -> Void
+   26|      0|) -> Promise<Any?> {
+   27|      0|  return Promise<Any?>(on: queue) { fulfill, _ in
+   28|      0|    try work { fulfill(nil) }
+   29|      0|  }
+   30|      0|}
+   31|       |
+   32|       |/// Creates a new promise to be resolved when completion handler gets invoked.
+   33|       |/// - parameter work: A block to execute asynchronously to invoke some API that requires
+   34|       |///                   a completion handler with one argument of generic `Value` type.
+   35|       |/// - returns: A new pending promise to be resolved with the value provided by completion handler
+   36|       |///            when it finishes.
+   37|       |public func wrap<Value>(
+   38|       |  on queue: DispatchQueue = .promises,
+   39|       |  _ work: @escaping (@escaping (Value) -> Void) throws -> Void
+   40|      0|) -> Promise<Value> {
+   41|      0|  return Promise<Value>(on: queue) { fulfill, _ in
+   42|      0|    try work { fulfill($0) }
+   43|      0|  }
+   44|      0|}
+   45|       |
+   46|       |/// Creates a new promise to be resolved when completion handler gets invoked.
+   47|       |/// - parameter work: A block to execute asynchronously to invoke some API that requires
+   48|       |///                   a completion handler with one argument of optional generic `Value` type.
+   49|       |/// - returns: A new pending promise to be resolved with the value or error provided by completion
+   50|       |///            handler when it finishes.
+   51|       |public func wrap<Value>(
+   52|       |  on queue: DispatchQueue = .promises,
+   53|       |  _ work: @escaping (@escaping (Value?) -> Void) throws -> Void
+   54|      0|) -> Promise<Value?> {
+   55|      0|  return Promise<Value?>(on: queue) { fulfill, _ in
+   56|      0|    try work { fulfill($0) }
+   57|      0|  }
+   58|      0|}
+   59|       |
+   60|       |/// Creates a new promise to be resolved when completion handler gets invoked.
+   61|       |/// - parameter work: A block to execute asynchronously to invoke some API that requires
+   62|       |///                   a completion handler with two arguments: a generic of `Value` type and
+   63|       |///                   an optional `Error`.
+   64|       |/// - returns: A new pending promise to be resolved with the value or error provided by completion
+   65|       |///            handler when it finishes.
+   66|       |public func wrap<Value>(
+   67|       |  on queue: DispatchQueue = .promises,
+   68|       |  _ work: @escaping (@escaping (Value, Error?) -> Void) throws -> Void
+   69|      0|) -> Promise<Value> {
+   70|      0|  return Promise<Value>(on: queue) { fulfill, reject in
+   71|      0|    try work { value, error in
+   72|      0|      if let error = error {
+   73|      0|        reject(error)
+   74|      0|      } else {
+   75|      0|        fulfill(value)
+   76|      0|      }
+   77|      0|    }
+   78|      0|  }
+   79|      0|}
+   80|       |
+   81|       |/// Creates a new promise to be resolved when completion handler gets invoked.
+   82|       |/// - parameter work: A block to execute asynchronously to invoke some API that requires
+   83|       |///                   a completion handler with two arguments: an optional `Error` and a generic of
+   84|       |///                   `Value` type.
+   85|       |/// - returns: A new pending promise to be resolved with the error or value provided by completion
+   86|       |///            handler when it finishes.
+   87|       |public func wrap<Value>(
+   88|       |  on queue: DispatchQueue = .promises,
+   89|       |  _ work: @escaping (@escaping (Error?, Value) -> Void) throws -> Void
+   90|      0|) -> Promise<Value> {
+   91|      0|  return Promise<Value>(on: queue) { fulfill, reject in
+   92|      0|    try work { error, value in
+   93|      0|      if let error = error {
+   94|      0|        reject(error)
+   95|      0|      } else {
+   96|      0|        fulfill(value)
+   97|      0|      }
+   98|      0|    }
+   99|      0|  }
+  100|      0|}
+  101|       |
+  102|       |/// Creates a new promise to be resolved when completion handler gets invoked.
+  103|       |/// - parameter work: A block to execute asynchronously to invoke some API that requires
+  104|       |///                   a completion handler with two arguments: an optional generic of `Value` type
+  105|       |///                   and an optional `Error`.
+  106|       |/// - returns: A new pending promise to be resolved with the value or error provided by completion
+  107|       |///            handler when it finishes.
+  108|       |public func wrap<Value>(
+  109|       |  on queue: DispatchQueue = .promises,
+  110|       |  _ work: @escaping (@escaping (Value?, Error?) -> Void) throws -> Void
+  111|      0|) -> Promise<Value?> {
+  112|      0|  return Promise<Value?>(on: queue) { fulfill, reject in
+  113|      0|    try work { value, error in
+  114|      0|      if let error = error {
+  115|      0|        reject(error)
+  116|      0|      } else {
+  117|      0|        fulfill(value)
+  118|      0|      }
+  119|      0|    }
+  120|      0|  }
+  121|      0|}
+  122|       |
+  123|       |/// Creates a new promise to be resolved when completion handler gets invoked.
+  124|       |/// - parameter work: A block to execute asynchronously to invoke some API that requires
+  125|       |///                   a completion handler with two arguments: an optional `Error` and an optional
+  126|       |///                   generic of `Value` type.
+  127|       |/// - returns: A new pending promise to be resolved with the error or value provided by completion
+  128|       |///            handler when it finishes.
+  129|       |public func wrap<Value>(
+  130|       |  on queue: DispatchQueue = .promises,
+  131|       |  _ work: @escaping (@escaping (Error?, Value?) -> Void) throws -> Void
+  132|      0|) -> Promise<Value?> {
+  133|      0|  return Promise<Value?>(on: queue) { fulfill, reject in
+  134|      0|    try work { error, value in
+  135|      0|      if let error = error {
+  136|      0|        reject(error)
+  137|      0|      } else {
+  138|      0|        fulfill(value)
+  139|      0|      }
+  140|      0|    }
+  141|      0|  }
+  142|      0|}
+  143|       |
+  144|       |/// Creates a new promise to be resolved when completion handler gets invoked.
+  145|       |/// - parameter work: A block to execute asynchronously to invoke some API that requires
+  146|       |///                   a completion handler with three arguments: two optionals of `Any` type
+  147|       |///                   and an optional `Error`.
+  148|       |/// - returns: A new pending promise to be resolved with a tuple of optional values or an error
+  149|       |///            provided by completion handler when it finishes.
+  150|       |public func wrap<Value1, Value2>(
+  151|       |  on queue: DispatchQueue = .promises,
+  152|       |  _ work: @escaping (@escaping (Value1?, Value2?, Error?) -> Void) throws -> Void
+  153|      0|) -> Promise<(Value1?, Value2?)> {
+  154|      0|  return Promise<(Value1?, Value2?)>(on: queue) { fulfill, reject in
+  155|      0|    try work { value1, value2, error in
+  156|      0|      if let error = error {
+  157|      0|        reject(error)
+  158|      0|      } else {
+  159|      0|        fulfill((value1, value2))
+  160|      0|      }
+  161|      0|    }
+  162|      0|  }
+  163|      0|}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesSwift/Sources/Promises/Promise.swift:
+    1|       |// Copyright 2018 Google Inc. All rights reserved.
+    2|       |//
+    3|       |// Licensed under the Apache License, Version 2.0 (the "License");
+    4|       |// you may not use this file except in compliance with the License.
+    5|       |// You may obtain a copy of the License at:
+    6|       |//
+    7|       |// http://www.apache.org/licenses/LICENSE-2.0
+    8|       |//
+    9|       |// Unless required by applicable law or agreed to in writing, software
+   10|       |// distributed under the License is distributed on an "AS IS" BASIS,
+   11|       |// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   12|       |// See the License for the specific language governing permissions and
+   13|       |// limitations under the License.
+   14|       |
+   15|       |import FBLPromises
+   16|       |
+   17|       |/// Promises synchronization construct in Swift. Leverages ObjC implementation internally.
+   18|       |public final class Promise<Value> {
+   19|       |  public typealias ObjCPromise<Value: AnyObject> = FBLPromise<Value>
+   20|       |
+   21|       |  /// Creates a new promise with an existing ObjC promise.
+   22|    111|  public init<Value>(_ objCPromise: ObjCPromise<Value>) {
+   23|    111|    guard let objCPromise = objCPromise as? ObjCPromise<AnyObject> else {
+   24|      0|      preconditionFailure("Cannot cast \(Value.self) to \(AnyObject.self)")
+   25|    111|    }
+   26|    111|    self.objCPromise = objCPromise
+   27|    111|  }
+   28|       |
+   29|       |  /// Creates a new pending promise.
+   30|      0|  public static func pending() -> Promise<Value> {
+   31|      0|    return Promise<Value>.init(ObjCPromise<AnyObject>.__pending())
+   32|      0|  }
+   33|       |
+   34|       |  /// Creates a new promise rejected with the given `error`.
+   35|     15|  public convenience init(_ error: Error) {
+   36|     15|    self.init(ObjCPromise<AnyObject>.__resolved(with: error as NSError))
+   37|     15|  }
+   38|       |
+   39|       |  /// Creates a new promise resolved with the result of `work` block.
+   40|      0|  public convenience init(_ work: @autoclosure () throws -> Value) {
+   41|      0|    do {
+   42|      0|      let resolution = try work()
+   43|      0|      switch resolution {
+   44|      0|      case let error as NSError:
+   45|      0|        self.init(error)
+   46|      0|      case let objCPromise as ObjCPromise<AnyObject>:
+   47|      0|        self.init(objCPromise)
+   48|      0|      default:
+   49|      0|        self.init(ObjCPromise<AnyObject>.__resolved(with: Promise<Value>.asAnyObject(resolution)))
+   50|      0|      }
+   51|      0|    } catch let error {
+   52|      0|      self.init(error as NSError)
+   53|      0|    }
+   54|      0|  }
+   55|       |
+   56|       |  /// Resolves `self` with the given `resolution`.
+   57|      0|  public func fulfill(_ resolution: Value) {
+   58|      0|    objCPromise.__fulfill(Promise<Value>.asAnyObject(resolution))
+   59|      0|  }
+   60|       |
+   61|       |  /// Rejects `self` with the given `error`.
+   62|      0|  public func reject(_ error: Error) {
+   63|      0|    objCPromise.__fulfill(error as NSError)
+   64|      0|  }
+   65|       |
+   66|       |  /// Converts `self` into ObjC promise.
+   67|      0|  public func asObjCPromise<Value>() -> ObjCPromise<Value> {
+   68|      0|    guard let objCPromise = objCPromise as? ObjCPromise<Value> else {
+   69|      0|      preconditionFailure("Cannot cast \(AnyObject.self) to \(Value.self)")
+   70|      0|    }
+   71|      0|    return objCPromise
+   72|      0|  }
+   73|       |
+   74|       |  // MARK: Internal
+   75|       |
+   76|       |  /// Underlying ObjC counterpart.
+   77|       |  let objCPromise: ObjCPromise<AnyObject>
+   78|       |
+   79|      0|  var isPending: Bool { return objCPromise.__isPending }
+   80|       |
+   81|      0|  var isFulfilled: Bool { return objCPromise.__isFulfilled }
+   82|       |
+   83|      0|  var isRejected: Bool { return objCPromise.__isRejected }
+   84|       |
+   85|      0|  var value: Value? {
+   86|      0|    let objCValue = objCPromise.__value
+   87|      0|    if Promise<AnyObject>.isBridgedNil(objCValue) { return nil }
+   88|      0|    guard let value = objCValue as? Value else {
+   89|      0|      preconditionFailure("Cannot cast \(type(of: objCValue)) to \(Value.self)")
+   90|      0|    }
+   91|      0|    return value
+   92|      0|  }
+   93|       |
+   94|      0|  var error: Error? {
+   95|      0|    guard let objCPromiseError = objCPromise.__error else { return nil }
+   96|      0|    // Convert `NSError` to `PromiseError`, if applicable.
+   97|      0|    return PromiseError(objCPromiseError) ?? objCPromiseError
+   98|      0|  }
+   99|       |
+  100|       |  /// Converts generic `Value` to `AnyObject`.
+  101|       |  static func asAnyObject(_ value: Value) -> AnyObject? {
+  102|       |    return Promise<Value>.isBridgedNil(value) ? nil : value as AnyObject
+  103|       |  }
+  104|       |
+  105|       |  /// Converts `AnyObject` to generic `Value`, or `nil` if the conversion is not possible.
+  106|     12|  static func asValue(_ value: AnyObject?) -> Value? {
+  107|     12|    // Swift nil becomes NSNull during bridging.
+  108|     12|    return (value as? Value) ?? NSNull() as AnyObject as? Value
+  109|     12|  }
+  110|       |
+  111|       |  // MARK: Private
+  112|       |
+  113|       |  /// Checks if generic `Value` is bridged ObjC `nil`.
+  114|       |  private static func isBridgedNil(_ value: Value?) -> Bool {
+  115|       |    // Swift nil becomes NSNull during bridging.
+  116|       |    return !(value is NSNull) && (value as AnyObject is NSNull)
+  117|       |  }
+  118|       |}
+  119|       |
+  120|       |extension Promise: CustomStringConvertible {
+  121|      0|  public var description: String {
+  122|      0|    var description = "nil"
+  123|      0|    if isFulfilled {
+  124|      0|      if let value = value { description = String(describing: value) }
+  125|      0|      return "Fulfilled: \(description)"
+  126|      0|    }
+  127|      0|    if isRejected {
+  128|      0|      if let error = error { description = String(describing: error) }
+  129|      0|      return "Rejected: \(description)"
+  130|      0|    }
+  131|      0|    return "Pending: \(Value.self)"
+  132|      0|  }
+  133|       |}
+  134|       |
+  135|       |public extension DispatchQueue {
+  136|       |  /// Default dispatch queue used for `Promise`, which is `main` if a queue is not specified.
+  137|       |  static var promises: DispatchQueue {
+  138|     74|    get { return Promise<Any>.ObjCPromise<AnyObject>.__defaultDispatchQueue }
+  139|      0|    set { Promise<Any>.ObjCPromise<AnyObject>.__defaultDispatchQueue = newValue }
+  140|       |  }
+  141|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/PromisesSwift/Sources/Promises/PromiseError.swift:
+    1|       |// Copyright 2018 Google Inc. All rights reserved.
+    2|       |//
+    3|       |// Licensed under the Apache License, Version 2.0 (the "License");
+    4|       |// you may not use this file except in compliance with the License.
+    5|       |// You may obtain a copy of the License at:
+    6|       |//
+    7|       |// http://www.apache.org/licenses/LICENSE-2.0
+    8|       |//
+    9|       |// Unless required by applicable law or agreed to in writing, software
+   10|       |// distributed under the License is distributed on an "AS IS" BASIS,
+   11|       |// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   12|       |// See the License for the specific language governing permissions and
+   13|       |// limitations under the License.
+   14|       |
+   15|       |import FBLPromises
+   16|       |
+   17|       |/// Internal errors that `Promise` can throw.
+   18|       |/// Indirectly conforms to `Swift.Error` through conformance to `Swift.CustomNSError` below.
+   19|       |/// Not placing it under extension `Promise` for convenience to avoid collisions with `Swift.Error`.
+   20|       |public enum PromiseError {
+   21|       |  case timedOut
+   22|       |  case validationFailure
+   23|       |}
+   24|       |
+   25|       |/// Downcasting from `Swift.Error`.
+   26|       |extension PromiseError {
+   27|     25|  public init?(_ error: Error) {
+   28|     25|    let error = error as NSError
+   29|     25|    if error.domain != __FBLPromiseErrorDomain { return nil }
+   30|      0|    switch error.code {
+   31|      0|    case __FBLPromiseErrorCode.timedOut.rawValue:
+   32|      0|      self = .timedOut
+   33|      0|    case __FBLPromiseErrorCode.validationFailure.rawValue:
+   34|      0|      self = .validationFailure
+   35|      0|    default:
+   36|      0|      return nil
+   37|      0|    }
+   38|      0|  }
+   39|       |}
+   40|       |
+   41|       |extension PromiseError: CustomNSError {
+   42|      0|  public static var errorDomain: String {
+   43|      0|    return __FBLPromiseErrorDomain
+   44|      0|  }
+   45|       |
+   46|      0|  public var errorCode: Int {
+   47|      0|    switch self {
+   48|      0|    case .timedOut:
+   49|      0|      return __FBLPromiseErrorCode.timedOut.rawValue
+   50|      0|    case .validationFailure:
+   51|      0|      return __FBLPromiseErrorCode.validationFailure.rawValue
+   52|      0|    }
+   53|      0|  }
+   54|       |
+   55|      0|  public var errorUserInfo: [String: Any] {
+   56|      0|    return [String: Any]()
+   57|      0|  }
+   58|       |}
+

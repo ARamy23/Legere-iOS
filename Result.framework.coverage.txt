@@ -1,0 +1,445 @@
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/Result/Result/AnyError.swift:
+    1|       |import Foundation
+    2|       |
+    3|       |/// A type-erased error which wraps an arbitrary error instance. This should be
+    4|       |/// useful for generic contexts.
+    5|       |public struct AnyError: Swift.Error {
+    6|       |	/// The underlying error.
+    7|       |	public let error: Swift.Error
+    8|       |
+    9|      0|	public init(_ error: Swift.Error) {
+   10|      0|		if let anyError = error as? AnyError {
+   11|      0|			self = anyError
+   12|      0|		} else {
+   13|      0|			self.error = error
+   14|      0|		}
+   15|      0|	}
+   16|       |}
+   17|       |
+   18|       |extension AnyError: ErrorConvertible {
+   19|      0|	public static func error(from error: Error) -> AnyError {
+   20|      0|		return AnyError(error)
+   21|      0|	}
+   22|       |}
+   23|       |
+   24|       |extension AnyError: CustomStringConvertible {
+   25|      0|	public var description: String {
+   26|      0|		return String(describing: error)
+   27|      0|	}
+   28|       |}
+   29|       |
+   30|       |extension AnyError: LocalizedError {
+   31|      0|	public var errorDescription: String? {
+   32|      0|		return error.localizedDescription
+   33|      0|	}
+   34|       |
+   35|      0|	public var failureReason: String? {
+   36|      0|		return (error as? LocalizedError)?.failureReason
+   37|      0|	}
+   38|       |
+   39|      0|	public var helpAnchor: String? {
+   40|      0|		return (error as? LocalizedError)?.helpAnchor
+   41|      0|	}
+   42|       |
+   43|      0|	public var recoverySuggestion: String? {
+   44|      0|		return (error as? LocalizedError)?.recoverySuggestion
+   45|      0|	}
+   46|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/Result/Result/NoError.swift:
+    1|       |/// An “error” that is impossible to construct.
+    2|       |///
+    3|       |/// This can be used to describe `Result`s where failures will never
+    4|       |/// be generated. For example, `Result<Int, NoError>` describes a result that
+    5|       |/// contains an `Int`eger and is guaranteed never to be a `failure`.
+    6|       |public enum NoError: Swift.Error, Equatable {
+    7|      0|	public static func ==(lhs: NoError, rhs: NoError) -> Bool {
+    8|      0|		return true
+    9|      0|	}
+   10|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/Result/Result/Result.swift:
+    1|       |//  Copyright (c) 2015 Rob Rix. All rights reserved.
+    2|       |
+    3|       |/// An enum representing either a failure with an explanatory error, or a success with a result value.
+    4|       |public enum Result<Value, Error: Swift.Error>: ResultProtocol, CustomStringConvertible, CustomDebugStringConvertible {
+    5|       |	case success(Value)
+    6|       |	case failure(Error)
+    7|       |
+    8|       |	/// The compatibility alias for the Swift 5's `Result` in the standard library.
+    9|       |	///
+   10|       |	/// See https://github.com/apple/swift-evolution/blob/master/proposals/0235-add-result.md
+   11|       |	/// and https://forums.swift.org/t/accepted-with-modifications-se-0235-add-result-to-the-standard-library/18603
+   12|       |	/// for the details.
+   13|       |	public typealias Success = Value
+   14|       |	/// The compatibility alias for the Swift 5's `Result` in the standard library.
+   15|       |	///
+   16|       |	/// See https://github.com/apple/swift-evolution/blob/master/proposals/0235-add-result.md
+   17|       |	/// and https://forums.swift.org/t/accepted-with-modifications-se-0235-add-result-to-the-standard-library/18603
+   18|       |	/// for the details.
+   19|       |	public typealias Failure = Error
+   20|       |
+   21|       |	// MARK: Constructors
+   22|       |
+   23|       |	/// Constructs a success wrapping a `value`.
+   24|      0|	public init(value: Value) {
+   25|      0|		self = .success(value)
+   26|      0|	}
+   27|       |
+   28|       |	/// Constructs a failure wrapping an `error`.
+   29|      0|	public init(error: Error) {
+   30|      0|		self = .failure(error)
+   31|      0|	}
+   32|       |
+   33|       |	/// Constructs a result from an `Optional`, failing with `Error` if `nil`.
+   34|      0|	public init(_ value: Value?, failWith: @autoclosure () -> Error) {
+   35|      0|		self = value.map(Result.success) ?? .failure(failWith())
+   36|      0|	}
+   37|       |
+   38|       |	/// Constructs a result from a function that uses `throw`, failing with `Error` if throws.
+   39|      0|	public init(_ f: @autoclosure () throws -> Value) {
+   40|      0|		self.init(catching: f)
+   41|      0|	}
+   42|       |
+   43|       |	/// Constructs a result from a function that uses `throw`, failing with `Error` if throws.
+   44|       |	@available(*, deprecated, renamed: "init(catching:)")
+   45|      0|	public init(attempt f: () throws -> Value) {
+   46|      0|		self.init(catching: f)
+   47|      0|	}
+   48|       |
+   49|       |	/// The same as `init(attempt:)` aiming for the compatibility with the Swift 5's `Result` in the standard library.
+   50|       |	///
+   51|       |	/// See https://github.com/apple/swift-evolution/blob/master/proposals/0235-add-result.md
+   52|       |	/// and https://forums.swift.org/t/accepted-with-modifications-se-0235-add-result-to-the-standard-library/18603
+   53|       |	/// for the details.
+   54|      0|	public init(catching body: () throws -> Success) {
+   55|      0|		do {
+   56|      0|			self = .success(try body())
+   57|      0|		} catch var error {
+   58|      0|			if Error.self == AnyError.self {
+   59|      0|				error = AnyError(error)
+   60|      0|			}
+   61|      0|			self = .failure(error as! Error)
+   62|      0|		}
+   63|      0|	}
+   64|       |
+   65|       |	// MARK: Deconstruction
+   66|       |
+   67|       |	/// Returns the value from `success` Results or `throw`s the error.
+   68|       |	@available(*, deprecated, renamed: "get()")
+   69|      0|	public func dematerialize() throws -> Value {
+   70|      0|		return try get()
+   71|      0|	}
+   72|       |
+   73|       |	/// The same as `dematerialize()` aiming for the compatibility with the Swift 5's `Result` in the standard library.
+   74|       |	///
+   75|       |	/// See https://github.com/apple/swift-evolution/blob/master/proposals/0235-add-result.md
+   76|       |	/// and https://forums.swift.org/t/accepted-with-modifications-se-0235-add-result-to-the-standard-library/18603
+   77|       |	/// for the details.
+   78|       |	public func get() throws -> Success {
+   79|       |		switch self {
+   80|       |		case let .success(value):
+   81|       |			return value
+   82|       |		case let .failure(error):
+   83|       |			throw error
+   84|       |		}
+   85|       |	}
+   86|       |
+   87|       |	/// Case analysis for Result.
+   88|       |	///
+   89|       |	/// Returns the value produced by applying `ifFailure` to `failure` Results, or `ifSuccess` to `success` Results.
+   90|      0|	public func analysis<Result>(ifSuccess: (Value) -> Result, ifFailure: (Error) -> Result) -> Result {
+   91|      0|		switch self {
+   92|      0|		case let .success(value):
+   93|      0|			return ifSuccess(value)
+   94|      0|		case let .failure(value):
+   95|      0|			return ifFailure(value)
+   96|      0|		}
+   97|      0|	}
+   98|       |
+   99|       |	// MARK: Errors
+  100|       |
+  101|       |	/// The domain for errors constructed by Result.
+  102|      0|	public static var errorDomain: String { return "com.antitypical.Result" }
+  103|       |
+  104|       |	/// The userInfo key for source functions in errors constructed by Result.
+  105|      0|	public static var functionKey: String { return "\(errorDomain).function" }
+  106|       |
+  107|       |	/// The userInfo key for source file paths in errors constructed by Result.
+  108|      0|	public static var fileKey: String { return "\(errorDomain).file" }
+  109|       |
+  110|       |	/// The userInfo key for source file line numbers in errors constructed by Result.
+  111|      0|	public static var lineKey: String { return "\(errorDomain).line" }
+  112|       |
+  113|       |	/// Constructs an error.
+  114|      0|	public static func error(_ message: String? = nil, function: String = #function, file: String = #file, line: Int = #line) -> NSError {
+  115|      0|		var userInfo: [String: Any] = [
+  116|      0|			functionKey: function,
+  117|      0|			fileKey: file,
+  118|      0|			lineKey: line,
+  119|      0|		]
+  120|      0|
+  121|      0|		if let message = message {
+  122|      0|			userInfo[NSLocalizedDescriptionKey] = message
+  123|      0|		}
+  124|      0|
+  125|      0|		return NSError(domain: errorDomain, code: 0, userInfo: userInfo)
+  126|      0|	}
+  127|       |
+  128|       |
+  129|       |	// MARK: CustomStringConvertible
+  130|       |
+  131|      0|	public var description: String {
+  132|      0|		switch self {
+  133|      0|		case let .success(value): return ".success(\(value))"
+  134|      0|		case let .failure(error): return ".failure(\(error))"
+  135|      0|		}
+  136|      0|	}
+  137|       |
+  138|       |
+  139|       |	// MARK: CustomDebugStringConvertible
+  140|       |
+  141|      0|	public var debugDescription: String {
+  142|      0|		return description
+  143|      0|	}
+  144|       |
+  145|       |	// MARK: ResultProtocol
+  146|      0|	public var result: Result<Value, Error> {
+  147|      0|		return self
+  148|      0|	}
+  149|       |}
+  150|       |
+  151|       |extension Result where Result.Failure == AnyError {
+  152|       |	/// Constructs a result from an expression that uses `throw`, failing with `AnyError` if throws.
+  153|      0|	public init(_ f: @autoclosure () throws -> Value) {
+  154|      0|		self.init(attempt: f)
+  155|      0|	}
+  156|       |
+  157|       |	/// Constructs a result from a closure that uses `throw`, failing with `AnyError` if throws.
+  158|      0|	public init(attempt f: () throws -> Value) {
+  159|      0|		do {
+  160|      0|			self = .success(try f())
+  161|      0|		} catch {
+  162|      0|			self = .failure(AnyError(error))
+  163|      0|		}
+  164|      0|	}
+  165|       |}
+  166|       |
+  167|       |// MARK: - Derive result from failable closure
+  168|       |
+  169|       |@available(*, deprecated, renamed: "Result.init(attempt:)")
+  170|      0|public func materialize<T>(_ f: () throws -> T) -> Result<T, AnyError> {
+  171|      0|	return Result(attempt: f)
+  172|      0|}
+  173|       |
+  174|       |@available(*, deprecated, renamed: "Result.init(_:)")
+  175|      0|public func materialize<T>(_ f: @autoclosure () throws -> T) -> Result<T, AnyError> {
+  176|      0|	return Result(try f())
+  177|      0|}
+  178|       |
+  179|       |// MARK: - ErrorConvertible conformance
+  180|       |	
+  181|       |extension NSError: ErrorConvertible {
+  182|      0|	public static func error(from error: Swift.Error) -> Self {
+  183|      0|		func cast<T: NSError>(_ error: Swift.Error) -> T {
+  184|      0|			return error as! T
+  185|      0|		}
+  186|      0|
+  187|      0|		return cast(error)
+  188|      0|	}
+  189|       |}
+  190|       |
+  191|       |// MARK: - migration support
+  192|       |
+  193|       |@available(*, unavailable, message: "Use the overload which returns `Result<T, AnyError>` instead")
+  194|      0|public func materialize<T>(_ f: () throws -> T) -> Result<T, NSError> {
+  195|      0|	fatalError()
+  196|      0|}
+  197|       |
+  198|       |@available(*, unavailable, message: "Use the overload which returns `Result<T, AnyError>` instead")
+  199|      0|public func materialize<T>(_ f: @autoclosure () throws -> T) -> Result<T, NSError> {
+  200|      0|	fatalError()
+  201|      0|}
+  202|       |
+  203|       |#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+  204|       |
+  205|       |/// Constructs a `Result` with the result of calling `try` with an error pointer.
+  206|       |///
+  207|       |/// This is convenient for wrapping Cocoa API which returns an object or `nil` + an error, by reference. e.g.:
+  208|       |///
+  209|       |///     Result.try { NSData(contentsOfURL: URL, options: .dataReadingMapped, error: $0) }
+  210|       |@available(*, unavailable, message: "This has been removed. Use `Result.init(attempt:)` instead. See https://github.com/antitypical/Result/issues/85 for the details.")
+  211|      0|public func `try`<T>(_ function: String = #function, file: String = #file, line: Int = #line, `try`: (NSErrorPointer) -> T?) -> Result<T, NSError> {
+  212|      0|	fatalError()
+  213|      0|}
+  214|       |
+  215|       |/// Constructs a `Result` with the result of calling `try` with an error pointer.
+  216|       |///
+  217|       |/// This is convenient for wrapping Cocoa API which returns a `Bool` + an error, by reference. e.g.:
+  218|       |///
+  219|       |///     Result.try { NSFileManager.defaultManager().removeItemAtURL(URL, error: $0) }
+  220|       |@available(*, unavailable, message: "This has been removed. Use `Result.init(attempt:)` instead. See https://github.com/antitypical/Result/issues/85 for the details.")
+  221|      0|public func `try`(_ function: String = #function, file: String = #file, line: Int = #line, `try`: (NSErrorPointer) -> Bool) -> Result<(), NSError> {
+  222|      0|	fatalError()
+  223|      0|}
+  224|       |
+  225|       |#endif
+  226|       |
+  227|       |// MARK: -
+  228|       |
+  229|       |import Foundation
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Pods/Result/Result/ResultProtocol.swift:
+    1|       |//  Copyright (c) 2015 Rob Rix. All rights reserved.
+    2|       |
+    3|       |/// A protocol that can be used to constrain associated types as `Result`.
+    4|       |public protocol ResultProtocol {
+    5|       |	associatedtype Value
+    6|       |	associatedtype Error: Swift.Error
+    7|       |
+    8|       |	init(value: Value)
+    9|       |	init(error: Error)
+   10|       |	
+   11|       |	var result: Result<Value, Error> { get }
+   12|       |}
+   13|       |
+   14|       |extension Result {
+   15|       |	/// Returns the value if self represents a success, `nil` otherwise.
+   16|      0|	public var value: Value? {
+   17|      0|		switch self {
+   18|      0|		case let .success(value): return value
+   19|      0|		case .failure: return nil
+   20|      0|		}
+   21|      0|	}
+   22|       |	
+   23|       |	/// Returns the error if self represents a failure, `nil` otherwise.
+   24|      0|	public var error: Error? {
+   25|      0|		switch self {
+   26|      0|		case .success: return nil
+   27|      0|		case let .failure(error): return error
+   28|      0|		}
+   29|      0|	}
+   30|       |
+   31|       |	/// Returns a new Result by mapping `Success`es’ values using `transform`, or re-wrapping `Failure`s’ errors.
+   32|      0|	public func map<U>(_ transform: (Value) -> U) -> Result<U, Error> {
+   33|      0|		return flatMap { .success(transform($0)) }
+   34|      0|	}
+   35|       |
+   36|       |	/// Returns the result of applying `transform` to `Success`es’ values, or re-wrapping `Failure`’s errors.
+   37|       |	public func flatMap<U>(_ transform: (Value) -> Result<U, Error>) -> Result<U, Error> {
+   38|       |		switch self {
+   39|       |		case let .success(value): return transform(value)
+   40|       |		case let .failure(error): return .failure(error)
+   41|       |		}
+   42|       |	}
+   43|       |
+   44|       |	/// Returns a Result with a tuple of the receiver and `other` values if both
+   45|       |	/// are `Success`es, or re-wrapping the error of the earlier `Failure`.
+   46|      0|	public func fanout<U>(_ other: @autoclosure () -> Result<U, Error>) -> Result<(Value, U), Error> {
+   47|      0|		return self.flatMap { left in other().map { right in (left, right) } }
+   48|      0|	}
+   49|       |
+   50|       |	/// Returns a new Result by mapping `Failure`'s values using `transform`, or re-wrapping `Success`es’ values.
+   51|      0|	public func mapError<Error2>(_ transform: (Error) -> Error2) -> Result<Value, Error2> {
+   52|      0|		return flatMapError { .failure(transform($0)) }
+   53|      0|	}
+   54|       |
+   55|       |	/// Returns the result of applying `transform` to `Failure`’s errors, or re-wrapping `Success`es’ values.
+   56|       |	public func flatMapError<Error2>(_ transform: (Error) -> Result<Value, Error2>) -> Result<Value, Error2> {
+   57|       |		switch self {
+   58|       |		case let .success(value): return .success(value)
+   59|       |		case let .failure(error): return transform(error)
+   60|       |		}
+   61|       |	}
+   62|       |
+   63|       |	/// Returns a new Result by mapping `Success`es’ values using `success`, and by mapping `Failure`'s values using `failure`.
+   64|      0|	public func bimap<U, Error2>(success: (Value) -> U, failure: (Error) -> Error2) -> Result<U, Error2> {
+   65|      0|		switch self {
+   66|      0|		case let .success(value): return .success(success(value))
+   67|      0|		case let .failure(error): return .failure(failure(error))
+   68|      0|		}
+   69|      0|	}
+   70|       |}
+   71|       |
+   72|       |extension Result {
+   73|       |
+   74|       |	// MARK: Higher-order functions
+   75|       |
+   76|       |	/// Returns `self.value` if this result is a .Success, or the given value otherwise. Equivalent with `??`
+   77|      0|	public func recover(_ value: @autoclosure () -> Value) -> Value {
+   78|      0|		return self.value ?? value()
+   79|      0|	}
+   80|       |
+   81|       |	/// Returns this result if it is a .Success, or the given result otherwise. Equivalent with `??`
+   82|      0|	public func recover(with result: @autoclosure () -> Result<Value, Error>) -> Result<Value, Error> {
+   83|      0|		switch self {
+   84|      0|		case .success: return self
+   85|      0|		case .failure: return result()
+   86|      0|		}
+   87|      0|	}
+   88|       |}
+   89|       |
+   90|       |/// Protocol used to constrain `tryMap` to `Result`s with compatible `Error`s.
+   91|       |public protocol ErrorConvertible: Swift.Error {
+   92|       |	static func error(from error: Swift.Error) -> Self
+   93|       |}
+   94|       |
+   95|       |extension Result where Result.Failure: ErrorConvertible {
+   96|       |
+   97|       |	/// Returns the result of applying `transform` to `Success`es’ values, or wrapping thrown errors.
+   98|      0|	public func tryMap<U>(_ transform: (Value) throws -> U) -> Result<U, Error> {
+   99|      0|		return flatMap { value in
+  100|      0|			do {
+  101|      0|				return .success(try transform(value))
+  102|      0|			}
+  103|      0|			catch {
+  104|      0|				let convertedError = Error.error(from: error)
+  105|      0|				// Revisit this in a future version of Swift. https://twitter.com/jckarter/status/672931114944696321
+  106|      0|				return .failure(convertedError)
+  107|      0|			}
+  108|      0|		}
+  109|      0|	}
+  110|       |}
+  111|       |
+  112|       |// MARK: - Operators
+  113|       |
+  114|       |extension Result where Result.Success: Equatable, Result.Failure: Equatable {
+  115|       |	/// Returns `true` if `left` and `right` are both `Success`es and their values are equal, or if `left` and `right` are both `Failure`s and their errors are equal.
+  116|      0|	public static func ==(left: Result<Value, Error>, right: Result<Value, Error>) -> Bool {
+  117|      0|		if let left = left.value, let right = right.value {
+  118|      0|			return left == right
+  119|      0|		} else if let left = left.error, let right = right.error {
+  120|      0|			return left == right
+  121|      0|		}
+  122|      0|		return false
+  123|      0|	}
+  124|       |}
+  125|       |
+  126|       |#if swift(>=4.1)
+  127|       |	extension Result: Equatable where Result.Success: Equatable, Result.Failure: Equatable { }
+  128|       |#else
+  129|       |	extension Result where Result.Success: Equatable, Result.Failure: Equatable {
+  130|       |		/// Returns `true` if `left` and `right` represent different cases, or if they represent the same case but different values.
+  131|       |		public static func !=(left: Result<Value, Error>, right: Result<Value, Error>) -> Bool {
+  132|       |			return !(left == right)
+  133|       |		}
+  134|       |	}
+  135|       |#endif
+  136|       |
+  137|       |extension Result {
+  138|       |	/// Returns the value of `left` if it is a `Success`, or `right` otherwise. Short-circuits.
+  139|      0|	public static func ??(left: Result<Value, Error>, right: @autoclosure () -> Value) -> Value {
+  140|      0|		return left.recover(right())
+  141|      0|	}
+  142|       |
+  143|       |	/// Returns `left` if it is a `Success`es, or `right` otherwise. Short-circuits.
+  144|      0|	public static func ??(left: Result<Value, Error>, right: @autoclosure () -> Result<Value, Error>) -> Result<Value, Error> {
+  145|      0|		return left.recover(with: right())
+  146|      0|	}
+  147|       |}
+  148|       |
+  149|       |// MARK: - migration support
+  150|       |
+  151|       |@available(*, unavailable, renamed: "ErrorConvertible")
+  152|       |public protocol ErrorProtocolConvertible: ErrorConvertible {}
+

@@ -20,9 +20,9 @@ final class NotEmpty: BaseValidator {
     func orThrow() throws {
         switch value {
         case "" as String:
-            throw EmptyValueError(key: key)
+            throw ValidationError.emptyValue(key: key)
         case nil:
-            throw EmptyValueError(key: key)
+            throw ValidationError.emptyValue(key: key)
         default: break
         }
     }

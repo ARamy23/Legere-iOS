@@ -20,6 +20,7 @@ final class LoginInteractor: BaseInteractor {
     }
     
     override func validate() throws {
+        try super.validate()
         try NotEmpty(value: username, key: .usernameField).orThrow()
         try NotEmpty(value: password, key: .passwordField).orThrow()
         try IsValidUsername(value: username).orThrow()
@@ -27,6 +28,6 @@ final class LoginInteractor: BaseInteractor {
     }
     
     override func process<T>(_ model: T.Type) -> Promise<T> where T : Decodable, T : Encodable {
-        return network.callModel(model: model, api: AuthenticationService.login(username: username ?? "", password: password ?? ""))
+        return network.callModel(model: model, api: AuthenticationService.login(username: username!, password: password!))
     }
 }

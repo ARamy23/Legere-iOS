@@ -1,0 +1,1923 @@
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/AppDelegate.swift:
+    1|       |//
+    2|       |//  AppDelegate.swift
+    3|       |//  Legere-iOS
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/7/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |
+   11|       |@UIApplicationMain
+   12|       |class AppDelegate: UIResponder, UIApplicationDelegate {
+   13|       |
+   14|       |    var window: UIWindow?
+   15|       |
+   16|       |
+   17|      1|    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+   18|      1|        // Override point for customization after application launch.
+   19|      1|        return true
+   20|      1|    }
+   21|       |
+   22|      0|    func applicationWillResignActive(_ application: UIApplication) {
+   23|      0|        // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
+   24|      0|        // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
+   25|      0|    }
+   26|       |
+   27|      0|    func applicationDidEnterBackground(_ application: UIApplication) {
+   28|      0|        // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
+   29|      0|        // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+   30|      0|    }
+   31|       |
+   32|      0|    func applicationWillEnterForeground(_ application: UIApplication) {
+   33|      0|        // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
+   34|      0|    }
+   35|       |
+   36|      1|    func applicationDidBecomeActive(_ application: UIApplication) {
+   37|      1|        // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+   38|      1|    }
+   39|       |
+   40|      0|    func applicationWillTerminate(_ application: UIApplication) {
+   41|      0|        // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+   42|      0|    }
+   43|       |
+   44|       |
+   45|       |}
+   46|       |
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Scenes/Home/Cells/ArticleCollectionViewCell.swift:
+    1|       |//
+    2|       |//  ArticleCollectionViewCell.swift
+    3|       |//  Legere
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/3/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |
+   11|       |final class ArticleCollectionViewCell: UICollectionViewCell {
+   12|       |    
+   13|       |    @IBOutlet weak var socialBarView: UIView!
+   14|       |    
+   15|       |    @IBOutlet weak var readCountLabel: UILabel!
+   16|       |    @IBOutlet weak var likesCountLabel: UILabel!
+   17|       |    @IBOutlet weak var titleLabel: UILabel!
+   18|       |    @IBOutlet weak var breifTextView: UITextView!
+   19|       |    
+   20|       |    var article: Article? {
+   21|      0|        didSet {
+   22|      0|            readCountLabel.text = "\(article?.reads ?? 0)"
+   23|      0|            likesCountLabel.text = "\(article?.numberOfLikes ?? 0)"
+   24|      0|            titleLabel.text = "\(article?.title ?? "")"
+   25|      0|            breifTextView.text = "\(article?.details ?? "")"
+   26|      0|        }
+   27|       |    }
+   28|       |    
+   29|      0|    override func awakeFromNib() {
+   30|      0|        super.awakeFromNib()
+   31|      0|        socialBarView.layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMinXMaxYCorner]
+   32|      0|    }
+   33|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Scenes/Home/HomeViewModel.swift:
+    1|       |//
+    2|       |//  HomeViewModel.swift
+    3|       |//  Legere-iOS
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/5/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import Foundation
+   10|       |import RxSwift
+   11|       |import Promises
+   12|       |
+   13|       |final class HomeViewModel: BaseViewModel {
+   14|       |    var articles: BehaviorSubject<Articles> = BehaviorSubject<Articles>(value: [])
+   15|       |    var articleDetails: PublishSubject<ArticleDetails> = PublishSubject<ArticleDetails>()
+   16|      0|    override init(cache: CacheProtocol, router: RouterProtocol, network: NetworkProtocol) {
+   17|      0|        super.init(cache: cache, router: router, network: network)
+   18|      0|        articles.onNext(self.cache.getObject(Articles.self, key: .articles) ?? [])
+   19|      0|    }
+   20|       |    
+   21|      0|    func getAllArticles() {
+   22|      0|        AllArticlesInteractor(base: baseInteractor).execute(Articles.self).then { [weak self] articles in
+   23|      0|            guard let self = self else { return }
+   24|      0|            if articles.count <= 10 {
+   25|      0|                self.cache.saveObject(articles, key: .articles)
+   26|      0|            }
+   27|      0|            self.articles.onNext(articles)
+   28|      0|            }.catch(handleError)
+   29|      0|    }
+   30|       |    
+   31|      0|    func getArticleDetails(_ articleId: Int) {
+   32|      0|        ArticleDetailsInteractor(articleId: articleId, base: baseInteractor)
+   33|      0|            .execute(ArticleDetails.self)
+   34|      0|            .then { [weak self] articleDetails in
+   35|      0|            guard let self = self else { return }
+   36|      0|            self.articleDetails.onNext(articleDetails)
+   37|      0|            }.catch(handleError)
+   38|      0|    }
+   39|       |    
+   40|      0|    func didRead(_ articleId: Int) {
+   41|      0|        DidReadArticleInteractor(articleId: articleId, base: baseInteractor)
+   42|      0|            .execute(ArticleDetails.self).then { [weak self] (articleDetails) in
+   43|      0|                guard let self = self else { return }
+   44|      0|                self.articleDetails.onNext(articleDetails)
+   45|      0|            }.catch { [weak self] (error) in
+   46|      0|                guard let self = self else { return }
+   47|      0|                self.router.toastError(title: "Error", message: error.localizedDescription)
+   48|      0|        }.catch(handleError)
+   49|      0|    }
+   50|       |    
+   51|      0|    func didLike(_ articleId: Int) {
+   52|      0|        DidLikeArticleInteractor(articleId: articleId, base: baseInteractor).execute(ArticleDetails.self).then { [weak self] (articleDetails) in
+   53|      0|            guard let self = self else { return }
+   54|      0|            self.articleDetails.onNext(articleDetails)
+   55|      0|        }.catch(handleError)
+   56|      0|    }
+   57|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Scenes/Home/Interactors/AllArticlesInteractor.swift:
+    1|       |//
+    2|       |//  AllArticlesInteractor.swift
+    3|       |//  Legere
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/3/19.
+    6|       |//  Copyright (c) 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |//  This file was generated by the Clean Swift Xcode Templates so
+    9|       |//  you can apply clean architecture to your iOS and Mac projects,
+   10|       |//  see http://clean-swift.com
+   11|       |//
+   12|       |
+   13|       |import Promises
+   14|       |
+   15|       |final class AllArticlesInteractor: BaseInteractor
+   16|       |{
+   17|      0|    init(base: BaseInteractor) {
+   18|      0|        super.init(network: base.network, cache: base.cache)
+   19|      0|    }
+   20|       |    
+   21|      0|    override func process<T>(_ model: T.Type) -> Promise<T> where T : Decodable, T : Encodable {
+   22|      0|        return network.callModel(model: model, api: ArticlesService.allArticles)
+   23|      0|    }
+   24|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Scenes/Home/Interactors/ArticleDetailsInteractor.swift:
+    1|       |//
+    2|       |//  ArticleDetailsInteractor.swift
+    3|       |//  Legere-iOS
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/5/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import Promises
+   10|       |
+   11|       |final class ArticleDetailsInteractor: BaseInteractor {
+   12|       |    let articleId: Int
+   13|      0|    init(articleId: Int, base: BaseInteractor){
+   14|      0|        self.articleId = articleId
+   15|      0|        super.init(network: base.network, cache: base.cache)
+   16|      0|    }
+   17|       |    
+   18|      0|    override func process<T>(_ model: T.Type) -> Promise<T> where T : Decodable, T : Encodable {
+   19|      0|        return network.callModel(model: model, api: ArticlesService.articleDetails(id: articleId))
+   20|      0|    }
+   21|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Scenes/Home/Interactors/DidLikeArticleInteractor.swift:
+    1|       |//
+    2|       |//  DidLikeArticleInteractor.swift
+    3|       |//  Legere-iOS
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/6/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import Promises
+   10|       |
+   11|       |final class DidLikeArticleInteractor: BaseInteractor {
+   12|       |    let articleId: Int
+   13|      0|    init(articleId: Int, base: BaseInteractor){
+   14|      0|        self.articleId = articleId
+   15|      0|        super.init(network: base.network, cache: base.cache)
+   16|      0|    }
+   17|       |    
+   18|      0|    override func process<T>(_ model: T.Type) -> Promise<T> where T : Decodable, T : Encodable {
+   19|      0|        return network.callModel(model: model, api: ArticlesService.didLike(articleId: articleId))
+   20|      0|    }
+   21|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Scenes/Home/Interactors/DidReadArticleInteractor.swift:
+    1|       |//
+    2|       |//  DidReadArticleInteractor.swift
+    3|       |//  Legere-iOS
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/6/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import Promises
+   10|       |
+   11|       |final class DidReadArticleInteractor: BaseInteractor {
+   12|       |    let articleId: Int
+   13|      0|    init(articleId: Int, base: BaseInteractor){
+   14|      0|        self.articleId = articleId
+   15|      0|        super.init(network: base.network, cache: base.cache)
+   16|      0|    }
+   17|       |    
+   18|      0|    override func process<T>(_ model: T.Type) -> Promise<T> where T : Decodable, T : Encodable {
+   19|      0|        return network.callModel(model: model, api: ArticlesService.didRead(articleId: articleId))
+   20|      0|    }
+   21|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Scenes/Home/Models/Article.swift:
+    1|       |//
+    2|       |//  Article.swift
+    3|       |//  Legere-iOS
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/4/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import Foundation
+   10|       |
+   11|       |typealias Articles = [Article]
+   12|       |
+   13|       |struct Article: Codable {
+   14|       |    /// ID to article
+   15|       |    /// can be later used in fetching the article through URL
+   16|       |    /// example: to fetch first article there ever was
+   17|       |    /// use this ~> localhost:8080/articles/1
+   18|       |    var id: Int?
+   19|       |    
+   20|       |    /// Title for the article
+   21|       |    var title: String?
+   22|       |    
+   23|       |    /// Article details you have about this article
+   24|       |    var details: String?
+   25|       |    
+   26|       |    /// we use this as a link between the article and the user
+   27|       |    /// we call this kind of link one to many where
+   28|       |    /// a user (author) can have many articles
+   29|       |    /// but an article can only have one author
+   30|       |    var userID: String?
+   31|       |    
+   32|       |    /// Number of reads for this article
+   33|       |    var reads: Int
+   34|       |    
+   35|       |    var likedBy: [String] {
+   36|      0|        didSet {
+   37|      0|            numberOfLikes = likedBy.count
+   38|      0|        }
+   39|       |    }
+   40|       |    
+   41|       |    var numberOfLikes: Int
+   42|       |    
+   43|      0|    init(title: String, details: String, userID: String, reads: Int = 0, likedBy: [String] = []) {
+   44|      0|        self.title = title
+   45|      0|        self.details = details
+   46|      0|        self.userID = userID
+   47|      0|        self.reads = reads
+   48|      0|        self.likedBy = likedBy
+   49|      0|        self.numberOfLikes = likedBy.count
+   50|      0|    }
+   51|       |}
+   52|       |
+   53|       |extension Article: Equatable {
+   54|      0|    static func ==(lhs: Article, rhs: Article) -> Bool {
+   55|      0|        return lhs.id == rhs.id && lhs.reads == rhs.reads && lhs.numberOfLikes == rhs.numberOfLikes
+   56|      0|    }
+   57|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Scenes/Home/Models/ArticleDetails.swift:
+    1|       |//
+    2|       |//  ArticleDetails.swift
+    3|       |//  Legere-iOS
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/5/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import Foundation
+   10|       |
+   11|       |final class ArticleDetails: Codable {
+   12|       |    var article: Article?
+   13|       |    var isLikedByCurrentUser: Bool?
+   14|       |    
+   15|      0|    init(article: Article) {
+   16|      0|        self.article = article
+   17|      0|    }
+   18|       |}
+   19|       |
+   20|       |extension ArticleDetails: Equatable {
+   21|      0|    static func ==(lhs: ArticleDetails, rhs: ArticleDetails) -> Bool {
+   22|      0|        return lhs.article == rhs.article && lhs.isLikedByCurrentUser == rhs.isLikedByCurrentUser
+   23|      0|    }
+   24|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Scenes/Home/View/ArticleDetailsViewController.swift:
+    1|       |//
+    2|       |//  ArticleDetailsViewController.swift
+    3|       |//  Legere-iOS
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/5/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |
+   11|       |final class ArticleDetailsViewController: BaseViewController {
+   12|       |    
+   13|       |    @IBOutlet weak var articleTitleLabel: UILabel!
+   14|       |    @IBOutlet weak var articleBodyTextView: UITextView!
+   15|       |    @IBOutlet weak var peopleLikedThisLabel: UILabel!
+   16|       |    
+   17|       |    @IBOutlet weak var peopleBarView: UIView!
+   18|       |    @IBOutlet weak var peopleBarRoundView: UIView!
+   19|       |    @IBOutlet weak var includingYouBarRoundView: UIView!
+   20|       |    @IBOutlet weak var includingYouView: UIView!
+   21|       |    @IBOutlet weak var socialViewStackView: UIStackView!
+   22|       |    @IBOutlet weak var isLovedImageView: UIImageView!
+   23|       |    
+   24|       |    var viewModel: HomeViewModel!
+   25|       |    var articleDetails: ArticleDetails!
+   26|       |    
+   27|      0|    override func viewDidLoad() {
+   28|      0|        super.viewDidLoad()
+   29|      0|        setupHero()
+   30|      0|        self.configureViewFromModel()
+   31|      0|    }
+   32|       |    
+   33|      0|    override func viewDidAppear(_ animated: Bool) {
+   34|      0|        super.viewDidAppear(animated)
+   35|      0|    }
+   36|       |    
+   37|      0|    override func initialize() {
+   38|      0|        super.initialize()
+   39|      0|        peopleBarRoundView.layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMinXMaxYCorner]
+   40|      0|        includingYouBarRoundView.layer.maskedCorners = [.layerMaxXMaxYCorner, .layerMinXMaxYCorner]
+   41|      0|        socialViewStackView.subviews.enumerated().forEach { (arg) in
+   42|      0|            let (index, view) = arg
+   43|      0|            view.layer.zPosition = 3 - CGFloat(index)
+   44|      0|        }
+   45|      0|        
+   46|      0|        guard let articleId = articleDetails.article?.id else { return }
+   47|      0|        didRead(articleId: articleId)
+   48|      0|    }
+   49|       |    
+   50|       |    func setupHero() {
+   51|       |        self.hero.isEnabled = true
+   52|       |        self.view.hero.id = "ironMan"
+   53|       |    }
+   54|       |    
+   55|       |    func configureViewFromModel() {
+   56|       |        guard let article = articleDetails.article else { return }
+   57|       |        articleTitleLabel?.text = article.title
+   58|       |        articleBodyTextView?.text = article.details
+   59|       |        isLovedImageView?.image = (articleDetails.isLikedByCurrentUser == true) ? #imageLiteral(resourceName: "ic_love") : #imageLiteral(resourceName: "ic_love_unselected")
+   60|       |        let numberOfLikes = article.numberOfLikes
+   61|       |        peopleLikedThisLabel?.text = "\(numberOfLikes) People Liked This"
+   62|       |        
+   63|       |        peopleBarView?.isHidden = numberOfLikes < 1
+   64|       |        includingYouView?.isHidden = articleDetails.isLikedByCurrentUser != true
+   65|       |    }
+   66|       |    
+   67|      0|    override func bind() {
+   68|      0|        if let articleId = articleDetails.article?.id {
+   69|      0|            viewModel.getArticleDetails(articleId)
+   70|      0|        }
+   71|      0|        viewModel.articleDetails
+   72|      0|            .distinctUntilChanged()
+   73|      0|            .subscribe(onNext: { [weak self] articleDetails in
+   74|      0|                guard let self = self, articleDetails.article != nil else { return }
+   75|      0|                self.articleDetails = articleDetails
+   76|      0|                self.configureViewFromModel()
+   77|      0|            }).disposed(by: disposeBag)
+   78|      0|    }
+   79|       |    
+   80|      0|    @IBAction func dismissButtonTapped(_ sender: Any) {
+   81|      0|        router.dismiss()
+   82|      0|    }
+   83|       |    
+   84|      0|    @IBAction func loveButtonTapped(_ sender: Any) {
+   85|      0|        guard let articleId = articleDetails.article?.id else { return }
+   86|      0|        viewModel.didLike(articleId)
+   87|      0|    }
+   88|       |    
+   89|       |    fileprivate func didRead(articleId: Int) {
+   90|       |        viewModel.didRead(articleId)
+   91|       |    }
+   92|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Scenes/Home/View/HomeViewController.swift:
+    1|       |//
+    2|       |//  HomeViewController.swift
+    3|       |//  Legere
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/3/19.
+    6|       |//  Copyright (c) 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |import Hero
+   11|       |import SwifterSwift
+   12|       |
+   13|       |final class HomeViewController: BaseViewController
+   14|       |{
+   15|       |    @IBOutlet weak var feedCollectionView: UICollectionView!
+   16|       |    
+   17|       |    var viewModel: HomeViewModel!
+   18|       |    var articles: Articles = []
+   19|       |    
+   20|       |    
+   21|       |    var refresher: UIRefreshControl?
+   22|       |    
+   23|       |    override func viewDidLoad()
+   24|      0|    {
+   25|      0|        super.viewDidLoad()
+   26|      0|        self.hero.isEnabled = true
+   27|      0|        setupNavbar()
+   28|      0|        setupCollectionView()
+   29|      0|        setupPullToRefresh()
+   30|      0|    }
+   31|       |    
+   32|       |    private func setupNavbar() {
+   33|       |        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
+   34|       |        self.navigationController?.navigationBar.shadowImage = UIImage()
+   35|       |    }
+   36|       |    
+   37|       |    private func setupCollectionView() {
+   38|       |        self.feedCollectionView.delegate = self
+   39|       |        self.feedCollectionView.dataSource = self
+   40|       |        self.feedCollectionView.register(nib: UINib(nibName: "\(ArticleSearchbarView.self)", bundle: nil), forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withClass: ArticleSearchbarView.self)
+   41|       |        let layout = feedCollectionView.collectionViewLayout as? UICollectionViewFlowLayout
+   42|       |        layout?.sectionHeadersPinToVisibleBounds = true
+   43|       |        self.feedCollectionView.register(nibWithCellClass: ArticleCollectionViewCell.self)
+   44|       |    }
+   45|       |    
+   46|       |    private func setupPullToRefresh() {
+   47|       |        self.refresher = UIRefreshControl()
+   48|       |        self.feedCollectionView.alwaysBounceVertical = true
+   49|       |        self.refresher?.tintColor = UIColor.black
+   50|       |        self.refresher?.addTarget(self, action: #selector(refreshArticles), for: .valueChanged)
+   51|       |        self.feedCollectionView.addSubview(refresher!)
+   52|       |    }
+   53|       |    
+   54|      0|    override func initialize() {
+   55|      0|        super.initialize()
+   56|      0|        viewModel.getAllArticles()
+   57|      0|    }
+   58|       |    
+   59|      0|    override func bind() {
+   60|      0|        super.bind()
+   61|      0|        viewModel = HomeViewModel(cache: cache, router: router, network: network)
+   62|      0|        viewModel.articles
+   63|      0|            .distinctUntilChanged()
+   64|      0|            .subscribe(onNext: { [weak self] articles in
+   65|      0|                guard let self = self else { return }
+   66|      0|                self.articles = articles
+   67|      0|                self.feedCollectionView.reloadData()
+   68|      0|                self.refresher?.endRefreshing()
+   69|      0|            }).disposed(by: disposeBag)
+   70|      0|    }
+   71|       |    
+   72|      0|    @objc private func refreshArticles() {
+   73|      0|        viewModel.getAllArticles()
+   74|      0|    }
+   75|       |}
+   76|       |
+   77|       |extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+   78|       |    
+   79|      0|    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+   80|      0|        let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withClass: ArticleSearchbarView.self, for: indexPath)
+   81|      0|        return headerView
+   82|      0|    }
+   83|       |    
+   84|      0|    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+   85|      0|        return CGSize(width: self.view.width - 50, height: 100)
+   86|      0|    }
+   87|       |    
+   88|      0|    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+   89|      0|        return articles.count
+   90|      0|    }
+   91|       |    
+   92|      0|    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+   93|      0|        let cell = collectionView.dequeueReusableCell(withClass: ArticleCollectionViewCell.self, for: indexPath)
+   94|      0|        cell.article = articles[indexPath.row]
+   95|      0|        cell.hero.id = "ironMan"
+   96|      0|        return cell
+   97|      0|    }
+   98|       |    
+   99|      0|    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+  100|      0|        let vc = ArticleDetailsViewController.instantiate(fromAppStoryboard: .Home)
+  101|      0|        vc.viewModel = self.viewModel
+  102|      0|        vc.articleDetails = ArticleDetails(article: self.articles[indexPath.row])
+  103|      0|        router.present(view: vc)
+  104|      0|    }
+  105|       |}
+  106|       |
+  107|       |extension HomeViewController: UICollectionViewDelegateFlowLayout {
+  108|      0|    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+  109|      0|        let article = articles[indexPath.row]
+  110|      0|        let width: CGFloat = self.view.width - 50
+  111|      0|        let actualHeight = article.details?.height(withConstrainedWidth: width, font: .systemFont(ofSize: 17, weight: .light)) ?? 0.0
+  112|      0|        let height: CGFloat = (actualHeight <= 300) ? actualHeight : 300
+  113|      0|        return CGSize(width: width, height: height + 169 + 40)
+  114|      0|    }
+  115|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Scenes/Welcome/AuthenticationViewController.swift:
+    1|       |//
+    2|       |//  AuthenticationViewController.swift
+    3|       |//  Legere-iOS
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/4/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |import SwiftEntryKit
+   11|       |import SimpleTwoWayBinding
+   12|       |
+   13|       |final class AuthenticationViewController: BaseViewController {
+   14|       |    
+   15|       |    @IBOutlet weak var loginRoundView: UIView!
+   16|       |    @IBOutlet weak var registerRoundView: UIView!
+   17|       |    
+   18|       |    let loginFormView = LoginFormView()
+   19|       |    let registerFormView = RegisterFormView()
+   20|       |    
+   21|       |    var loginViewModel: LoginViewModel!
+   22|       |    var registerViewModel: RegisterViewModel!
+   23|       |    
+   24|      1|    override func viewDidAppear(_ animated: Bool) {
+   25|      1|        super.viewDidAppear(animated)
+   26|      1|        animateComponents()
+   27|      1|    }
+   28|       |    
+   29|      1|    override func initialize() {
+   30|      1|        super.initialize()
+   31|      1|        loginRoundView.cornerRadius = loginRoundView.height / 2
+   32|      1|        registerRoundView.cornerRadius = registerRoundView.height / 2
+   33|      1|        prepareComponentsForAnimation()
+   34|      1|    }
+   35|       |    
+   36|      1|    fileprivate func bindLoginFlow() {
+   37|      1|        loginViewModel = LoginViewModel(cache: cache, router: router, network: network)
+   38|      1|        loginFormView.usernameTextField.textfield.bind(with: loginViewModel.username)
+   39|      1|        loginFormView.passwordTextfield.textfield.bind(with: loginViewModel.password)
+   40|      1|        
+   41|      1|        loginFormView.loginAction = { [weak self] in
+   42|      0|            guard let self = self else { return }
+   43|      0|            self.loginViewModel.login()
+   44|      0|        }
+   45|      1|    }
+   46|       |    
+   47|      1|    fileprivate func bindRegisterFlow() {
+   48|      1|        registerViewModel = RegisterViewModel(cache: cache, router: router, network: network)
+   49|      1|        registerFormView.usernameTextField.textfield.bind(with: registerViewModel.username)
+   50|      1|        registerFormView.nameTextField.textfield.bind(with: registerViewModel.name)
+   51|      1|        registerFormView.passwordTextfield.textfield.bind(with: registerViewModel.password)
+   52|      1|        registerFormView.confirmPasswordTextfield.textfield.bind(with: registerViewModel.confirmPassword)
+   53|      1|        
+   54|      1|        registerFormView.registerAction = { [weak self] in
+   55|      0|            guard let self = self else { return }
+   56|      0|            self.registerViewModel.register()
+   57|      0|        }
+   58|      1|    }
+   59|       |    
+   60|      1|    override func bind() {
+   61|      1|        super.bind()
+   62|      1|        bindLoginFlow()
+   63|      1|        bindRegisterFlow()
+   64|      1|    }
+   65|       |    
+   66|      0|    @IBAction func didTapLogin(_ sender: Any) {
+   67|      0|        SwiftEntryKit.display(entry: loginFormView, using: configurePopupAttributes(
+   68|      0|            backgroundStyle: .regular,
+   69|      0|            animationStartPosition: .top,
+   70|      0|            animationEndPosition: .bottom,
+   71|      0|            shadow: .init(color: .black, opacity: 0.16, radius: 12, offset: .zero)))
+   72|      0|    }
+   73|       |    
+   74|      0|    @IBAction func didTapRegister(_ sender: Any) {
+   75|      0|        let attributes = configurePopupAttributes(
+   76|      0|            backgroundStyle: .dark,
+   77|      0|            animationStartPosition: .bottom,
+   78|      0|            animationEndPosition: .top,
+   79|      0|            shadow: .init(color: .black, opacity: 1, radius: 20, offset: .zero))
+   80|      0|        
+   81|      0|        SwiftEntryKit.display(entry: registerFormView, using: attributes)
+   82|      0|    }
+   83|       |}
+   84|       |
+   85|       |
+   86|       |// MARK : - Popup Configurations
+   87|       |extension AuthenticationViewController {
+   88|       |    private func configurePopupAttributes(backgroundStyle: UIBlurEffect.Style, animationStartPosition: EKAttributes.Animation.Translate.AnchorPosition, animationEndPosition: EKAttributes.Animation.Translate.AnchorPosition, shadow: EKAttributes.Shadow.Value) -> EKAttributes {
+   89|       |        var attributes = EKAttributes()
+   90|       |        
+   91|       |        attributes.position = .center
+   92|       |        
+   93|       |        attributes.displayDuration = .infinity
+   94|       |        
+   95|       |        attributes.entryBackground = EKAttributes.BackgroundStyle.visualEffect(style: backgroundStyle)
+   96|       |        
+   97|       |        attributes.screenBackground = EKAttributes.BackgroundStyle.visualEffect(style: backgroundStyle)
+   98|       |        
+   99|       |        attributes.shadow = .active(with: shadow)
+  100|       |        
+  101|       |        attributes.roundCorners = .all(radius: 32)
+  102|       |        
+  103|       |        attributes.positionConstraints.maxSize = .init(width: .constant(value: UIScreen.main.bounds.width - 50), height: .intrinsic)
+  104|       |        
+  105|       |        attributes.entryInteraction = .absorbTouches
+  106|       |        
+  107|       |        attributes.screenInteraction = .absorbTouches
+  108|       |        
+  109|       |        attributes.entranceAnimation = .init(
+  110|       |            translate: .init(duration: 0.7, anchorPosition: animationStartPosition, spring: .init(damping: 1, initialVelocity: 0)),
+  111|       |            scale: .init(from: 0.6, to: 1, duration: 0.7),
+  112|       |            fade: .init(from: 0.8, to: 1, duration: 0.3))
+  113|       |        
+  114|       |        attributes.exitAnimation = .init(translate: .init(duration: 0.7, anchorPosition: animationEndPosition, spring: .init(damping: 1, initialVelocity: 0)), scale: nil, fade: nil)
+  115|       |        
+  116|       |        let offset = EKAttributes.PositionConstraints.KeyboardRelation.Offset(bottom: 10, screenEdgeResistance: 20)
+  117|       |        let keyboardRelation = EKAttributes.PositionConstraints.KeyboardRelation.bind(offset: offset)
+  118|       |        attributes.positionConstraints.keyboardRelation = keyboardRelation
+  119|       |        
+  120|       |        attributes.scroll = .enabled(swipeable: true, pullbackAnimation: .jolt)
+  121|       |        
+  122|       |        return attributes
+  123|       |    }
+  124|       |}
+  125|       |
+  126|       |// MARK: - Animations Logic
+  127|       |extension AuthenticationViewController {
+  128|       |    fileprivate func animateComponents() {
+  129|      1|        UIView.animate(withDuration: 1.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
+  130|      1|            self.loginRoundView.transform = .identity
+  131|      1|        }, completion: nil)
+  132|       |        
+  133|      1|        UIView.animate(withDuration: 1.8, delay: 0.2, usingSpringWithDamping: 0.25, initialSpringVelocity: 0.75, options: .curveEaseOut, animations: {
+  134|      1|            self.registerRoundView.transform = .identity
+  135|      1|        }, completion: nil)
+  136|       |        
+  137|      1|        UIView.animate(withDuration: 0.375) {
+  138|      1|            self.loginRoundView.alpha = 1
+  139|      1|        }
+  140|       |        
+  141|      1|        UIView.animate(withDuration: 0.5, delay: 0.2, animations: {
+  142|      1|            self.registerRoundView.alpha = 1
+  143|      1|        })
+  144|       |    }
+  145|       |    
+  146|       |    fileprivate func prepareComponentsForAnimation() {
+  147|       |        loginRoundView.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
+  148|       |        loginRoundView.alpha = 0
+  149|       |        
+  150|       |        registerRoundView.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
+  151|       |        registerRoundView.alpha = 0
+  152|       |    }
+  153|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Scenes/Welcome/Custom Views/Login/LoginFormView.swift:
+    1|       |//
+    2|       |//  LoginFormView.swift
+    3|       |//  Legere-iOS
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/4/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |
+   11|       |final class LoginFormView: BaseCustomView {
+   12|       |    @IBOutlet weak var usernameTextField: LETextField!
+   13|       |    @IBOutlet weak var passwordTextfield: LETextField!
+   14|       |    
+   15|       |    var loginAction: (() -> Void)?
+   16|       |    
+   17|      0|    override func awakeFromNib() {
+   18|      0|        super.awakeFromNib()
+   19|      0|        usernameTextField.textfield.placeholder = "Username"
+   20|      0|        passwordTextfield.textfield.placeholder = "Password"
+   21|      0|        passwordTextfield.textfield.isSecureTextEntry = true
+   22|      0|    }
+   23|       |    
+   24|      0|    @IBAction func login(_ sender: Any) {
+   25|      0|        loginAction?()
+   26|      0|        endEditing(true)
+   27|      0|    }
+   28|       |    
+   29|      1|    init() {
+   30|      1|        super.init(frame: CGRect(origin: .zero, size: CGSize(width: UIScreen.main.bounds.width - 50, height: 50)))
+   31|      1|        usernameTextField.textfield.placeholder = "Username"
+   32|      1|        passwordTextfield.textfield.placeholder = "Password"
+   33|      1|        passwordTextfield.textfield.isSecureTextEntry = true
+   34|      1|    }
+   35|       |    
+   36|      0|    required init?(coder aDecoder: NSCoder) {
+   37|      0|        super.init(coder: aDecoder)
+   38|      0|    }
+   39|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Scenes/Welcome/Custom Views/Register/RegisterFormView.swift:
+    1|       |//
+    2|       |//  RegisterFormView.swift
+    3|       |//  Legere-iOS
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/4/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |
+   11|       |final class RegisterFormView: BaseCustomView {
+   12|       |    @IBOutlet weak var usernameTextField: LETextField!
+   13|       |    @IBOutlet weak var nameTextField: LETextField!
+   14|       |    @IBOutlet weak var passwordTextfield: LETextField!
+   15|       |    @IBOutlet weak var confirmPasswordTextfield: LETextField!
+   16|       |    
+   17|       |    var registerAction: (() -> Void)?
+   18|       |    
+   19|      0|    @IBAction func register(_ sender: Any) {
+   20|      0|        registerAction?()
+   21|      0|        endEditing(true)
+   22|      0|    }
+   23|       |    
+   24|      0|    override func awakeFromNib() {
+   25|      0|        super.awakeFromNib()
+   26|      0|        usernameTextField.textfield.placeholder = "Username"
+   27|      0|        nameTextField.textfield.placeholder = "Name"
+   28|      0|        passwordTextfield.textfield.placeholder = "Password"
+   29|      0|        confirmPasswordTextfield.textfield.placeholder = "Confirm Password"
+   30|      0|        passwordTextfield.textfield.isSecureTextEntry = true
+   31|      0|        confirmPasswordTextfield.textfield.isSecureTextEntry = true
+   32|      0|    }
+   33|       |    
+   34|      1|    init() {
+   35|      1|        super.init(frame: CGRect(origin: .zero, size: CGSize(width: UIScreen.main.bounds.width - 50, height: 50)))
+   36|      1|        usernameTextField.textfield.placeholder = "Username"
+   37|      1|        nameTextField.textfield.placeholder = "Name"
+   38|      1|        passwordTextfield.textfield.placeholder = "Password"
+   39|      1|        confirmPasswordTextfield.textfield.placeholder = "Confirm Password"
+   40|      1|        passwordTextfield.textfield.isSecureTextEntry = true
+   41|      1|        confirmPasswordTextfield.textfield.isSecureTextEntry = true
+   42|      1|    }
+   43|       |    
+   44|      0|    required init?(coder aDecoder: NSCoder) {
+   45|      0|        super.init(coder: aDecoder)
+   46|      0|    }
+   47|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Scenes/Welcome/Login/LoginInteractor.swift:
+    1|       |//
+    2|       |//  LoginInteractor.swift
+    3|       |//  Legere-iOS
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/4/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import Foundation
+   10|       |import Promises
+   11|       |
+   12|       |final class LoginInteractor: BaseInteractor {
+   13|       |    var username: String?
+   14|       |    var password: String?
+   15|       |    
+   16|     16|    init(username: String?, password: String?, base: BaseInteractor) {
+   17|     16|        super.init(network: base.network, cache: base.cache)
+   18|     16|        self.username = username
+   19|     16|        self.password = password
+   20|     16|    }
+   21|       |    
+   22|     16|    override func validate() throws {
+   23|     16|        try super.validate()
+   24|     16|        try NotEmpty(value: username, key: .usernameField).orThrow()
+   25|     16|        try NotEmpty(value: password, key: .passwordField).orThrow()
+   26|     16|        try IsValidUsername(value: username).orThrow()
+   27|     16|        try IsValidPassword(value: password).orThrow()
+   28|     16|    }
+   29|       |    
+   30|     11|    override func process<T>(_ model: T.Type) -> Promise<T> where T : Decodable, T : Encodable {
+   31|     11|        return network.callModel(model: model, api: AuthenticationService.login(username: username!, password: password!))
+   32|     11|    }
+   33|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Scenes/Welcome/Login/LoginViewModel.swift:
+    1|       |//
+    2|       |//  LoginViewModel.swift
+    3|       |//  Legere-iOS
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/4/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import Foundation
+   10|       |import SimpleTwoWayBinding
+   11|       |import SwiftEntryKit
+   12|       |
+   13|       |final class LoginViewModel: BaseViewModel {
+   14|       |    var username: Observable<String> = Observable()
+   15|       |    var password: Observable<String> = Observable()
+   16|       |    
+   17|     16|    func login() {
+   18|     16|        LoginInteractor(username: username.value, password: password.value, base: baseInteractor).execute(Token.self).then { [weak self] (token) in
+   19|     11|            guard let self = self else { return }
+   20|     11|            self.cache.saveObject(token, key: .token)
+   21|     11|            SwiftEntryKit.dismiss()
+   22|     11|            guard let tabBar = AppStoryboard.Home.initialViewController() as? UITabBarController else { fatalError() }
+   23|     11|            self.router.present(view: tabBar)
+   24|     11|            }.catch(handleError)
+   25|     16|    }
+   26|       |}
+   27|       |
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Scenes/Welcome/Models/Token.swift:
+    1|       |//
+    2|       |//  Token.swift
+    3|       |//  Legere-iOS
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/5/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import Foundation
+   10|       |
+   11|       |struct Token: Codable {
+   12|       |    let id: String?
+   13|       |    let token: String?
+   14|       |    let userID: String?
+   15|       |    
+   16|      2|    init(id: String?, token: String?, userID: String?) {
+   17|      2|        self.id = id
+   18|      2|        self.token = token
+   19|      2|        self.userID = userID
+   20|      2|    }
+   21|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Scenes/Welcome/Models/User.swift:
+    1|       |//
+    2|       |//  User.swift
+    3|       |//  Legere-iOS
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/4/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import Foundation
+   10|       |
+   11|       |struct User: Codable {
+   12|       |    var id: UUID?
+   13|       |    var name: String?
+   14|       |    var username: String?
+   15|       |    
+   16|      1|    init(id: UUID?, name: String, username: String) {
+   17|      1|        self.id = id
+   18|      1|        self.name = name
+   19|      1|        self.username = username
+   20|      1|    }
+   21|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Scenes/Welcome/Register/RegisterInteractor.swift:
+    1|       |//
+    2|       |//  RegisterInteractor.swift
+    3|       |//  Legere-iOS
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/4/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import Foundation
+   10|       |import Promises
+   11|       |
+   12|       |final class RegisterInteractor: BaseInteractor {
+   13|       |    var name: String?
+   14|       |    var username: String?
+   15|       |    var password: String?
+   16|       |    var confirmPassword: String?
+   17|       |    
+   18|     21|    init(name: String?, username: String?, password: String?, confirmPassword: String?, base: BaseInteractor) {
+   19|     21|        super.init(network: base.network, cache: base.cache)
+   20|     21|        self.name = name
+   21|     21|        self.username = username
+   22|     21|        self.password = password
+   23|     21|        self.confirmPassword = confirmPassword
+   24|     21|    }
+   25|       |    
+   26|     21|    override func validate() throws {
+   27|     21|        try super.validate()
+   28|     21|        try NotEmpty(value: username, key: .usernameField).orThrow()
+   29|     21|        try NotEmpty(value: name, key: .nameField).orThrow()
+   30|     21|        try NotEmpty(value: password, key: .passwordField).orThrow()
+   31|     21|        try NotEmpty(value: confirmPassword, key: .confirmPasswordField).orThrow()
+   32|     21|        try IsValidName(value: name).orThrow()
+   33|     21|        try IsValidUsername(value: username).orThrow()
+   34|     21|        try IsValidPassword(value: password, confirmValue: confirmPassword).orThrow()
+   35|     21|    }
+   36|       |    
+   37|     11|    override func process<T>(_ model: T.Type) -> Promise<T> where T : Decodable, T : Encodable {
+   38|     11|        return network.callModel(model: model, api: AuthenticationService.register(name: name ?? "", username: username ?? "", password: password ?? ""))
+   39|     11|    }
+   40|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Scenes/Welcome/Register/RegisterViewModel.swift:
+    1|       |//
+    2|       |//  RegisterViewModel.swift
+    3|       |//  Legere-iOS
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/4/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import Foundation
+   10|       |import SimpleTwoWayBinding
+   11|       |
+   12|       |final class RegisterViewModel: BaseViewModel {
+   13|       |    var username: Observable<String> = Observable()
+   14|       |    var name: Observable<String> = Observable()
+   15|       |    var password: Observable<String> = Observable()
+   16|       |    var confirmPassword: Observable<String> = Observable()
+   17|       |    
+   18|     21|    func register() {
+   19|     21|        RegisterInteractor(name: name.value, username: username.value, password: password.value, confirmPassword: confirmPassword.value, base: baseInteractor).execute(User.self).then { [weak self] (user) in
+   20|      1|            guard let self = self else { return }
+   21|      1|            self.cache.saveObject(user, key: .user)
+   22|      1|            (self.router.presentedView as? AuthenticationViewController)?.didTapLogin(UIButton())
+   23|      1|            }.catch(handleError)
+   24|     21|    }
+   25|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Shared/Base/BaseInteractor.swift:
+    1|       |//
+    2|       |//  BaseInteractor.swift
+    3|       |//  Legere-iOS
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/4/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import Foundation
+   10|       |import Promises
+   11|       |
+   12|       |class BaseInteractor {
+   13|       |    var cache: CacheProtocol
+   14|       |    var network: NetworkProtocol
+   15|       |    
+   16|     66|    init(network: NetworkProtocol, cache: CacheProtocol) {
+   17|     66|        self.cache = cache
+   18|     66|        self.network = network
+   19|     66|    }
+   20|       |    
+   21|     37|    func execute<T: Codable>(_ model: T.Type) -> Promise<T> {
+   22|     37|        do {
+   23|     37|            extract()
+   24|     37|            try validate()
+   25|     37|            return process(model)
+   26|     37|        } catch let error {
+   27|     15|            return Promise<T>.init(error)
+   28|     15|        }
+   29|      0|    }
+   30|       |    
+   31|     40|    func validate() throws {
+   32|     40|        try ToSeeIfIsReachable().orThrow()
+   33|     40|    }
+   34|     37|    func extract() {}
+   35|       |    
+   36|      0|    func process<T: Codable>(_ model: T.Type) -> Promise<T> {
+   37|      0|        return Promise<T>.init(NSError(domain: "Error", code: 100, userInfo: nil))
+   38|      0|    }
+   39|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Shared/Base/BaseViewController.swift:
+    1|       |//
+    2|       |//  BaseViewController.swift
+    3|       |//  Legere-iOS
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/4/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |import RxSwift
+   11|       |
+   12|       |class BaseViewController: UIViewController {
+   13|       |    
+   14|       |    var cache: CacheProtocol = UserDefaultsManager()
+   15|       |    var network: NetworkProtocol = MoyaManager()
+   16|       |    var router: RouterProtocol = Router()
+   17|       |    
+   18|       |    let disposeBag = DisposeBag()
+   19|       |    
+   20|      1|    override func viewWillAppear(_ animated: Bool) {
+   21|      1|        super.viewWillAppear(animated)
+   22|      1|        initialize()
+   23|      1|    }
+   24|       |    
+   25|      1|    override func viewDidLoad() {
+   26|      1|        super.viewDidLoad()
+   27|      1|        router.presentedView = self
+   28|      1|        bind()
+   29|      1|    }
+   30|       |    
+   31|      1|    func initialize() {}
+   32|      1|    func bind() {}
+   33|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Shared/Base/BaseViewModel.swift:
+    1|       |//
+    2|       |//  BaseViewModel.swift
+    3|       |//  Legere-iOS
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/4/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import Foundation
+   10|       |
+   11|       |class BaseViewModel {
+   12|       |    var router: RouterProtocol
+   13|       |    var cache: CacheProtocol
+   14|       |    
+   15|       |    var baseInteractor: BaseInteractor
+   16|       |    
+   17|     26|    init(cache: CacheProtocol, router: RouterProtocol, network: NetworkProtocol) {
+   18|     26|        self.cache = cache
+   19|     26|        self.router = router
+   20|     26|        self.baseInteractor = BaseInteractor(network: network, cache: cache)
+   21|     26|    }
+   22|       |    
+   23|     25|    func handleError(error: Error) {
+   24|     25|        router.toastError(title: "Error", message: error.localizedDescription)
+   25|     25|    }
+   26|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Shared/Externals/Cache/UserDefaults.swift:
+    1|       |//
+    2|       |//  UserDefaults.swift
+    3|       |//
+    4|       |//  Created by Ahmed Meguid on 12/4/18.
+    5|       |//  Copyright © 2018 Ahmed Meguid. All rights reserved.
+    6|       |//
+    7|       |
+    8|       |import Foundation
+    9|       |
+   10|       |final class UserDefaultsManager: CacheProtocol {
+   11|       |    
+   12|      0|    static func getObject<T>(_ object: T.Type, key: CachingKey) -> T? where T : Decodable, T : Encodable {
+   13|      0|        return getData(key: key)?[0].decode(object)
+   14|      0|    }
+   15|       |    
+   16|       |    static func getData(key: CachingKey) -> [Data]? {
+   17|      0|        return UserDefaults.standard.data(forKey: key.rawValue).map({[$0]})
+   18|       |    }
+   19|       |    
+   20|      0|    func getObject<T>(_ object: T.Type, key: CachingKey) -> T? where T : Decodable, T : Encodable {
+   21|      0|        return getData(key: key)?[0].decode(object)
+   22|      0|    }
+   23|       |    
+   24|      0|    func saveObject<T>(_ object: T, key: CachingKey) where T : Decodable, T : Encodable {
+   25|      0|        saveData(object.encode(), key: key)
+   26|      0|    }
+   27|       |    
+   28|       |    
+   29|       |    func getData(key: CachingKey) -> [Data]? {
+   30|      0|        return UserDefaults.standard.data(forKey: key.rawValue).map({[$0]})
+   31|       |    }
+   32|       |    
+   33|       |    func saveData(_ data: Data?, key: CachingKey) {
+   34|       |        UserDefaults.standard.set(data, forKey: key.rawValue)
+   35|       |        UserDefaults.standard.synchronize()
+   36|       |    }
+   37|       |    
+   38|      0|    func removeObject(key: CachingKey) {
+   39|      0|        UserDefaults.standard.removeObject(forKey: key.rawValue)
+   40|      0|        UserDefaults.standard.synchronize()
+   41|      0|    }
+   42|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Shared/Externals/Network/MoyaManager.swift:
+    1|       |//
+    2|       |//  MoyaManager.swift
+    3|       |//  Legere-iOS
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/4/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import Foundation
+   10|       |import Moya
+   11|       |import Promises
+   12|       |
+   13|       |class MoyaManager: NetworkProtocol {
+   14|       |    static var ongoingRequests = [Cancellable]()
+   15|       |    
+   16|      0|    func callModel<T, U>(model: T.Type, api: U) -> Promise<T> where T : Decodable, T : Encodable, U : BaseTargetType {
+   17|      0|        return Promise<T> { fullfil, reject in
+   18|      0|            let provider = MoyaProvider<U>()
+   19|      0|            provider.request(api) { (result) in
+   20|      0|                switch result {
+   21|      0|                case .success(let response):
+   22|      0|                    do {
+   23|      0|                        if let error = try? response.map(NetworkErrorResponse.self), error.reason != nil {
+   24|      0|                            reject(error.handleError(from: response.statusCode))
+   25|      0|                        }
+   26|      0|                        let model = try response.map(T.self)
+   27|      0|                        fullfil(model)
+   28|      0|                    } catch let error {
+   29|      0|                        reject(error)
+   30|      0|                    }
+   31|      0|                case .failure(let error):
+   32|      0|                    reject(error)
+   33|      0|                }
+   34|      0|            }
+   35|      0|        }
+   36|      0|    }
+   37|       |}
+   38|       |
+   39|       |enum NetworkError: Error {
+   40|       |    case networkFail(error: String)
+   41|       |    case notAuthorized
+   42|       |    case notFound
+   43|       |    
+   44|      0|    var message: String {
+   45|      0|        switch self {
+   46|      0|        case .networkFail(error: let reason):
+   47|      0|            return "Request Failed due to \(reason)"
+   48|      0|        case .notAuthorized:
+   49|      0|            return "Not Authorized? hmm, Interesting 🧐"
+   50|      0|        case .notFound:
+   51|      0|            return "Nope, Nothing, Sorry 😅"
+   52|      0|        }
+   53|      0|    }
+   54|       |}
+   55|       |
+   56|       |extension NetworkError: LocalizedError {
+   57|       |    
+   58|       |}
+   59|       |
+   60|       |struct NetworkErrorResponse: Codable {
+   61|       |    let error: Bool?
+   62|       |    let reason: String?
+   63|       |    
+   64|       |    func handleError(from code: Int) -> NetworkError {
+   65|       |        switch code {
+   66|       |        case 401:
+   67|       |            return .notAuthorized
+   68|       |        case 404:
+   69|       |            return .notFound
+   70|       |        default:
+   71|      0|            return .networkFail(error: self.reason ?? "Something went wrong, try again maybe?")
+   72|       |        }
+   73|       |    }
+   74|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Shared/Externals/Router/Router.swift:
+    1|       |//
+    2|       |//  Router.swift
+    3|       |//
+    4|       |//  Created by Ahmed Meguid on 12/5/18.
+    5|       |//  Copyright © 2018 Ahmed Meguid. All rights reserved.
+    6|       |//
+    7|       |
+    8|       |import UIKit
+    9|       |import SwiftMessages
+   10|       |
+   11|       |class Router: RouterProtocol {
+   12|       |    
+   13|       |    var presentedView: BaseViewController!
+   14|       |    
+   15|      0|    func present(view: UIViewController) {
+   16|      0|        presentedView.present(view, animated: true, completion: nil)
+   17|      0|    }
+   18|       |    
+   19|      0|    func startActivityIndicator() { }
+   20|       |    
+   21|      0|    func stopActivityIndicator() { }
+   22|       |    
+   23|      0|    func dismiss() {
+   24|      0|        presentedView.dismiss(animated: true, completion: nil)
+   25|      0|    }
+   26|       |    
+   27|      0|    func pop() {
+   28|      0|        _ = presentedView.navigationController?.popViewController(animated: true)
+   29|      0|    }
+   30|       |    
+   31|      0|    func segue(storyboard: AppStoryboard, vc: UIViewController.Type) {
+   32|      0|        presentedView
+   33|      0|            .navigationController?
+   34|      0|            .pushViewController(storyboard.viewController(viewControllerClass: vc))
+   35|      0|    }
+   36|       |    
+   37|      0|    func alert(title: String, message: String, actions: [(title: String, style: UIAlertAction.Style)]) {
+   38|      0|        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+   39|      0|        actions.map({UIAlertAction(title: $0.title, style: $0.style, handler: nil)}).forEach({alert.addAction($0)})
+   40|      0|        presentedView.present(alert, animated: true)
+   41|      0|    }
+   42|       |    
+   43|      0|    func toastError(title: String, message: String) {
+   44|      0|        let view = MessageView.viewFromNib(layout: .messageView)
+   45|      0|        view.configureTheme(.info)
+   46|      0|        view.configureContent(title: title, body: message, iconImage: #imageLiteral(resourceName: "ic_alert_dark"))
+   47|      0|        view.configureDropShadow()
+   48|      0|        view.button?.isHidden = true
+   49|      0|        
+   50|      0|        var config = SwiftMessages.Config()
+   51|      0|        config.presentationStyle = .top
+   52|      0|        config.presentationContext = .window(windowLevel: .statusBar)
+   53|      0|        config.duration = .seconds(seconds: 3)
+   54|      0|        config.interactiveHide = true
+   55|      0|        
+   56|      0|        
+   57|      0|        SwiftMessages.show(config: config, view: view)
+   58|      0|    }
+   59|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Shared/Helpers/Codable+Helpers.swift:
+    1|       |//
+    2|       |//  Codable+Helpers.swift
+    3|       |//
+    4|       |//  Created by Ahmed Meguid on 12/5/18.
+    5|       |//  Copyright © 2018 Ahmed Meguid. All rights reserved.
+    6|       |//
+    7|       |
+    8|       |import Foundation
+    9|       |
+   10|       |extension Encodable {
+   11|      0|    func asDictionary() -> [String: Any] {
+   12|      0|        let serialized = (try? JSONSerialization.jsonObject(with: self.encode(), options: .allowFragments)) ?? nil
+   13|      0|        return serialized as? [String: Any] ?? [String: Any]()
+   14|      0|    }
+   15|       |    
+   16|       |    func encode() -> Data {
+   17|      0|        return (try? JSONEncoder().encode(self)) ?? Data()
+   18|       |    }
+   19|       |}
+   20|       |
+   21|       |extension Data {
+   22|      0|    func decode<T: Codable>(_ object: T.Type) -> T? {
+   23|      0|        return (try? JSONDecoder().decode(T.self, from: self))
+   24|      0|    }
+   25|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Shared/Helpers/UI/Storyboard.swift:
+    1|       |//
+    2|       |//  Storyboard.swift
+    3|       |//  Legere
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/3/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import Foundation
+   10|       |import UIKit
+   11|       |
+   12|       |/// Usage
+   13|       |///
+   14|       |/// let greenScene = GreenVC.instantiate(fromAppStoryboard: .Main)
+   15|       |///
+   16|       |/// let greenScene = AppStoryboard.Main.viewController(viewControllerClass: GreenVC.self)
+   17|       |///
+   18|       |/// let greenScene = AppStoryboard.Main.instance.instantiateViewController(withIdentifier: GreenVC.storyboardID)
+   19|       |enum AppStoryboard: String {
+   20|       |    case Home
+   21|       |    case Welcome
+   22|       |    
+   23|     11|    var instance: UIStoryboard {
+   24|     11|        
+   25|     11|        return UIStoryboard(name: self.rawValue, bundle: Bundle.main)
+   26|     11|    }
+   27|       |    
+   28|       |    func viewController<T: UIViewController>(viewControllerClass: T.Type,
+   29|       |                                             function: String = #function,
+   30|       |                                             line: Int = #line,
+   31|       |                                             file: String = #file,
+   32|      0|                                             customStoryboardID: String = "") -> T {
+   33|      0|        
+   34|      0|        let storyboardID = (customStoryboardID != "") ? customStoryboardID : (viewControllerClass as UIViewController.Type).storyboardID
+   35|      0|        
+   36|      0|        guard let scene = instance.instantiateViewController(withIdentifier: storyboardID) as? T else {
+   37|      0|            
+   38|      0|            fatalError("ViewController with identifier \(storyboardID), not found in \(self.rawValue) Storyboard.\nFile : \(file) \nLine Number : \(line) \nFunction : \(function)")
+   39|      0|        }
+   40|      0|        
+   41|      0|        return scene
+   42|      0|    }
+   43|       |    
+   44|     11|    func initialViewController() -> UIViewController? {
+   45|     11|        return instance.instantiateInitialViewController()
+   46|     11|    }
+   47|       |}
+   48|       |
+   49|       |extension UIViewController {
+   50|       |    class var storyboardID: String {
+   51|       |        
+   52|       |        return "\(self)"
+   53|       |    }
+   54|       |    
+   55|      0|    static func instantiate(fromAppStoryboard appStoryboard: AppStoryboard) -> Self {
+   56|      0|        
+   57|      0|        return appStoryboard.viewController(viewControllerClass: self)
+   58|      0|    }
+   59|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Shared/Helpers/UI/StringUtils.swift:
+    1|       |//
+    2|       |//  StringUtils.swift
+    3|       |//  Legere-iOS
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/4/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |
+   11|       |extension String {
+   12|      0|    func height(withConstrainedWidth width: CGFloat, font: UIFont) -> CGFloat {
+   13|      0|        let constraintRect = CGSize(width: width, height: .greatestFiniteMagnitude)
+   14|      0|        let boundingBox = self.boundingRect(with: constraintRect, options: .usesLineFragmentOrigin, attributes: [.font: font], context: nil)
+   15|      0|        
+   16|      0|        return ceil(boundingBox.height)
+   17|      0|    }
+   18|       |    
+   19|      0|    func width(withConstrainedHeight height: CGFloat, font: UIFont) -> CGFloat {
+   20|      0|        let constraintRect = CGSize(width: .greatestFiniteMagnitude, height: height)
+   21|      0|        let boundingBox = self.boundingRect(with: constraintRect, options: .usesLineFragmentOrigin, attributes: [.font: font], context: nil)
+   22|      0|        
+   23|      0|        return ceil(boundingBox.width)
+   24|      0|    }
+   25|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Shared/Networking/Articles.swift:
+    1|       |//
+    2|       |//  ArticlesService.swift
+    3|       |//  Legere-iOS
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/4/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import Moya
+   10|       |
+   11|       |enum ArticlesService {
+   12|       |    case allArticles
+   13|       |    case articleDetails(id: Int)
+   14|       |    case didRead(articleId: Int)
+   15|       |    case didLike(articleId: Int)
+   16|       |}
+   17|       |
+   18|       |extension ArticlesService: BaseTargetType {
+   19|      0|    var path: String {
+   20|      0|        switch self {
+   21|      0|        case .allArticles:
+   22|      0|            return "/api/articles"
+   23|      0|        case .articleDetails(id: let id):
+   24|      0|            return "/api/articles/\(id)"
+   25|      0|        case .didRead(articleId: let id):
+   26|      0|            return "/api/articles/\(id)/read"
+   27|      0|        case .didLike(articleId: let id):
+   28|      0|            return "/api/articles/\(id)/like"
+   29|      0|        }
+   30|      0|    }
+   31|       |    
+   32|      0|    var method: Method {
+   33|      0|        switch self {
+   34|      0|        case .allArticles:
+   35|      0|            return .get
+   36|      0|        case .articleDetails:
+   37|      0|            return .get
+   38|      0|        case .didRead:
+   39|      0|            return .put
+   40|      0|        case .didLike:
+   41|      0|            return .put
+   42|      0|        }
+   43|      0|    }
+   44|       |    
+   45|      0|    var sampleData: Data {
+   46|      0|        return Data()
+   47|      0|    }
+   48|       |    
+   49|      0|    var task: Task {
+   50|      0|        switch self {
+   51|      0|        case .allArticles:
+   52|      0|            return .requestPlain
+   53|      0|        case .articleDetails:
+   54|      0|            return .requestPlain
+   55|      0|        case .didRead:
+   56|      0|            return .requestPlain
+   57|      0|        case .didLike:
+   58|      0|            guard let userID = UserDefaultsManager.getObject(User.self, key: .user)?.id else { fatalError() }
+   59|      0|            return .requestParameters(parameters: ["userID": userID.uuidString], encoding: JSONEncoding.default)
+   60|      0|        }
+   61|      0|    }
+   62|       |}
+   63|       |
+   64|       |struct ArticlesServiceManager {
+   65|       |    let provider = MoyaProvider<ArticlesService>(plugins: [NetworkLoggerPlugin(verbose: true)])
+   66|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Shared/Networking/Authentication.swift:
+    1|       |//
+    2|       |//  Authentication.swift
+    3|       |//  Legere-iOS
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/4/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import Moya
+   10|       |
+   11|       |enum AuthenticationService {
+   12|       |    case login(username: String, password: String)
+   13|       |    case register(name: String, username: String, password: String)
+   14|       |}
+   15|       |
+   16|       |extension AuthenticationService: BaseTargetType {
+   17|      0|    var path: String {
+   18|      0|        switch self {
+   19|      0|        case .login:
+   20|      0|            return "/api/users/login"
+   21|      0|        case .register:
+   22|      0|            return "/api/users"
+   23|      0|        }
+   24|      0|    }
+   25|       |    
+   26|      0|    var method: Method {
+   27|      0|        switch self {
+   28|      0|        default:
+   29|      0|            return .post
+   30|      0|        }
+   31|      0|    }
+   32|       |    
+   33|      0|    var headers: [String : String]? {
+   34|      0|        switch self {
+   35|      0|        case .login(username: let username, password: let password):
+   36|      0|            let loginString = "\(username):\(password)".data(using: .utf8)?.base64EncodedString() ?? ""
+   37|      0|            return ["Authorization": "Basic \(loginString)"]
+   38|      0|        default:
+   39|      0|            return ["Content-type": "application/json"]
+   40|      0|        }
+   41|      0|    }
+   42|       |    
+   43|      0|    var task: Task {
+   44|      0|        switch self {
+   45|      0|        case .register(name: let name, username: let username, password: let password):
+   46|      0|            return .requestParameters(parameters: ["name": name, "username": username, "password": password], encoding: JSONEncoding.default)
+   47|      0|        default:
+   48|      0|            return .requestPlain
+   49|      0|        }
+   50|      0|    }
+   51|       |    
+   52|       |    
+   53|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Shared/Networking/Base Service.swift:
+    1|       |//
+    2|       |//  Base Service.swift
+    3|       |//  Legere-iOS
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/4/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import Moya
+   10|       |
+   11|       |protocol BaseTargetType: TargetType { }
+   12|       |
+   13|       |extension BaseTargetType {
+   14|      0|    var baseURL: URL {
+   15|      0|        return URL(string: "http://localhost:8080")!
+   16|      0|    }
+   17|       |    
+   18|      0|    var headers: [String: String]? {
+   19|      0|        var headers: [String: String] = ["Content-type": "application/json"]
+   20|      0|        if let token = UserDefaultsManager.getObject(Token.self, key: .token)?.token {
+   21|      0|            headers["Authorization"] = "Bearer \(token)"
+   22|      0|        }
+   23|      0|        return headers
+   24|      0|    }
+   25|       |    
+   26|      0|    var sampleData: Data {
+   27|      0|        return Data()
+   28|      0|    }
+   29|       |}
+   30|       |
+   31|       |// MARK: - Helper
+   32|       |extension String {
+   33|      0|    var urlEscaped: String {
+   34|      0|        return addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
+   35|      0|    }
+   36|       |    
+   37|      0|    var utf8Encoded: Data {
+   38|      0|        return data(using: .utf8)!
+   39|      0|    }
+   40|       |}
+   41|       |
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Shared/Networking/Reachability.swift:
+    1|       |//
+    2|       |//  Reachability.swift
+    3|       |//  InstaMovies
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 12/16/18.
+    6|       |//  Copyright © 2018 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import Foundation
+   10|       |import SystemConfiguration
+   11|       |
+   12|       |public class Reachability {
+   13|       |    
+   14|       |    static var testingValue: Bool?
+   15|       |    
+   16|     40|    class func isConnectedToNetwork() -> Bool {
+   17|     40|        
+   18|     40|        if testingValue != nil { return testingValue! }
+   19|     35|        
+   20|     35|        var zeroAddress = sockaddr_in(sin_len: 0, sin_family: 0, sin_port: 0, sin_addr: in_addr(s_addr: 0), sin_zero: (0, 0, 0, 0, 0, 0, 0, 0))
+   21|     35|        zeroAddress.sin_len = UInt8(MemoryLayout.size(ofValue: zeroAddress))
+   22|     35|        zeroAddress.sin_family = sa_family_t(AF_INET)
+   23|     35|        
+   24|     35|        let defaultRouteReachability = withUnsafePointer(to: &zeroAddress) {
+   25|     35|            $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {zeroSockAddress in
+   26|     35|                SCNetworkReachabilityCreateWithAddress(nil, zeroSockAddress)
+   27|     35|            }
+   28|     35|        }
+   29|     35|        
+   30|     35|        var flags: SCNetworkReachabilityFlags = SCNetworkReachabilityFlags(rawValue: 0)
+   31|     35|        if SCNetworkReachabilityGetFlags(defaultRouteReachability!, &flags) == false {
+   32|      0|            return false
+   33|     35|        }
+   34|     35|        
+   35|     35|        /* Only Working for WIFI
+   36|     35|         let isReachable = flags == .reachable
+   37|     35|         let needsConnection = flags == .connectionRequired
+   38|     35|         
+   39|     35|         return isReachable && !needsConnection
+   40|     35|         */
+   41|     35|        
+   42|     35|        // Working for Cellular and WIFI
+   43|     35|        let isReachable = (flags.rawValue & UInt32(kSCNetworkFlagsReachable)) != 0
+   44|     35|        let needsConnection = (flags.rawValue & UInt32(kSCNetworkFlagsConnectionRequired)) != 0
+   45|     35|        let ret = (isReachable && !needsConnection)
+   46|     35|        
+   47|     35|        return ret
+   48|     35|        
+   49|     35|    }
+   50|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Shared/Reusable Views/BaseCustomView.swift:
+    1|       |//
+    2|       |//  BaseCustomView.swift
+    3|       |//  Legere
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/3/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |
+   11|       |class BaseCustomView: UIView {
+   12|       |    var viewFromNib: UIView!
+   13|       |    
+   14|      2|    override init(frame: CGRect) {
+   15|      2|        super.init(frame: frame)
+   16|      2|        xibSetup()
+   17|      2|    }
+   18|       |    
+   19|      6|    required init?(coder aDecoder: NSCoder) {
+   20|      6|        super.init(coder: aDecoder)
+   21|      6|        xibSetup()
+   22|      6|    }
+   23|       |    
+   24|      8|    func xibSetup() {
+   25|      8|        viewFromNib = UINib(nibName: getNibName(), bundle: .main).instantiate(withOwner: self, options: nil).first as? UIView
+   26|      8|        viewFromNib.frame = bounds
+   27|      8|        viewFromNib.autoresizingMask = [UIView.AutoresizingMask.flexibleWidth, UIView.AutoresizingMask.flexibleHeight]
+   28|      8|        addSubview(viewFromNib)
+   29|      8|    }
+   30|       |    
+   31|      8|    private func getNibName() -> String {
+   32|      8|        return String(describing: type(of: self))
+   33|      8|    }
+   34|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Shared/Reusable Views/Searchbar/Searchbar.swift:
+    1|       |//
+    2|       |//  Searchbar.swift
+    3|       |//  Legere
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/3/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |
+   11|       |final class Searchbar: BaseCustomView {
+   12|       |    @IBOutlet weak var searchTextField: UITextField!
+   13|       |    
+   14|      0|    init() {
+   15|      0|        super.init(frame: CGRect(origin: .zero, size: CGSize(width: UIScreen.main.bounds.width - 50, height: 50)))
+   16|      0|    }
+   17|       |    
+   18|      0|    required init?(coder aDecoder: NSCoder) {
+   19|      0|        super.init(coder: aDecoder)
+   20|      0|    }
+   21|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Shared/Reusable Views/Textfield/LETextField.swift:
+    1|       |//
+    2|       |//  LETextField.swift
+    3|       |//  Legere-iOS
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/4/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import UIKit
+   10|       |
+   11|       |final class LETextField: BaseCustomView {
+   12|       |    @IBOutlet weak var shadowView: UIView!
+   13|       |    @IBOutlet weak var backgroundView: UIView!
+   14|       |    @IBOutlet weak var showHideEntryButton: UIButton!
+   15|       |    @IBOutlet weak var textfield: UITextField!
+   16|       |    
+   17|       |    @IBInspectable var darkMood: Bool = false {
+   18|      6|        didSet {
+   19|      6|            if darkMood {
+   20|      2|                shadowView.shadowColor = .white
+   21|      2|                shadowView.shadowOpacity = 1
+   22|      2|                shadowView.shadowOffset = .zero
+   23|      2|                textfield.setPlaceHolderTextColor(.black)
+   24|      6|            } else {
+   25|      4|                shadowView.shadowColor = .black
+   26|      4|                shadowView.shadowOpacity = 0.16
+   27|      4|                shadowView.shadowOffset = CGSize(width: 0, height: 9)
+   28|      4|                textfield.setPlaceHolderTextColor(#colorLiteral(red: 0.4392156863, green: 0.4392156863, blue: 0.4392156863, alpha: 0.5))
+   29|      6|            }
+   30|      6|        }
+   31|       |    }
+   32|       |    
+   33|       |    @IBInspectable var isSensetiveDataField: Bool = false {
+   34|      3|        didSet {
+   35|      3|            textfield.isSecureTextEntry = isSensetiveDataField
+   36|      3|            showHideEntryButton.isHidden = !isSensetiveDataField
+   37|      3|        }
+   38|       |    }
+   39|       |    
+   40|      0|    @IBAction func showHideEntry() {
+   41|      0|        textfield.isSecureTextEntry.toggle()
+   42|      0|        let image = (textfield.isSecureTextEntry) ? #imageLiteral(resourceName: "ic_read") : #imageLiteral(resourceName: "ic_hide_password")
+   43|      0|        showHideEntryButton.setImage(image, for: .normal)
+   44|      0|    }
+   45|       |    
+   46|      0|    init() {
+   47|      0|        super.init(frame: CGRect(origin: .zero, size: CGSize(width: UIScreen.main.bounds.width - 50, height: 50)))
+   48|      0|        if #available(iOS 12, *) {
+   49|      0|            // iOS 12: Not the best solution, but it works.
+   50|      0|            textfield.textContentType = .oneTimeCode
+   51|      0|        } else {
+   52|      0|            // iOS 11: Disables the autofill accessory view.
+   53|      0|            // For more information see the explanation below.
+   54|      0|            textfield.textContentType = .init(rawValue: "")
+   55|      0|        }
+   56|      0|    }
+   57|       |    
+   58|      6|    required init?(coder aDecoder: NSCoder) {
+   59|      6|        super.init(coder: aDecoder)
+   60|      6|        if #available(iOS 12, *) {
+   61|      6|            // iOS 12: Not the best solution, but it works.
+   62|      6|            textfield.textContentType = .oneTimeCode
+   63|      6|        } else {
+   64|      0|            // iOS 11: Disables the autofill accessory view.
+   65|      0|            // For more information see the explanation below.
+   66|      0|            textfield.textContentType = .init(rawValue: "")
+   67|      6|        }
+   68|      6|    }
+   69|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Shared/Validators/IsValidName.swift:
+    1|       |//
+    2|       |//  IsValidName.swift
+    3|       |//  Legere-iOS
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 5/4/19.
+    6|       |//  Copyright © 2019 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import Foundation
+   10|       |
+   11|       |final class IsValidName: BaseValidator {
+   12|       |    
+   13|       |    var value: String?
+   14|       |    
+   15|     16|    init(value: String?) {
+   16|     16|        self.value = value
+   17|     16|    }
+   18|       |    
+   19|     16|    func orThrow() throws {
+   20|     16|        if let value = value {
+   21|     16|            if value.isAlphaNumeric {
+   22|      1|                throw ValidationError.notValid(reason: .nameContainsNumbers)
+   23|     15|            } else if value.containEmoji {
+   24|      1|                throw ValidationError.notValid(reason: .nameContainsEmojis)
+   25|     14|            }
+   26|     14|        }
+   27|     14|    }
+   28|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Shared/Validators/IsValidPassword.swift:
+    1|       |//
+    2|       |//  IsValidPassowrd.swift
+    3|       |//
+    4|       |//  Created by Ahmed Meguid on 12/5/18.
+    5|       |//  Copyright © 2018 Ahmed Meguid. All rights reserved.
+    6|       |//
+    7|       |
+    8|       |import Foundation
+    9|       |
+   10|       |final class IsValidPassword: BaseValidator {
+   11|       |    
+   12|       |    var value: String?
+   13|       |    var confirmValue: String?
+   14|       |    
+   15|     25|    init(value: String?, confirmValue: String? = nil) {
+   16|     25|        self.value = value
+   17|     25|        self.confirmValue = confirmValue
+   18|     25|    }
+   19|       |    
+   20|     25|    func orThrow() throws {
+   21|     25|        if let value = value {
+   22|     25|            if value.count < 6 {
+   23|      2|                throw ValidationError.notValid(reason: .passwordTooShort)
+   24|     23|            } else if let confirmValue = confirmValue, value != confirmValue {
+   25|      1|                throw ValidationError.notValid(reason: .passwordsNotMatching)
+   26|     22|            }
+   27|     22|        }
+   28|     22|    }
+   29|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Shared/Validators/IsValidUsername.swift:
+    1|       |//
+    2|       |//  IsValidEmail.swift
+    3|       |//
+    4|       |//  Created by Ahmed Meguid on 12/5/18.
+    5|       |//  Copyright © 2018 Ahmed Meguid. All rights reserved.
+    6|       |//
+    7|       |
+    8|       |import Foundation
+    9|       |
+   10|       |final class IsValidUsername: BaseValidator {
+   11|       |    
+   12|       |    var value: String?
+   13|       |    
+   14|     27|    init(value: String?) {
+   15|     27|        self.value = value
+   16|     27|    }
+   17|       |    
+   18|     27|    func orThrow() throws {
+   19|     27|        if let value = value, value.contains(" ") {
+   20|      2|            throw ValidationError.notValid(reason: .usernameContainsSpaces)
+   21|     25|        }
+   22|     25|    }
+   23|       |    
+   24|      0|    func isValid(username: String) -> Bool {
+   25|      0|        return (username.isAlphabetic || username.isAlphaNumeric) && !username.contains(" ")
+   26|      0|    }
+   27|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Shared/Validators/NotEmpty.swift:
+    1|       |//
+    2|       |//  NotEmpty.swift
+    3|       |//
+    4|       |//  Created by Ahmed Meguid on 12/5/18.
+    5|       |//  Copyright © 2018 Ahmed Meguid. All rights reserved.
+    6|       |//
+    7|       |
+    8|       |import Foundation
+    9|       |
+   10|       |final class NotEmpty: BaseValidator {
+   11|       |    
+   12|       |    var value: Any?
+   13|       |    var key: String
+   14|       |
+   15|    103|    init(value: Any?, key: String) {
+   16|    103|        self.value = value
+   17|    103|        self.key = key
+   18|    103|    }
+   19|       |    
+   20|    103|    func orThrow() throws {
+   21|    103|        switch value {
+   22|    103|        case "" as String:
+   23|      0|            throw ValidationError.emptyValue(key: key)
+   24|    103|        case nil:
+   25|      6|            throw ValidationError.emptyValue(key: key)
+   26|    103|        default: break
+   27|    103|        }
+   28|    103|    }
+   29|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Shared/Validators/NotOptional.swift:
+    1|       |//
+    2|       |//  NotOptional.swift
+    3|       |//
+    4|       |//  Created by Ahmed Meguid on 12/5/18.
+    5|       |//  Copyright © 2018 Ahmed Meguid. All rights reserved.
+    6|       |//
+    7|       |
+    8|       |import Foundation
+    9|       |
+   10|       |final class NotOptional: BaseValidator {
+   11|       |    
+   12|       |    var value: Any?
+   13|       |    var key: String
+   14|       |    
+   15|      0|    init(value: Any?, key: String) {
+   16|      0|        self.value = value
+   17|      0|        self.key = key
+   18|      0|    }
+   19|       |    
+   20|      0|    func orThrow() throws {
+   21|      0|        
+   22|      0|        if let _ = value {
+   23|      0|            return
+   24|      0|        }
+   25|      0|        throw ValidationError.emptyValue(key: key)
+   26|      0|    }
+   27|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Shared/Validators/ReachabilityValidator.swift:
+    1|       |//
+    2|       |//  ReachabilityValidator.swift
+    3|       |//  InstaMovies
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 12/16/18.
+    6|       |//  Copyright © 2018 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import Foundation
+   10|       |
+   11|       |typealias ToSeeIfIsReachable = ReachabilityValidator
+   12|       |
+   13|       |class ReachabilityValidator: BaseValidator {
+   14|     40|    func orThrow() throws {
+   15|     40|        guard !Reachability.isConnectedToNetwork() else { return }
+   16|      5|        throw ValidationError.unreachable
+   17|     40|    }
+   18|       |}
+
+/Users/ahmedramy/Desktop/Workstation/Fullstack Projects/Legere/Legere-iOS/Legere-iOS/Shared/Validators/ValidationErrors.swift:
+    1|       |//
+    2|       |//  ValidationErrors.swift
+    3|       |//  InstaMovies
+    4|       |//
+    5|       |//  Created by Ahmed Ramy on 12/16/18.
+    6|       |//  Copyright © 2018 Ahmed Ramy. All rights reserved.
+    7|       |//
+    8|       |
+    9|       |import Foundation
+   10|       |
+   11|       |enum ValidationError: Error {
+   12|       |    case unreachable
+   13|       |    case serverIsDown
+   14|       |    case genericError
+   15|       |    case notFound
+   16|       |    case notValid(reason: NotValidReason)
+   17|       |    case emptyValue(key: String)
+   18|       |    case notMatch(key: String)
+   19|       |    
+   20|     36|    var message: String {
+   21|     36|        switch self {
+   22|     36|        case .unreachable: return "No Internet Connection, Please try again later"
+   23|     36|        case .notFound: return "We couldn't find that"
+   24|     36|        case .notValid(let reason):
+   25|     14|            return reason.rawValue
+   26|     36|        case .notMatch(key: let key): return "The \(key)s doesn't match each others"
+   27|     36|        case .serverIsDown: return "Server is currently down, Please try again later"
+   28|     36|        case .genericError: return "Oops... Something went wrong"
+   29|     36|        case .emptyValue(key: let key): return "Please fill in the \(key) value"
+   30|     36|        }
+   31|     36|    }
+   32|       |    
+   33|       |    enum NotValidReason: String {
+   34|       |        case passwordTooShort = "Password can not be less than 6 characters."
+   35|       |        case passwordsNotMatching = "Passwords do not match each other, please double check and try again."
+   36|       |        case nameContainsNumbers = "Names doesn't contain numbers now, do they? 🤔"
+   37|       |        case nameContainsEmojis = "No you can't have emojis in your name 🌚"
+   38|       |        case usernameContainsSpaces = "Usernames can't contain spaces"
+   39|       |    }
+   40|       |}
+   41|       |
+   42|       |extension ValidationError: LocalizedError {
+   43|     36|    public var errorDescription: String? {
+   44|     36|        return self.message
+   45|     36|    }
+   46|       |}
+

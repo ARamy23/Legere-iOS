@@ -7,12 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5C7DFF732026731383B270E8 /* Pods_Legere_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DA671967FC1EC31E0ECDC30C /* Pods_Legere_iOS.framework */; };
-		5E5FD5B4DDA9B45F8564FA69 /* Pods_Legere_iOSUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF539B022807F4C5DFFF3F23 /* Pods_Legere_iOSUITests.framework */; };
+		0D59CFD5FF01212629DC6A74 /* Pods_Legere_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 677C81327C9150A5D4E3AF46 /* Pods_Legere_iOS.framework */; };
+		B2A83EAE752403CBA7F96ADD /* Pods_Legere_iOSTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C149BAF187DE8EF80265FA3 /* Pods_Legere_iOSTests.framework */; };
 		B883C1C02280FC170094CC9D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1BF2280FC170094CC9D /* AppDelegate.swift */; };
 		B883C1CA2280FC180094CC9D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B883C1C82280FC180094CC9D /* LaunchScreen.storyboard */; };
-		B883C1D52280FC180094CC9D /* Legere_iOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1D42280FC180094CC9D /* Legere_iOSTests.swift */; };
-		B883C1E02280FC180094CC9D /* Legere_iOSUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1DF2280FC180094CC9D /* Legere_iOSUITests.swift */; };
 		B883C2462280FC5A0094CC9D /* ArticleCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1F02280FC580094CC9D /* ArticleCollectionViewCell.swift */; };
 		B883C2472280FC5A0094CC9D /* ArticleSearchbarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1F12280FC580094CC9D /* ArticleSearchbarView.swift */; };
 		B883C2482280FC5A0094CC9D /* ArticleSearchbarView.xib in Resources */ = {isa = PBXBuildFile; fileRef = B883C1F22280FC580094CC9D /* ArticleSearchbarView.xib */; };
@@ -55,11 +53,6 @@
 		B883C26F2280FC5A0094CC9D /* IsValidName.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C22C2280FC5A0094CC9D /* IsValidName.swift */; };
 		B883C2702280FC5A0094CC9D /* IsValidUsername.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C22D2280FC5A0094CC9D /* IsValidUsername.swift */; };
 		B883C2712280FC5A0094CC9D /* NotOptional.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C22E2280FC5A0094CC9D /* NotOptional.swift */; };
-		B883C2722280FC5A0094CC9D /* NotFoundError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C2302280FC5A0094CC9D /* NotFoundError.swift */; };
-		B883C2732280FC5A0094CC9D /* NotValidUsernameError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C2312280FC5A0094CC9D /* NotValidUsernameError.swift */; };
-		B883C2742280FC5A0094CC9D /* EmptyValueError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C2322280FC5A0094CC9D /* EmptyValueError.swift */; };
-		B883C2752280FC5A0094CC9D /* NotValidNameError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C2332280FC5A0094CC9D /* NotValidNameError.swift */; };
-		B883C2762280FC5A0094CC9D /* NotValidPasswordError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C2342280FC5A0094CC9D /* NotValidPasswordError.swift */; };
 		B883C2772280FC5A0094CC9D /* Codable+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C2362280FC5A0094CC9D /* Codable+Helpers.swift */; };
 		B883C2782280FC5A0094CC9D /* StringUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C2382280FC5A0094CC9D /* StringUtils.swift */; };
 		B883C2792280FC5A0094CC9D /* Storyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C2392280FC5A0094CC9D /* Storyboard.swift */; };
@@ -71,7 +64,15 @@
 		B883C27F2280FC5A0094CC9D /* BaseCustomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C2422280FC5A0094CC9D /* BaseCustomView.swift */; };
 		B883C2802280FC5A0094CC9D /* LETextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C2442280FC5A0094CC9D /* LETextField.swift */; };
 		B883C2812280FC5A0094CC9D /* LETextField.xib in Resources */ = {isa = PBXBuildFile; fileRef = B883C2452280FC5A0094CC9D /* LETextField.xib */; };
-		CB754117910EA7C43EC77708 /* Pods_Legere_iOSTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BEAD3B65874BC679AA4E75C /* Pods_Legere_iOSTests.framework */; };
+		B883C283228148B40094CC9D /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C282228148B40094CC9D /* Reachability.swift */; };
+		B883C285228148CF0094CC9D /* ReachabilityValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C284228148CF0094CC9D /* ReachabilityValidator.swift */; };
+		B883C287228148E80094CC9D /* ValidationErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C286228148E80094CC9D /* ValidationErrors.swift */; };
+		B883C28A22814DC60094CC9D /* RouterMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C28922814DC60094CC9D /* RouterMock.swift */; };
+		B883C28D22814FE40094CC9D /* CacheMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C28C22814FE40094CC9D /* CacheMock.swift */; };
+		B883C2902281504B0094CC9D /* NetworkMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C28F2281504B0094CC9D /* NetworkMock.swift */; };
+		B883C293228153BF0094CC9D /* BaseSceneTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C292228153BF0094CC9D /* BaseSceneTests.swift */; };
+		B883C297228154C80094CC9D /* LoginTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C296228154C80094CC9D /* LoginTests.swift */; };
+		B8D2C0402281FAB6006F5255 /* RegisterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8D2C03F2281FAB6006F5255 /* RegisterTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -82,29 +83,19 @@
 			remoteGlobalIDString = B883C1BB2280FC170094CC9D;
 			remoteInfo = "Legere-iOS";
 		};
-		B883C1DC2280FC180094CC9D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = B883C1B42280FC170094CC9D /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = B883C1BB2280FC170094CC9D;
-			remoteInfo = "Legere-iOS";
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		5BEAD3B65874BC679AA4E75C /* Pods_Legere_iOSTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Legere_iOSTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		707CC434DF865C85A21A383A /* Pods-Legere-iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOS.release.xcconfig"; path = "Target Support Files/Pods-Legere-iOS/Pods-Legere-iOS.release.xcconfig"; sourceTree = "<group>"; };
-		7E1A33CFA21D9E46BF73EB86 /* Pods-Legere-iOSUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSUITests.release.xcconfig"; path = "Target Support Files/Pods-Legere-iOSUITests/Pods-Legere-iOSUITests.release.xcconfig"; sourceTree = "<group>"; };
+		26B00D86C921B4F0C1FA7E83 /* Pods-Legere-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOS.debug.xcconfig"; path = "Target Support Files/Pods-Legere-iOS/Pods-Legere-iOS.debug.xcconfig"; sourceTree = "<group>"; };
+		34A465A9A356EF6B0108FA61 /* Pods-Legere-iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOS.release.xcconfig"; path = "Target Support Files/Pods-Legere-iOS/Pods-Legere-iOS.release.xcconfig"; sourceTree = "<group>"; };
+		677C81327C9150A5D4E3AF46 /* Pods_Legere_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Legere_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		8C149BAF187DE8EF80265FA3 /* Pods_Legere_iOSTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Legere_iOSTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B883C1BC2280FC170094CC9D /* Legere-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Legere-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B883C1BF2280FC170094CC9D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B883C1C92280FC180094CC9D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B883C1CB2280FC180094CC9D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B883C1D02280FC180094CC9D /* Legere-iOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Legere-iOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		B883C1D42280FC180094CC9D /* Legere_iOSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Legere_iOSTests.swift; sourceTree = "<group>"; };
 		B883C1D62280FC180094CC9D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B883C1DB2280FC180094CC9D /* Legere-iOSUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Legere-iOSUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		B883C1DF2280FC180094CC9D /* Legere_iOSUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Legere_iOSUITests.swift; sourceTree = "<group>"; };
-		B883C1E12280FC180094CC9D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B883C1F02280FC580094CC9D /* ArticleCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArticleCollectionViewCell.swift; sourceTree = "<group>"; };
 		B883C1F12280FC580094CC9D /* ArticleSearchbarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArticleSearchbarView.swift; sourceTree = "<group>"; };
 		B883C1F22280FC580094CC9D /* ArticleSearchbarView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ArticleSearchbarView.xib; sourceTree = "<group>"; };
@@ -147,11 +138,6 @@
 		B883C22C2280FC5A0094CC9D /* IsValidName.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IsValidName.swift; sourceTree = "<group>"; };
 		B883C22D2280FC5A0094CC9D /* IsValidUsername.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IsValidUsername.swift; sourceTree = "<group>"; };
 		B883C22E2280FC5A0094CC9D /* NotOptional.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotOptional.swift; sourceTree = "<group>"; };
-		B883C2302280FC5A0094CC9D /* NotFoundError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotFoundError.swift; sourceTree = "<group>"; };
-		B883C2312280FC5A0094CC9D /* NotValidUsernameError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotValidUsernameError.swift; sourceTree = "<group>"; };
-		B883C2322280FC5A0094CC9D /* EmptyValueError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmptyValueError.swift; sourceTree = "<group>"; };
-		B883C2332280FC5A0094CC9D /* NotValidNameError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotValidNameError.swift; sourceTree = "<group>"; };
-		B883C2342280FC5A0094CC9D /* NotValidPasswordError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotValidPasswordError.swift; sourceTree = "<group>"; };
 		B883C2362280FC5A0094CC9D /* Codable+Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Codable+Helpers.swift"; sourceTree = "<group>"; };
 		B883C2382280FC5A0094CC9D /* StringUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringUtils.swift; sourceTree = "<group>"; };
 		B883C2392280FC5A0094CC9D /* Storyboard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Storyboard.swift; sourceTree = "<group>"; };
@@ -163,12 +149,17 @@
 		B883C2422280FC5A0094CC9D /* BaseCustomView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseCustomView.swift; sourceTree = "<group>"; };
 		B883C2442280FC5A0094CC9D /* LETextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LETextField.swift; sourceTree = "<group>"; };
 		B883C2452280FC5A0094CC9D /* LETextField.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LETextField.xib; sourceTree = "<group>"; };
-		BA205B9FFF702B1339E976A3 /* Pods-Legere-iOSUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSUITests.debug.xcconfig"; path = "Target Support Files/Pods-Legere-iOSUITests/Pods-Legere-iOSUITests.debug.xcconfig"; sourceTree = "<group>"; };
-		BD3F748BC0C840D845749DEA /* Pods-Legere-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOS.debug.xcconfig"; path = "Target Support Files/Pods-Legere-iOS/Pods-Legere-iOS.debug.xcconfig"; sourceTree = "<group>"; };
-		D10945DE0B2B91F0BC7BB041 /* Pods-Legere-iOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSTests.release.xcconfig"; path = "Target Support Files/Pods-Legere-iOSTests/Pods-Legere-iOSTests.release.xcconfig"; sourceTree = "<group>"; };
-		DA671967FC1EC31E0ECDC30C /* Pods_Legere_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Legere_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		EF539B022807F4C5DFFF3F23 /* Pods_Legere_iOSUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Legere_iOSUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		FAFE179623A28BD96C55AA30 /* Pods-Legere-iOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSTests.debug.xcconfig"; path = "Target Support Files/Pods-Legere-iOSTests/Pods-Legere-iOSTests.debug.xcconfig"; sourceTree = "<group>"; };
+		B883C282228148B40094CC9D /* Reachability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
+		B883C284228148CF0094CC9D /* ReachabilityValidator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReachabilityValidator.swift; sourceTree = "<group>"; };
+		B883C286228148E80094CC9D /* ValidationErrors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ValidationErrors.swift; sourceTree = "<group>"; };
+		B883C28922814DC60094CC9D /* RouterMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouterMock.swift; sourceTree = "<group>"; };
+		B883C28C22814FE40094CC9D /* CacheMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheMock.swift; sourceTree = "<group>"; };
+		B883C28F2281504B0094CC9D /* NetworkMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMock.swift; sourceTree = "<group>"; };
+		B883C292228153BF0094CC9D /* BaseSceneTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseSceneTests.swift; sourceTree = "<group>"; };
+		B883C296228154C80094CC9D /* LoginTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginTests.swift; sourceTree = "<group>"; };
+		B8D2C03F2281FAB6006F5255 /* RegisterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterTests.swift; sourceTree = "<group>"; };
+		BC76ECF1BC9D6E95BD4EF2CC /* Pods-Legere-iOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSTests.release.xcconfig"; path = "Target Support Files/Pods-Legere-iOSTests/Pods-Legere-iOSTests.release.xcconfig"; sourceTree = "<group>"; };
+		CE6B995BFDD3CE096A8561BF /* Pods-Legere-iOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSTests.debug.xcconfig"; path = "Target Support Files/Pods-Legere-iOSTests/Pods-Legere-iOSTests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -176,7 +167,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5C7DFF732026731383B270E8 /* Pods_Legere_iOS.framework in Frameworks */,
+				0D59CFD5FF01212629DC6A74 /* Pods_Legere_iOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -184,27 +175,18 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CB754117910EA7C43EC77708 /* Pods_Legere_iOSTests.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B883C1D82280FC180094CC9D /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				5E5FD5B4DDA9B45F8564FA69 /* Pods_Legere_iOSUITests.framework in Frameworks */,
+				B2A83EAE752403CBA7F96ADD /* Pods_Legere_iOSTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		56C46F36A24BA06872CB9AD3 /* Frameworks */ = {
+		1CD5AE94EED45E956C6066D4 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				DA671967FC1EC31E0ECDC30C /* Pods_Legere_iOS.framework */,
-				5BEAD3B65874BC679AA4E75C /* Pods_Legere_iOSTests.framework */,
-				EF539B022807F4C5DFFF3F23 /* Pods_Legere_iOSUITests.framework */,
+				677C81327C9150A5D4E3AF46 /* Pods_Legere_iOS.framework */,
+				8C149BAF187DE8EF80265FA3 /* Pods_Legere_iOSTests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -212,12 +194,10 @@
 		B836FE1165D758BE9D586DD1 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				BD3F748BC0C840D845749DEA /* Pods-Legere-iOS.debug.xcconfig */,
-				707CC434DF865C85A21A383A /* Pods-Legere-iOS.release.xcconfig */,
-				FAFE179623A28BD96C55AA30 /* Pods-Legere-iOSTests.debug.xcconfig */,
-				D10945DE0B2B91F0BC7BB041 /* Pods-Legere-iOSTests.release.xcconfig */,
-				BA205B9FFF702B1339E976A3 /* Pods-Legere-iOSUITests.debug.xcconfig */,
-				7E1A33CFA21D9E46BF73EB86 /* Pods-Legere-iOSUITests.release.xcconfig */,
+				26B00D86C921B4F0C1FA7E83 /* Pods-Legere-iOS.debug.xcconfig */,
+				34A465A9A356EF6B0108FA61 /* Pods-Legere-iOS.release.xcconfig */,
+				CE6B995BFDD3CE096A8561BF /* Pods-Legere-iOSTests.debug.xcconfig */,
+				BC76ECF1BC9D6E95BD4EF2CC /* Pods-Legere-iOSTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -227,10 +207,9 @@
 			children = (
 				B883C1BE2280FC170094CC9D /* Legere-iOS */,
 				B883C1D32280FC180094CC9D /* Legere-iOSTests */,
-				B883C1DE2280FC180094CC9D /* Legere-iOSUITests */,
 				B883C1BD2280FC170094CC9D /* Products */,
 				B836FE1165D758BE9D586DD1 /* Pods */,
-				56C46F36A24BA06872CB9AD3 /* Frameworks */,
+				1CD5AE94EED45E956C6066D4 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -239,7 +218,6 @@
 			children = (
 				B883C1BC2280FC170094CC9D /* Legere-iOS.app */,
 				B883C1D02280FC180094CC9D /* Legere-iOSTests.xctest */,
-				B883C1DB2280FC180094CC9D /* Legere-iOSUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -260,19 +238,11 @@
 		B883C1D32280FC180094CC9D /* Legere-iOSTests */ = {
 			isa = PBXGroup;
 			children = (
-				B883C1D42280FC180094CC9D /* Legere_iOSTests.swift */,
+				B883C291228153950094CC9D /* Scenes */,
+				B883C28822814DBB0094CC9D /* Mocks */,
 				B883C1D62280FC180094CC9D /* Info.plist */,
 			);
 			path = "Legere-iOSTests";
-			sourceTree = "<group>";
-		};
-		B883C1DE2280FC180094CC9D /* Legere-iOSUITests */ = {
-			isa = PBXGroup;
-			children = (
-				B883C1DF2280FC180094CC9D /* Legere_iOSUITests.swift */,
-				B883C1E12280FC180094CC9D /* Info.plist */,
-			);
-			path = "Legere-iOSUITests";
 			sourceTree = "<group>";
 		};
 		B883C1ED2280FC580094CC9D /* Scenes */ = {
@@ -411,7 +381,6 @@
 				B883C21D2280FC5A0094CC9D /* Externals */,
 				B883C2252280FC5A0094CC9D /* Keys */,
 				B883C2282280FC5A0094CC9D /* Validators */,
-				B883C22F2280FC5A0094CC9D /* Errors */,
 				B883C2352280FC5A0094CC9D /* Helpers */,
 				B883C23A2280FC5A0094CC9D /* Base */,
 				B883C23E2280FC5A0094CC9D /* Reusable Views */,
@@ -422,6 +391,7 @@
 		B883C2192280FC5A0094CC9D /* Networking */ = {
 			isa = PBXGroup;
 			children = (
+				B883C282228148B40094CC9D /* Reachability.swift */,
 				B883C21A2280FC5A0094CC9D /* Authentication.swift */,
 				B883C21B2280FC5A0094CC9D /* Base Service.swift */,
 				B883C21C2280FC5A0094CC9D /* Articles.swift */,
@@ -476,6 +446,8 @@
 		B883C2282280FC5A0094CC9D /* Validators */ = {
 			isa = PBXGroup;
 			children = (
+				B883C286228148E80094CC9D /* ValidationErrors.swift */,
+				B883C284228148CF0094CC9D /* ReachabilityValidator.swift */,
 				B883C2292280FC5A0094CC9D /* NotEmpty.swift */,
 				B883C22A2280FC5A0094CC9D /* BaseValidator.swift */,
 				B883C22B2280FC5A0094CC9D /* IsValidPassword.swift */,
@@ -484,18 +456,6 @@
 				B883C22E2280FC5A0094CC9D /* NotOptional.swift */,
 			);
 			path = Validators;
-			sourceTree = "<group>";
-		};
-		B883C22F2280FC5A0094CC9D /* Errors */ = {
-			isa = PBXGroup;
-			children = (
-				B883C2302280FC5A0094CC9D /* NotFoundError.swift */,
-				B883C2312280FC5A0094CC9D /* NotValidUsernameError.swift */,
-				B883C2322280FC5A0094CC9D /* EmptyValueError.swift */,
-				B883C2332280FC5A0094CC9D /* NotValidNameError.swift */,
-				B883C2342280FC5A0094CC9D /* NotValidPasswordError.swift */,
-			);
-			path = Errors;
 			sourceTree = "<group>";
 		};
 		B883C2352280FC5A0094CC9D /* Helpers */ = {
@@ -554,6 +514,34 @@
 			path = Textfield;
 			sourceTree = "<group>";
 		};
+		B883C28822814DBB0094CC9D /* Mocks */ = {
+			isa = PBXGroup;
+			children = (
+				B883C28922814DC60094CC9D /* RouterMock.swift */,
+				B883C28C22814FE40094CC9D /* CacheMock.swift */,
+				B883C28F2281504B0094CC9D /* NetworkMock.swift */,
+			);
+			path = Mocks;
+			sourceTree = "<group>";
+		};
+		B883C291228153950094CC9D /* Scenes */ = {
+			isa = PBXGroup;
+			children = (
+				B883C294228154910094CC9D /* Welcome */,
+				B883C292228153BF0094CC9D /* BaseSceneTests.swift */,
+			);
+			path = Scenes;
+			sourceTree = "<group>";
+		};
+		B883C294228154910094CC9D /* Welcome */ = {
+			isa = PBXGroup;
+			children = (
+				B883C296228154C80094CC9D /* LoginTests.swift */,
+				B8D2C03F2281FAB6006F5255 /* RegisterTests.swift */,
+			);
+			path = Welcome;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -561,11 +549,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = B883C1E42280FC180094CC9D /* Build configuration list for PBXNativeTarget "Legere-iOS" */;
 			buildPhases = (
-				3E83555F6EA36CD050512CF0 /* [CP] Check Pods Manifest.lock */,
+				9079FEDF2059A0041AC992DD /* [CP] Check Pods Manifest.lock */,
 				B883C1B82280FC170094CC9D /* Sources */,
 				B883C1B92280FC170094CC9D /* Frameworks */,
 				B883C1BA2280FC170094CC9D /* Resources */,
-				42008A5B8D3BE3AF501948D3 /* [CP] Embed Pods Frameworks */,
+				BAD45EE1DF7BE5512364FFFA /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -580,10 +568,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = B883C1E72280FC180094CC9D /* Build configuration list for PBXNativeTarget "Legere-iOSTests" */;
 			buildPhases = (
-				D33EF595C2661E657AAD601F /* [CP] Check Pods Manifest.lock */,
+				2A27A0C4BE02A87C0BF2AEFA /* [CP] Check Pods Manifest.lock */,
 				B883C1CC2280FC180094CC9D /* Sources */,
 				B883C1CD2280FC180094CC9D /* Frameworks */,
 				B883C1CE2280FC180094CC9D /* Resources */,
+				14BBA95F711A16A3B5F3C185 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -594,25 +583,6 @@
 			productName = "Legere-iOSTests";
 			productReference = B883C1D02280FC180094CC9D /* Legere-iOSTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		B883C1DA2280FC180094CC9D /* Legere-iOSUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = B883C1EA2280FC180094CC9D /* Build configuration list for PBXNativeTarget "Legere-iOSUITests" */;
-			buildPhases = (
-				C1FBEC67CDCDC7496F83C647 /* [CP] Check Pods Manifest.lock */,
-				B883C1D72280FC180094CC9D /* Sources */,
-				B883C1D82280FC180094CC9D /* Frameworks */,
-				B883C1D92280FC180094CC9D /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				B883C1DD2280FC180094CC9D /* PBXTargetDependency */,
-			);
-			name = "Legere-iOSUITests";
-			productName = "Legere-iOSUITests";
-			productReference = B883C1DB2280FC180094CC9D /* Legere-iOSUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
 
@@ -628,10 +598,6 @@
 						CreatedOnToolsVersion = 10.1;
 					};
 					B883C1CF2280FC180094CC9D = {
-						CreatedOnToolsVersion = 10.1;
-						TestTargetID = B883C1BB2280FC170094CC9D;
-					};
-					B883C1DA2280FC180094CC9D = {
 						CreatedOnToolsVersion = 10.1;
 						TestTargetID = B883C1BB2280FC170094CC9D;
 					};
@@ -652,7 +618,6 @@
 			targets = (
 				B883C1BB2280FC170094CC9D /* Legere-iOS */,
 				B883C1CF2280FC180094CC9D /* Legere-iOSTests */,
-				B883C1DA2280FC180094CC9D /* Legere-iOSUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -682,17 +647,80 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B883C1D92280FC180094CC9D /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		3E83555F6EA36CD050512CF0 /* [CP] Check Pods Manifest.lock */ = {
+		14BBA95F711A16A3B5F3C185 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Legere-iOSTests/Pods-Legere-iOSTests-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
+				"${BUILT_PRODUCTS_DIR}/AlamofireNetworkActivityLogger/AlamofireNetworkActivityLogger.framework",
+				"${BUILT_PRODUCTS_DIR}/Hero/Hero.framework",
+				"${BUILT_PRODUCTS_DIR}/Moya/Moya.framework",
+				"${BUILT_PRODUCTS_DIR}/PromisesObjC/FBLPromises.framework",
+				"${BUILT_PRODUCTS_DIR}/PromisesSwift/Promises.framework",
+				"${BUILT_PRODUCTS_DIR}/QuickLayout/QuickLayout.framework",
+				"${BUILT_PRODUCTS_DIR}/Result/Result.framework",
+				"${BUILT_PRODUCTS_DIR}/RxCocoa/RxCocoa.framework",
+				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/SimpleTwoWayBinding/SimpleTwoWayBinding.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftEntryKit/SwiftEntryKit.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftMessages/SwiftMessages.framework",
+				"${BUILT_PRODUCTS_DIR}/SwifterSwift/SwifterSwift.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AlamofireNetworkActivityLogger.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Hero.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Moya.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FBLPromises.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Promises.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/QuickLayout.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Result.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxCocoa.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SimpleTwoWayBinding.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftEntryKit.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftMessages.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwifterSwift.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Legere-iOSTests/Pods-Legere-iOSTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		2A27A0C4BE02A87C0BF2AEFA /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Legere-iOSTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		9079FEDF2059A0041AC992DD /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -714,7 +742,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		42008A5B8D3BE3AF501948D3 /* [CP] Embed Pods Frameworks */ = {
+		BAD45EE1DF7BE5512364FFFA /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -762,50 +790,6 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Legere-iOS/Pods-Legere-iOS-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		C1FBEC67CDCDC7496F83C647 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-Legere-iOSUITests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		D33EF595C2661E657AAD601F /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-Legere-iOSTests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -827,18 +811,16 @@
 				B883C27F2280FC5A0094CC9D /* BaseCustomView.swift in Sources */,
 				B883C2542280FC5A0094CC9D /* DidReadArticleInteractor.swift in Sources */,
 				B883C2552280FC5A0094CC9D /* AllArticlesInteractor.swift in Sources */,
-				B883C2742280FC5A0094CC9D /* EmptyValueError.swift in Sources */,
 				B883C25E2280FC5A0094CC9D /* RegisterFormView.swift in Sources */,
 				B883C27A2280FC5A0094CC9D /* BaseViewController.swift in Sources */,
 				B883C2662280FC5A0094CC9D /* ExternalProtocols.swift in Sources */,
 				B883C2802280FC5A0094CC9D /* LETextField.swift in Sources */,
-				B883C2722280FC5A0094CC9D /* NotFoundError.swift in Sources */,
 				B883C1C02280FC170094CC9D /* AppDelegate.swift in Sources */,
 				B883C2592280FC5A0094CC9D /* RegisterInteractor.swift in Sources */,
 				B883C24F2280FC5A0094CC9D /* ArticleDetailsViewController.swift in Sources */,
+				B883C283228148B40094CC9D /* Reachability.swift in Sources */,
 				B883C25A2280FC5A0094CC9D /* RegisterViewModel.swift in Sources */,
 				B883C2712280FC5A0094CC9D /* NotOptional.swift in Sources */,
-				B883C2732280FC5A0094CC9D /* NotValidUsernameError.swift in Sources */,
 				B883C2672280FC5A0094CC9D /* UserDefaults.swift in Sources */,
 				B883C2612280FC5A0094CC9D /* LoginFormView.swift in Sources */,
 				B883C25C2280FC5A0094CC9D /* LoginViewModel.swift in Sources */,
@@ -851,16 +833,16 @@
 				B883C2462280FC5A0094CC9D /* ArticleCollectionViewCell.swift in Sources */,
 				B883C2642280FC5A0094CC9D /* Base Service.swift in Sources */,
 				B883C26B2280FC5A0094CC9D /* CachingKeys.swift in Sources */,
+				B883C287228148E80094CC9D /* ValidationErrors.swift in Sources */,
 				B883C2572280FC5A0094CC9D /* User.swift in Sources */,
 				B883C2502280FC5A0094CC9D /* HomeViewController.swift in Sources */,
-				B883C2752280FC5A0094CC9D /* NotValidNameError.swift in Sources */,
-				B883C2762280FC5A0094CC9D /* NotValidPasswordError.swift in Sources */,
 				B883C26D2280FC5A0094CC9D /* BaseValidator.swift in Sources */,
 				B883C2782280FC5A0094CC9D /* StringUtils.swift in Sources */,
 				B883C2692280FC5A0094CC9D /* Router.swift in Sources */,
 				B883C24A2280FC5A0094CC9D /* HomeViewModel.swift in Sources */,
 				B883C25B2280FC5A0094CC9D /* AuthenticationViewController.swift in Sources */,
 				B883C2532280FC5A0094CC9D /* ArticleDetailsInteractor.swift in Sources */,
+				B883C285228148CF0094CC9D /* ReachabilityValidator.swift in Sources */,
 				B883C24B2280FC5A0094CC9D /* ArticleDetails.swift in Sources */,
 				B883C2632280FC5A0094CC9D /* Authentication.swift in Sources */,
 			);
@@ -870,15 +852,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B883C1D52280FC180094CC9D /* Legere_iOSTests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B883C1D72280FC180094CC9D /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				B883C1E02280FC180094CC9D /* Legere_iOSUITests.swift in Sources */,
+				B883C2902281504B0094CC9D /* NetworkMock.swift in Sources */,
+				B883C28A22814DC60094CC9D /* RouterMock.swift in Sources */,
+				B8D2C0402281FAB6006F5255 /* RegisterTests.swift in Sources */,
+				B883C297228154C80094CC9D /* LoginTests.swift in Sources */,
+				B883C28D22814FE40094CC9D /* CacheMock.swift in Sources */,
+				B883C293228153BF0094CC9D /* BaseSceneTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -889,11 +868,6 @@
 			isa = PBXTargetDependency;
 			target = B883C1BB2280FC170094CC9D /* Legere-iOS */;
 			targetProxy = B883C1D12280FC180094CC9D /* PBXContainerItemProxy */;
-		};
-		B883C1DD2280FC180094CC9D /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = B883C1BB2280FC170094CC9D /* Legere-iOS */;
-			targetProxy = B883C1DC2280FC180094CC9D /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1035,11 +1009,12 @@
 		};
 		B883C1E52280FC180094CC9D /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = BD3F748BC0C840D845749DEA /* Pods-Legere-iOS.debug.xcconfig */;
+			baseConfigurationReference = 26B00D86C921B4F0C1FA7E83 /* Pods-Legere-iOS.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 969Y6REAB6;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				INFOPLIST_FILE = "Legere-iOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1054,11 +1029,12 @@
 		};
 		B883C1E62280FC180094CC9D /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 707CC434DF865C85A21A383A /* Pods-Legere-iOS.release.xcconfig */;
+			baseConfigurationReference = 34A465A9A356EF6B0108FA61 /* Pods-Legere-iOS.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 969Y6REAB6;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				INFOPLIST_FILE = "Legere-iOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1073,10 +1049,9 @@
 		};
 		B883C1E82280FC180094CC9D /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = FAFE179623A28BD96C55AA30 /* Pods-Legere-iOSTests.debug.xcconfig */;
+			baseConfigurationReference = CE6B995BFDD3CE096A8561BF /* Pods-Legere-iOSTests.debug.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Legere-iOS.app/Legere-iOS";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 969Y6REAB6;
 				INFOPLIST_FILE = "Legere-iOSTests/Info.plist";
@@ -1084,21 +1059,21 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
+					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.aramy23.Legere-iOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Legere-iOS.app/Legere-iOS";
+				TEST_HOST = "$(BUNDLE_LOADER)";
 			};
 			name = Debug;
 		};
 		B883C1E92280FC180094CC9D /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D10945DE0B2B91F0BC7BB041 /* Pods-Legere-iOSTests.release.xcconfig */;
+			baseConfigurationReference = BC76ECF1BC9D6E95BD4EF2CC /* Pods-Legere-iOSTests.release.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Legere-iOS.app/Legere-iOS";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 969Y6REAB6;
 				INFOPLIST_FILE = "Legere-iOSTests/Info.plist";
@@ -1106,54 +1081,13 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
+					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.aramy23.Legere-iOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Legere-iOS.app/Legere-iOS";
-			};
-			name = Release;
-		};
-		B883C1EB2280FC180094CC9D /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = BA205B9FFF702B1339E976A3 /* Pods-Legere-iOSUITests.debug.xcconfig */;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 969Y6REAB6;
-				INFOPLIST_FILE = "Legere-iOSUITests/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.aramy23.Legere-iOSUITests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = "Legere-iOS";
-			};
-			name = Debug;
-		};
-		B883C1EC2280FC180094CC9D /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7E1A33CFA21D9E46BF73EB86 /* Pods-Legere-iOSUITests.release.xcconfig */;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 969Y6REAB6;
-				INFOPLIST_FILE = "Legere-iOSUITests/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.aramy23.Legere-iOSUITests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = "Legere-iOS";
+				TEST_HOST = "$(BUNDLE_LOADER)";
 			};
 			name = Release;
 		};
@@ -1183,15 +1117,6 @@
 			buildConfigurations = (
 				B883C1E82280FC180094CC9D /* Debug */,
 				B883C1E92280FC180094CC9D /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		B883C1EA2280FC180094CC9D /* Build configuration list for PBXNativeTarget "Legere-iOSUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				B883C1EB2280FC180094CC9D /* Debug */,
-				B883C1EC2280FC180094CC9D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
