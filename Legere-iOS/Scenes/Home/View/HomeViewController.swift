@@ -23,7 +23,6 @@ final class HomeViewController: BaseViewController
     override func viewDidLoad() {
         super.viewDidLoad()
         self.hero.isEnabled = true
-        setupNavbar()
         setupCollectionView()
         setupPullToRefresh()
     }
