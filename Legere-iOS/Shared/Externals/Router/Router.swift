@@ -10,7 +10,7 @@ import SwiftMessages
 
 class Router: RouterProtocol {
     
-    var presentedView: BaseViewController!
+    var presentedView: UIViewController!
     
     func present(view: UIViewController) {
         presentedView.present(view, animated: true, completion: nil)
