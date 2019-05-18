@@ -419,11 +419,11 @@
             </objects>
             <point key="canvasLocation" x="752.79999999999995" y="127.28635682158921"/>
         </scene>
-        <!--Navigation Controller-->
+        <!--Write-->
         <scene sceneID="dEd-2c-h8U">
             <objects>
                 <navigationController id="rer-Fg-rdh" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" image="ic_create_article_unselected" selectedImage="ic_create_article_selected" id="fwe-Fn-aZF"/>
+                    <tabBarItem key="tabBarItem" title="Write" image="ic_create_article_unselected" selectedImage="ic_create_article_selected" id="fwe-Fn-aZF"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" largeTitles="YES" id="hWK-AS-gzp">
                         <rect key="frame" x="0.0" y="44" width="375" height="96"/>
                         <autoresizingMask key="autoresizingMask"/>
