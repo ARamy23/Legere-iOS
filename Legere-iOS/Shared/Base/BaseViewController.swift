@@ -25,9 +25,22 @@ class BaseViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         router.presentedView = self
+        setupNavbar()
         bind()
     }
     
-    func initialize() {}
-    func bind() {}
+    /// Initializes the necessary contents for the view to load correctly
+    func initialize() {
+        // Override
+    }
+    
+    /// Binds the entities of the controller to the viewModel
+    func bind() {
+        // Override
+    }
+    
+    private func setupNavbar() {
+        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
+        self.navigationController?.navigationBar.shadowImage = UIImage()
+    }
 }

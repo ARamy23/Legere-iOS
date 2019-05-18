@@ -20,18 +20,12 @@ final class HomeViewController: BaseViewController
     
     var refresher: UIRefreshControl?
     
-    override func viewDidLoad()
-    {
+    override func viewDidLoad() {
         super.viewDidLoad()
         self.hero.isEnabled = true
         setupNavbar()
         setupCollectionView()
         setupPullToRefresh()
-    }
-    
-    private func setupNavbar() {
-        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
-        self.navigationController?.navigationBar.shadowImage = UIImage()
     }
     
     private func setupCollectionView() {
