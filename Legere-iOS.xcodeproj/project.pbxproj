@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0D59CFD5FF01212629DC6A74 /* Pods_Legere_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 677C81327C9150A5D4E3AF46 /* Pods_Legere_iOS.framework */; };
 		B2A83EAE752403CBA7F96ADD /* Pods_Legere_iOSTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C149BAF187DE8EF80265FA3 /* Pods_Legere_iOSTests.framework */; };
+		B8638AF1228FA64E00FACE40 /* PlaceholderTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8638AF0228FA64E00FACE40 /* PlaceholderTextView.swift */; };
 		B883C1C02280FC170094CC9D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1BF2280FC170094CC9D /* AppDelegate.swift */; };
 		B883C1CA2280FC180094CC9D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B883C1C82280FC180094CC9D /* LaunchScreen.storyboard */; };
 		B883C2462280FC5A0094CC9D /* ArticleCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1F02280FC580094CC9D /* ArticleCollectionViewCell.swift */; };
@@ -90,6 +91,7 @@
 		34A465A9A356EF6B0108FA61 /* Pods-Legere-iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOS.release.xcconfig"; path = "Target Support Files/Pods-Legere-iOS/Pods-Legere-iOS.release.xcconfig"; sourceTree = "<group>"; };
 		677C81327C9150A5D4E3AF46 /* Pods_Legere_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Legere_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8C149BAF187DE8EF80265FA3 /* Pods_Legere_iOSTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Legere_iOSTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B8638AF0228FA64E00FACE40 /* PlaceholderTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderTextView.swift; sourceTree = "<group>"; };
 		B883C1BC2280FC170094CC9D /* Legere-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Legere-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B883C1BF2280FC170094CC9D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B883C1C92280FC180094CC9D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -200,6 +202,14 @@
 				BC76ECF1BC9D6E95BD4EF2CC /* Pods-Legere-iOSTests.release.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		B8638AEF228FA61E00FACE40 /* Textview */ = {
+			isa = PBXGroup;
+			children = (
+				B8638AF0228FA64E00FACE40 /* PlaceholderTextView.swift */,
+			);
+			path = Textview;
 			sourceTree = "<group>";
 		};
 		B883C1B32280FC170094CC9D = {
@@ -489,9 +499,10 @@
 		B883C23E2280FC5A0094CC9D /* Reusable Views */ = {
 			isa = PBXGroup;
 			children = (
-				B883C23F2280FC5A0094CC9D /* Searchbar */,
 				B883C2422280FC5A0094CC9D /* BaseCustomView.swift */,
+				B883C23F2280FC5A0094CC9D /* Searchbar */,
 				B883C2432280FC5A0094CC9D /* Textfield */,
+				B8638AEF228FA61E00FACE40 /* Textview */,
 			);
 			path = "Reusable Views";
 			sourceTree = "<group>";
@@ -824,6 +835,7 @@
 				B883C2672280FC5A0094CC9D /* UserDefaults.swift in Sources */,
 				B883C2612280FC5A0094CC9D /* LoginFormView.swift in Sources */,
 				B883C25C2280FC5A0094CC9D /* LoginViewModel.swift in Sources */,
+				B8638AF1228FA64E00FACE40 /* PlaceholderTextView.swift in Sources */,
 				B883C26F2280FC5A0094CC9D /* IsValidName.swift in Sources */,
 				B883C26C2280FC5A0094CC9D /* NotEmpty.swift in Sources */,
 				B883C2772280FC5A0094CC9D /* Codable+Helpers.swift in Sources */,

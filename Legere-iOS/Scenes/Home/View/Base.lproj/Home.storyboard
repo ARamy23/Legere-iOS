@@ -390,11 +390,12 @@
                     </tabBar>
                     <connections>
                         <segue destination="VF5-yG-lJc" kind="relationship" relationship="viewControllers" id="985-cs-srX"/>
+                        <segue destination="rer-Fg-rdh" kind="relationship" relationship="viewControllers" id="7PI-BP-mfb"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="hvM-5t-CSb" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-225" y="129"/>
+            <point key="canvasLocation" x="-167" y="-826"/>
         </scene>
         <!--Feed-->
         <scene sceneID="0gt-oo-OfK">
@@ -418,9 +419,136 @@
             </objects>
             <point key="canvasLocation" x="752.79999999999995" y="127.28635682158921"/>
         </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="dEd-2c-h8U">
+            <objects>
+                <navigationController id="rer-Fg-rdh" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" image="ic_create_article_unselected" selectedImage="ic_create_article_selected" id="fwe-Fn-aZF"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" largeTitles="YES" id="hWK-AS-gzp">
+                        <rect key="frame" x="0.0" y="44" width="375" height="96"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="adU-WQ-tSW" kind="relationship" relationship="rootViewController" id="vIf-AK-MDU"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="b6R-Uh-ksl" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-167" y="127"/>
+        </scene>
+        <!--New Article-->
+        <scene sceneID="x73-fB-7tQ">
+            <objects>
+                <viewController id="adU-WQ-tSW" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="KFY-xo-ie9">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="6iz-ou-7aJ" customClass="PlaceholderTextView" customModule="Legere_iOS" customModuleProvider="target">
+                                <rect key="frame" x="17" y="164" width="341" height="45.333333333333343"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <fontDescription key="fontDescription" name="HelveticaNeue-Bold" family="Helvetica Neue" pointSize="24"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences" autocorrectionType="yes" spellCheckingType="yes" returnKeyType="next" enablesReturnKeyAutomatically="YES" smartDashesType="yes" smartInsertDeleteType="yes" smartQuotesType="yes"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="string" keyPath="placeholder" value="Title"/>
+                                </userDefinedRuntimeAttributes>
+                            </textView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VaW-GC-oNt">
+                                <rect key="frame" x="24" y="219.33333333333334" width="327" height="1"/>
+                                <color key="backgroundColor" red="0.94509803920000002" green="0.96862745100000003" blue="0.98431372549999996" alpha="1" colorSpace="deviceRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="1" id="4uI-mK-yt5"/>
+                                </constraints>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                        <real key="value" value="0.5"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                            </view>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" verticalHuggingPriority="249" verticalCompressionResistancePriority="749" alwaysBounceVertical="YES" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" keyboardDismissMode="interactive" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="1zC-qk-za8" customClass="PlaceholderTextView" customModule="Legere_iOS" customModuleProvider="target">
+                                <rect key="frame" x="16" y="236.33333333333337" width="343" height="100"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" priority="250" constant="100" id="SaB-t5-lYf"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" name="HelveticaNeue-Light" family="Helvetica Neue" pointSize="17"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences" autocorrectionType="yes" spellCheckingType="yes" returnKeyType="done" enablesReturnKeyAutomatically="YES" smartDashesType="yes" smartInsertDeleteType="yes" smartQuotesType="yes"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="string" keyPath="placeholder" value="Like any great article, it starts with a single word…"/>
+                                </userDefinedRuntimeAttributes>
+                            </textView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Wee-8v-vjf" userLabel="Shadow View">
+                                <rect key="frame" x="16" y="360.33333333333331" width="343" height="50"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OF0-GW-DB1">
+                                        <rect key="frame" x="0.0" y="0.0" width="343" height="50"/>
+                                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <fontDescription key="fontDescription" name="HelveticaNeue-Bold" family="Helvetica Neue" pointSize="30"/>
+                                        <state key="normal" title="Publish">
+                                            <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        </state>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                                <real key="value" value="25"/>
+                                            </userDefinedRuntimeAttribute>
+                                        </userDefinedRuntimeAttributes>
+                                    </button>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstAttribute="bottom" secondItem="OF0-GW-DB1" secondAttribute="bottom" id="1Wd-Qh-ZGW"/>
+                                    <constraint firstAttribute="height" constant="50" id="BFz-Nx-BDw"/>
+                                    <constraint firstAttribute="trailing" secondItem="OF0-GW-DB1" secondAttribute="trailing" id="LoT-26-6tQ"/>
+                                    <constraint firstItem="OF0-GW-DB1" firstAttribute="leading" secondItem="Wee-8v-vjf" secondAttribute="leading" id="uNp-x0-3fw"/>
+                                    <constraint firstItem="OF0-GW-DB1" firstAttribute="top" secondItem="Wee-8v-vjf" secondAttribute="top" id="xd4-0k-NLQ"/>
+                                </constraints>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="shadowColor">
+                                        <color key="value" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="size" keyPath="shadowOffset">
+                                        <size key="value" width="0.0" height="1"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="shadowOpacity">
+                                        <real key="value" value="1"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="shadowRadius">
+                                        <real key="value" value="12"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="1wa-hI-nW5" firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="Wee-8v-vjf" secondAttribute="bottom" constant="8" id="1It-Cr-BGG"/>
+                            <constraint firstItem="VaW-GC-oNt" firstAttribute="leading" secondItem="1wa-hI-nW5" secondAttribute="leading" constant="24" id="GJR-Hy-vNN"/>
+                            <constraint firstItem="1wa-hI-nW5" firstAttribute="trailing" secondItem="Wee-8v-vjf" secondAttribute="trailing" constant="16" id="GVh-8Z-t5S"/>
+                            <constraint firstItem="VaW-GC-oNt" firstAttribute="top" secondItem="6iz-ou-7aJ" secondAttribute="bottom" constant="10" id="WYj-wq-FeX"/>
+                            <constraint firstItem="1zC-qk-za8" firstAttribute="top" secondItem="VaW-GC-oNt" secondAttribute="bottom" constant="16" id="apS-1z-dkl"/>
+                            <constraint firstItem="1wa-hI-nW5" firstAttribute="trailing" secondItem="6iz-ou-7aJ" secondAttribute="trailing" constant="17" id="c4h-jU-Xcs"/>
+                            <constraint firstItem="1zC-qk-za8" firstAttribute="leading" secondItem="1wa-hI-nW5" secondAttribute="leading" constant="16" id="c5W-9J-4dM"/>
+                            <constraint firstItem="1wa-hI-nW5" firstAttribute="trailing" secondItem="VaW-GC-oNt" secondAttribute="trailing" constant="24" id="gNc-Wh-o65"/>
+                            <constraint firstItem="Wee-8v-vjf" firstAttribute="leading" secondItem="1wa-hI-nW5" secondAttribute="leading" constant="16" id="hF6-wY-bCK"/>
+                            <constraint firstItem="6iz-ou-7aJ" firstAttribute="top" secondItem="1wa-hI-nW5" secondAttribute="top" constant="24" id="jpt-29-t9i"/>
+                            <constraint firstItem="Wee-8v-vjf" firstAttribute="top" secondItem="1zC-qk-za8" secondAttribute="bottom" constant="24" id="rdZ-kd-DIU"/>
+                            <constraint firstItem="6iz-ou-7aJ" firstAttribute="leading" secondItem="1wa-hI-nW5" secondAttribute="leading" constant="17" id="u1w-qM-dQM"/>
+                            <constraint firstItem="1wa-hI-nW5" firstAttribute="trailing" secondItem="1zC-qk-za8" secondAttribute="trailing" constant="16" id="v3x-cf-EZL"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="1wa-hI-nW5"/>
+                    </view>
+                    <navigationItem key="navigationItem" title="New Article" largeTitleDisplayMode="always" id="y4r-EE-nuV">
+                        <barButtonItem key="rightBarButtonItem" style="plain" systemItem="bookmarks" id="b9M-JA-SB6">
+                            <color key="tintColor" cocoaTouchSystemColor="darkTextColor"/>
+                        </barButtonItem>
+                    </navigationItem>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="llm-gJ-caV" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-167" y="837"/>
+        </scene>
     </scenes>
     <resources>
         <image name="ic_back_button" width="58" height="58"/>
+        <image name="ic_create_article_selected" width="40" height="40"/>
+        <image name="ic_create_article_unselected" width="40" height="40"/>
         <image name="ic_feed" width="40" height="40"/>
         <image name="ic_love_unselected" width="512" height="512"/>
     </resources>
