@@ -677,6 +677,7 @@
 					};
 					B883C1CF2280FC180094CC9D = {
 						CreatedOnToolsVersion = 10.1;
+						TestTargetID = B883C1BB2280FC170094CC9D;
 					};
 				};
 			};
@@ -1138,6 +1139,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = CE6B995BFDD3CE096A8561BF /* Pods-Legere-iOSTests.debug.xcconfig */;
 			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 969Y6REAB6;
 				INFOPLIST_FILE = "Legere-iOSTests/Info.plist";
@@ -1151,6 +1153,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Legere-iOS.app/Legere-iOS";
 			};
 			name = Debug;
 		};
@@ -1158,6 +1161,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = BC76ECF1BC9D6E95BD4EF2CC /* Pods-Legere-iOSTests.release.xcconfig */;
 			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 969Y6REAB6;
 				INFOPLIST_FILE = "Legere-iOSTests/Info.plist";
@@ -1171,6 +1175,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Legere-iOS.app/Legere-iOS";
 			};
 			name = Release;
 		};
