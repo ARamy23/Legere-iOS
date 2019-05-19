@@ -24,6 +24,7 @@ class BaseViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.hero.isEnabled = true
         router.presentedView = self
         setupNavbar()
         bind()

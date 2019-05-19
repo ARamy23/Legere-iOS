@@ -18,6 +18,8 @@ class MainTabBarController: UITabBarController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.hero.isEnabled = true
+        self.hero.tabBarAnimationType = .fade
         self.viewControllers = setupTabsScenes()
         self.tabBar.tintColor = .black
     }
