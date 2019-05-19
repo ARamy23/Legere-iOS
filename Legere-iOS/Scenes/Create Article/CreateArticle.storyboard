@@ -88,6 +88,9 @@
                                                                 <real key="value" value="25"/>
                                                             </userDefinedRuntimeAttribute>
                                                         </userDefinedRuntimeAttributes>
+                                                        <connections>
+                                                            <action selector="publishArticle:" destination="B7J-Zw-luU" eventType="touchUpInside" id="jWA-qg-TyX"/>
+                                                        </connections>
                                                     </button>
                                                 </subviews>
                                                 <constraints>
@@ -154,6 +157,10 @@
                             <color key="tintColor" cocoaTouchSystemColor="darkTextColor"/>
                         </barButtonItem>
                     </navigationItem>
+                    <connections>
+                        <outlet property="bodyTextView" destination="pNC-V5-SUZ" id="Jza-G3-72y"/>
+                        <outlet property="titleTextView" destination="52l-0x-2IL" id="u8P-Ax-yie"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="OQb-xr-Hht" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

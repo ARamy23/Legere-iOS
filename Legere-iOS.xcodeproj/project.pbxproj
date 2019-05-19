@@ -15,6 +15,9 @@
 		B8638B022290A2B600FACE40 /* MainTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8638B012290A2B600FACE40 /* MainTabBarController.swift */; };
 		B8638B042290A6AC00FACE40 /* CreateArticle.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B8638B032290A6AC00FACE40 /* CreateArticle.storyboard */; };
 		B8638B062290A72E00FACE40 /* CreateArticleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8638B052290A72E00FACE40 /* CreateArticleViewController.swift */; };
+		B8638B092290D98400FACE40 /* ArticleCreateData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8638B082290D98400FACE40 /* ArticleCreateData.swift */; };
+		B8638B0B2290DBA000FACE40 /* CreateArticleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8638B0A2290DBA000FACE40 /* CreateArticleViewModel.swift */; };
+		B8638B0D2290DD1900FACE40 /* CreateArticleInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8638B0C2290DD1900FACE40 /* CreateArticleInteractor.swift */; };
 		B883C1C02280FC170094CC9D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1BF2280FC170094CC9D /* AppDelegate.swift */; };
 		B883C1CA2280FC180094CC9D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B883C1C82280FC180094CC9D /* LaunchScreen.storyboard */; };
 		B883C2462280FC5A0094CC9D /* ArticleCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1F02280FC580094CC9D /* ArticleCollectionViewCell.swift */; };
@@ -102,6 +105,9 @@
 		B8638B012290A2B600FACE40 /* MainTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabBarController.swift; sourceTree = "<group>"; };
 		B8638B032290A6AC00FACE40 /* CreateArticle.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = CreateArticle.storyboard; sourceTree = "<group>"; };
 		B8638B052290A72E00FACE40 /* CreateArticleViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateArticleViewController.swift; sourceTree = "<group>"; };
+		B8638B082290D98400FACE40 /* ArticleCreateData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleCreateData.swift; sourceTree = "<group>"; };
+		B8638B0A2290DBA000FACE40 /* CreateArticleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateArticleViewModel.swift; sourceTree = "<group>"; };
+		B8638B0C2290DD1900FACE40 /* CreateArticleInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateArticleInteractor.swift; sourceTree = "<group>"; };
 		B883C1BC2280FC170094CC9D /* Legere-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Legere-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B883C1BF2280FC170094CC9D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B883C1C92280FC180094CC9D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -233,8 +239,11 @@
 		B8638AFF2290A24C00FACE40 /* Create Article */ = {
 			isa = PBXGroup;
 			children = (
+				B8638B072290D97200FACE40 /* Models */,
 				B8638B032290A6AC00FACE40 /* CreateArticle.storyboard */,
 				B8638B052290A72E00FACE40 /* CreateArticleViewController.swift */,
+				B8638B0A2290DBA000FACE40 /* CreateArticleViewModel.swift */,
+				B8638B0C2290DD1900FACE40 /* CreateArticleInteractor.swift */,
 			);
 			path = "Create Article";
 			sourceTree = "<group>";
@@ -245,6 +254,14 @@
 				B8638B012290A2B600FACE40 /* MainTabBarController.swift */,
 			);
 			path = "Main TabBarController";
+			sourceTree = "<group>";
+		};
+		B8638B072290D97200FACE40 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B8638B082290D98400FACE40 /* ArticleCreateData.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 		B883C1B32280FC170094CC9D = {
@@ -853,6 +870,7 @@
 				B883C2792280FC5A0094CC9D /* Storyboard.swift in Sources */,
 				B883C2522280FC5A0094CC9D /* DidLikeArticleInteractor.swift in Sources */,
 				B883C2652280FC5A0094CC9D /* Articles.swift in Sources */,
+				B8638B0B2290DBA000FACE40 /* CreateArticleViewModel.swift in Sources */,
 				B883C27B2280FC5A0094CC9D /* BaseViewModel.swift in Sources */,
 				B8638B062290A72E00FACE40 /* CreateArticleViewController.swift in Sources */,
 				B883C27C2280FC5A0094CC9D /* BaseInteractor.swift in Sources */,
@@ -874,6 +892,7 @@
 				B883C25A2280FC5A0094CC9D /* RegisterViewModel.swift in Sources */,
 				B883C2712280FC5A0094CC9D /* NotOptional.swift in Sources */,
 				B883C2672280FC5A0094CC9D /* UserDefaults.swift in Sources */,
+				B8638B0D2290DD1900FACE40 /* CreateArticleInteractor.swift in Sources */,
 				B883C2612280FC5A0094CC9D /* LoginFormView.swift in Sources */,
 				B883C25C2280FC5A0094CC9D /* LoginViewModel.swift in Sources */,
 				B8638AF92290775E00FACE40 /* KeyboardConstraint.swift in Sources */,
@@ -898,6 +917,7 @@
 				B8638B022290A2B600FACE40 /* MainTabBarController.swift in Sources */,
 				B883C25B2280FC5A0094CC9D /* AuthenticationViewController.swift in Sources */,
 				B883C2532280FC5A0094CC9D /* ArticleDetailsInteractor.swift in Sources */,
+				B8638B092290D98400FACE40 /* ArticleCreateData.swift in Sources */,
 				B883C285228148CF0094CC9D /* ReachabilityValidator.swift in Sources */,
 				B883C24B2280FC5A0094CC9D /* ArticleDetails.swift in Sources */,
 				B883C2632280FC5A0094CC9D /* Authentication.swift in Sources */,

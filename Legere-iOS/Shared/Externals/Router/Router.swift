@@ -56,4 +56,10 @@ class Router: RouterProtocol {
         
         SwiftMessages.show(config: config, view: view)
     }
+    
+    func switchTabBar(to tabIndex: TabBarScenes) {
+        guard let tabBarController = presentedView.tabBarController else { return }
+        tabBarController.selectedIndex = tabIndex.rawValue
+        presentedView = tabBarController.selectedViewController
+    }
 }

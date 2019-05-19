@@ -31,4 +31,5 @@ protocol RouterProtocol {
     func segue(storyboard: AppStoryboard, vc: UIViewController.Type)
     func alert(title: String, message: String, actions: [(title: String, style: UIAlertAction.Style)])
     func toastError(title: String, message: String)
+    func switchTabBar(to tabIndex: TabBarScenes)
 }

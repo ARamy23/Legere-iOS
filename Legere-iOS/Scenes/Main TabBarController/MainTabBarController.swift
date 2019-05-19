@@ -8,6 +8,11 @@
 
 import UIKit
 
+enum TabBarScenes: Int {
+    case feed = 0
+    case writeArticle = 1
+}
+
 class MainTabBarController: UITabBarController {
     var router: RouterProtocol = Router()
     

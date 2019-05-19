@@ -13,12 +13,13 @@ enum ArticlesService {
     case articleDetails(id: Int)
     case didRead(articleId: Int)
     case didLike(articleId: Int)
+    case createArticle(article: ArticleCreateData)
 }
 
 extension ArticlesService: BaseTargetType {
     var path: String {
         switch self {
-        case .allArticles:
+        case .allArticles, .createArticle:
             return "/api/articles"
         case .articleDetails(id: let id):
             return "/api/articles/\(id)"
@@ -39,6 +40,8 @@ extension ArticlesService: BaseTargetType {
             return .put
         case .didLike:
             return .put
+        case .createArticle:
+            return .post
         }
     }
     
@@ -57,6 +60,8 @@ extension ArticlesService: BaseTargetType {
         case .didLike:
             guard let userID = UserDefaultsManager.getObject(User.self, key: .user)?.id else { fatalError() }
             return .requestParameters(parameters: ["userID": userID.uuidString], encoding: JSONEncoding.default)
+        case .createArticle(article: let article):
+            return .requestJSONEncodable(article)
         }
     }
 }
