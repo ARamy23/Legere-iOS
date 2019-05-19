@@ -18,6 +18,7 @@
 		B8638B092290D98400FACE40 /* ArticleCreateData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8638B082290D98400FACE40 /* ArticleCreateData.swift */; };
 		B8638B0B2290DBA000FACE40 /* CreateArticleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8638B0A2290DBA000FACE40 /* CreateArticleViewModel.swift */; };
 		B8638B0D2290DD1900FACE40 /* CreateArticleInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8638B0C2290DD1900FACE40 /* CreateArticleInteractor.swift */; };
+		B8638B102290FEBA00FACE40 /* CreateArticleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8638B0F2290FEB900FACE40 /* CreateArticleTests.swift */; };
 		B883C1C02280FC170094CC9D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1BF2280FC170094CC9D /* AppDelegate.swift */; };
 		B883C1CA2280FC180094CC9D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B883C1C82280FC180094CC9D /* LaunchScreen.storyboard */; };
 		B883C2462280FC5A0094CC9D /* ArticleCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1F02280FC580094CC9D /* ArticleCollectionViewCell.swift */; };
@@ -108,6 +109,7 @@
 		B8638B082290D98400FACE40 /* ArticleCreateData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleCreateData.swift; sourceTree = "<group>"; };
 		B8638B0A2290DBA000FACE40 /* CreateArticleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateArticleViewModel.swift; sourceTree = "<group>"; };
 		B8638B0C2290DD1900FACE40 /* CreateArticleInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateArticleInteractor.swift; sourceTree = "<group>"; };
+		B8638B0F2290FEB900FACE40 /* CreateArticleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateArticleTests.swift; sourceTree = "<group>"; };
 		B883C1BC2280FC170094CC9D /* Legere-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Legere-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B883C1BF2280FC170094CC9D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B883C1C92280FC180094CC9D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -262,6 +264,14 @@
 				B8638B082290D98400FACE40 /* ArticleCreateData.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		B8638B0E2290FE9B00FACE40 /* Create Article */ = {
+			isa = PBXGroup;
+			children = (
+				B8638B0F2290FEB900FACE40 /* CreateArticleTests.swift */,
+			);
+			path = "Create Article";
 			sourceTree = "<group>";
 		};
 		B883C1B32280FC170094CC9D = {
@@ -594,6 +604,7 @@
 		B883C291228153950094CC9D /* Scenes */ = {
 			isa = PBXGroup;
 			children = (
+				B8638B0E2290FE9B00FACE40 /* Create Article */,
 				B883C294228154910094CC9D /* Welcome */,
 				B883C292228153BF0094CC9D /* BaseSceneTests.swift */,
 			);
@@ -934,6 +945,7 @@
 				B883C297228154C80094CC9D /* LoginTests.swift in Sources */,
 				B883C28D22814FE40094CC9D /* CacheMock.swift in Sources */,
 				B883C293228153BF0094CC9D /* BaseSceneTests.swift in Sources */,
+				B8638B102290FEBA00FACE40 /* CreateArticleTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

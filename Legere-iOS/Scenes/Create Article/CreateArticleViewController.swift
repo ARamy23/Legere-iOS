@@ -24,6 +24,18 @@ class CreateArticleViewController: BaseViewController {
         bodyTextView.bind(with: viewModel.body)
     }
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        titleTextView.text = cache.getObject(String.self, key: .draftTitle)
+        bodyTextView.text = cache.getObject(String.self, key: .draftBody)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        cache.saveObject(titleTextView.text, key: .draftTitle)
+        cache.saveObject(bodyTextView.text, key: .draftBody)
+    }
+    
     @IBAction func publishArticle(_ sender: Any) {
         viewModel.publish()
     }

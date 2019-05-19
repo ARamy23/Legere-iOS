@@ -20,6 +20,7 @@ enum RoutingAction: Equatable {
     case segue(_ storyboard: AppStoryboard, _ vc: UIViewController.Type)
     case alert(_ message: String)
     case toast(_ message: String)
+    case tabSwitch(_ index: TabBarScenes)
     
     static public func ==(lhs: RoutingAction, rhs: RoutingAction) -> Bool {
         switch (lhs, rhs) {
@@ -27,6 +28,7 @@ enum RoutingAction: Equatable {
         case let (.alert(a), .alert(b)): return a == b
         case let (.toast(a), .toast(b)): return a == b
         case let (.segue(a, b), .segue(c, d)): return a == c && b == d
+        case let (.tabSwitch(a), .tabSwitch(b)): return a == b
         case (.activityStart, .activityStart),
              (.activityStop, .activityStop),
              (.dismiss, .dismiss),
@@ -39,7 +41,11 @@ enum RoutingAction: Equatable {
 }
 
 class RouterMock: RouterProtocol {
-    var presentedView: BaseViewController!
+    var presentedView: UIViewController!
+    
+    func switchTabBar(to tabIndex: TabBarScenes) {
+        actions.append(.tabSwitch(tabIndex))
+    }
     
     var actions: [RoutingAction] = []
     

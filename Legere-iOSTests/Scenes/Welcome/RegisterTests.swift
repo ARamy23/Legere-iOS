@@ -12,7 +12,7 @@ import XCTest
 @testable import Promises
 
 
-class RegisterTests: BaseSceneTests {
+final class RegisterTests: BaseSceneTests {
 
     var viewModel: RegisterViewModel!
     

@@ -19,7 +19,8 @@ final class LoginViewModel: BaseViewModel {
             guard let self = self else { return }
             self.cache.saveObject(token, key: .token)
             SwiftEntryKit.dismiss()
-            guard let tabBar = AppStoryboard.Home.initialViewController() as? UITabBarController else { fatalError() }
+            let tabBar = MainTabBarController()
+            tabBar.router = self.router
             self.router.present(view: tabBar)
             }.catch(handleError)
     }
