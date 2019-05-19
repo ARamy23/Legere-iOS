@@ -6,17 +6,18 @@
 //  Copyright © 2019 Ahmed Ramy. All rights reserved.
 //
 
-import SimpleTwoWayBinding
+import RxSwift
+import RxCocoa
 import Promises
 
 final class CreateArticleViewModel: BaseViewModel {
-    var title: Observable<String> = Observable("")
-    var body: Observable<String> = Observable("")
+    var title = BehaviorRelay<String>(value: "")
+    var body = BehaviorRelay<String>(value: "")
     
     override init(cache: CacheProtocol, router: RouterProtocol, network: NetworkProtocol) {
         super.init(cache: cache, router: router, network: network)
-        title.value = cache.getObject(String.self, key: .draftTitle) ?? ""
-        body.value = cache.getObject(String.self, key: .draftBody) ?? ""
+        title.accept(cache.getObject(String.self, key: .draftTitle) ?? "")
+        body.accept(cache.getObject(String.self, key: .draftBody) ?? "")
     }
     
     func publish() {
@@ -24,8 +25,8 @@ final class CreateArticleViewModel: BaseViewModel {
             guard let self = self else { return }
             self.cache.removeObject(key: .draftTitle)
             self.cache.removeObject(key: .draftBody)
-            self.title.value = ""
-            self.body.value = ""
+            self.title.accept("")
+            self.body.accept("")
             self.router.switchTabBar(to: .feed)
         }.catch(handleError)
     }

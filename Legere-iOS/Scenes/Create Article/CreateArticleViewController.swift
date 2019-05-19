@@ -7,7 +7,8 @@
 //
 
 import UIKit
-import SimpleTwoWayBinding
+import RxSwift
+import RxCocoa
 
 class CreateArticleViewController: BaseViewController {
     
@@ -19,9 +20,8 @@ class CreateArticleViewController: BaseViewController {
     override func bind() {
         super.bind()
         viewModel = CreateArticleViewModel(cache: cache, router: router, network: network)
-        
-        titleTextView.bind(with: viewModel.title)
-        bodyTextView.bind(with: viewModel.body)
+        titleTextView.rx.text.orEmpty.bind(to: viewModel.title).disposed(by: disposeBag)
+        bodyTextView.rx.text.orEmpty.bind(to: viewModel.body).disposed(by: disposeBag)
     }
     
     override func initialize() {

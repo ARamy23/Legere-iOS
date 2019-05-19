@@ -58,7 +58,7 @@ final class CreateArticleTests: BaseSceneTests {
     
     func testShowingToastErrorWhenTryingToPublishWithEmptyBody() {
         // Given
-        viewModel.title.value = "Title"
+        viewModel.title.accept("Title")
         
         // When
         viewModel.publish()
@@ -74,8 +74,8 @@ final class CreateArticleTests: BaseSceneTests {
         let articleCreateData = ArticleCreateData(title: "Hi", details: "Hello")
         network = NetworkMock(object: articleCreateData)
         initialize()
-        viewModel.title.value = "Hi"
-        viewModel.body.value = "Hello"
+        viewModel.title.accept("Hi")
+        viewModel.body.accept("Hello")
         
         // When
         viewModel.publish()
@@ -95,8 +95,8 @@ final class CreateArticleTests: BaseSceneTests {
         let incomingArticle = Article(title: "Hi", details: "Hello", userID: "")
         network = NetworkMock(object: incomingArticle)
         initialize()
-        viewModel.title.value = "Hi"
-        viewModel.body.value = "Hello"
+        viewModel.title.accept("Hi")
+        viewModel.body.accept("Hello")
         
         // When
         viewModel.publish()
@@ -111,8 +111,8 @@ final class CreateArticleTests: BaseSceneTests {
         let incomingArticle = Article(title: "Hi", details: "Hello", userID: "")
         network = NetworkMock(object: incomingArticle)
         initialize()
-        viewModel.title.value = "Hi"
-        viewModel.body.value = "Hello"
+        viewModel.title.accept("Hi")
+        viewModel.body.accept("Hello")
         self.measure {
             viewModel.publish()
             _ = waitForPromises(timeout: 10)
