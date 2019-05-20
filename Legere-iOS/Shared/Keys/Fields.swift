@@ -17,4 +17,8 @@ extension String {
     static let confirmPasswordField = "confirmPassword"
     
     // MARK: - Home Module
+    
+    // MARK: - Create Article Module
+    static let titleField = "title"
+    static let bodyField = "body"
 }

@@ -31,7 +31,11 @@ class BaseInteractor {
     func validate() throws {
         try ToSeeIfIsReachable().orThrow()
     }
-    func extract() {}
+    
+    /// Use this to extract values from cache or network before you can execute the command
+    func extract() {
+        // Override
+    }
     
     func process<T: Codable>(_ model: T.Type) -> Promise<T> {
         return Promise<T>.init(NSError(domain: "Error", code: 100, userInfo: nil))

@@ -10,7 +10,7 @@ import SwiftMessages
 
 class Router: RouterProtocol {
     
-    var presentedView: BaseViewController!
+    var presentedView: UIViewController!
     
     func present(view: UIViewController) {
         presentedView.present(view, animated: true, completion: nil)
@@ -55,5 +55,11 @@ class Router: RouterProtocol {
         
         
         SwiftMessages.show(config: config, view: view)
+    }
+    
+    func switchTabBar(to tabIndex: TabBarScenes) {
+        guard let tabBarController = presentedView.tabBarController else { return }
+        tabBarController.selectedIndex = tabIndex.rawValue
+        presentedView = tabBarController.selectedViewController
     }
 }

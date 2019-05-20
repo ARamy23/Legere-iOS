@@ -9,6 +9,16 @@
 /* Begin PBXBuildFile section */
 		0D59CFD5FF01212629DC6A74 /* Pods_Legere_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 677C81327C9150A5D4E3AF46 /* Pods_Legere_iOS.framework */; };
 		B2A83EAE752403CBA7F96ADD /* Pods_Legere_iOSTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C149BAF187DE8EF80265FA3 /* Pods_Legere_iOSTests.framework */; };
+		B8638AF1228FA64E00FACE40 /* PlaceholderTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8638AF0228FA64E00FACE40 /* PlaceholderTextView.swift */; };
+		B8638AF92290775E00FACE40 /* KeyboardConstraint.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8638AF82290775E00FACE40 /* KeyboardConstraint.swift */; };
+		B8638AFC22907CDC00FACE40 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8638AFB22907CDC00FACE40 /* AppCoordinator.swift */; };
+		B8638B022290A2B600FACE40 /* MainTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8638B012290A2B600FACE40 /* MainTabBarController.swift */; };
+		B8638B042290A6AC00FACE40 /* CreateArticle.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B8638B032290A6AC00FACE40 /* CreateArticle.storyboard */; };
+		B8638B062290A72E00FACE40 /* CreateArticleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8638B052290A72E00FACE40 /* CreateArticleViewController.swift */; };
+		B8638B092290D98400FACE40 /* ArticleCreateData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8638B082290D98400FACE40 /* ArticleCreateData.swift */; };
+		B8638B0B2290DBA000FACE40 /* CreateArticleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8638B0A2290DBA000FACE40 /* CreateArticleViewModel.swift */; };
+		B8638B0D2290DD1900FACE40 /* CreateArticleInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8638B0C2290DD1900FACE40 /* CreateArticleInteractor.swift */; };
+		B8638B102290FEBA00FACE40 /* CreateArticleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8638B0F2290FEB900FACE40 /* CreateArticleTests.swift */; };
 		B883C1C02280FC170094CC9D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1BF2280FC170094CC9D /* AppDelegate.swift */; };
 		B883C1CA2280FC180094CC9D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B883C1C82280FC180094CC9D /* LaunchScreen.storyboard */; };
 		B883C2462280FC5A0094CC9D /* ArticleCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C1F02280FC580094CC9D /* ArticleCollectionViewCell.swift */; };
@@ -90,6 +100,16 @@
 		34A465A9A356EF6B0108FA61 /* Pods-Legere-iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOS.release.xcconfig"; path = "Target Support Files/Pods-Legere-iOS/Pods-Legere-iOS.release.xcconfig"; sourceTree = "<group>"; };
 		677C81327C9150A5D4E3AF46 /* Pods_Legere_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Legere_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8C149BAF187DE8EF80265FA3 /* Pods_Legere_iOSTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Legere_iOSTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B8638AF0228FA64E00FACE40 /* PlaceholderTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderTextView.swift; sourceTree = "<group>"; };
+		B8638AF82290775E00FACE40 /* KeyboardConstraint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardConstraint.swift; sourceTree = "<group>"; };
+		B8638AFB22907CDC00FACE40 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
+		B8638B012290A2B600FACE40 /* MainTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabBarController.swift; sourceTree = "<group>"; };
+		B8638B032290A6AC00FACE40 /* CreateArticle.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = CreateArticle.storyboard; sourceTree = "<group>"; };
+		B8638B052290A72E00FACE40 /* CreateArticleViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateArticleViewController.swift; sourceTree = "<group>"; };
+		B8638B082290D98400FACE40 /* ArticleCreateData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleCreateData.swift; sourceTree = "<group>"; };
+		B8638B0A2290DBA000FACE40 /* CreateArticleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateArticleViewModel.swift; sourceTree = "<group>"; };
+		B8638B0C2290DD1900FACE40 /* CreateArticleInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateArticleInteractor.swift; sourceTree = "<group>"; };
+		B8638B0F2290FEB900FACE40 /* CreateArticleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateArticleTests.swift; sourceTree = "<group>"; };
 		B883C1BC2280FC170094CC9D /* Legere-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Legere-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B883C1BF2280FC170094CC9D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B883C1C92280FC180094CC9D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -202,6 +222,58 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
+		B8638AEF228FA61E00FACE40 /* Textview */ = {
+			isa = PBXGroup;
+			children = (
+				B8638AF0228FA64E00FACE40 /* PlaceholderTextView.swift */,
+			);
+			path = Textview;
+			sourceTree = "<group>";
+		};
+		B8638AFA22907CB000FACE40 /* Coordinators */ = {
+			isa = PBXGroup;
+			children = (
+				B8638AFB22907CDC00FACE40 /* AppCoordinator.swift */,
+			);
+			path = Coordinators;
+			sourceTree = "<group>";
+		};
+		B8638AFF2290A24C00FACE40 /* Create Article */ = {
+			isa = PBXGroup;
+			children = (
+				B8638B072290D97200FACE40 /* Models */,
+				B8638B032290A6AC00FACE40 /* CreateArticle.storyboard */,
+				B8638B052290A72E00FACE40 /* CreateArticleViewController.swift */,
+				B8638B0A2290DBA000FACE40 /* CreateArticleViewModel.swift */,
+				B8638B0C2290DD1900FACE40 /* CreateArticleInteractor.swift */,
+			);
+			path = "Create Article";
+			sourceTree = "<group>";
+		};
+		B8638B002290A29100FACE40 /* Main TabBarController */ = {
+			isa = PBXGroup;
+			children = (
+				B8638B012290A2B600FACE40 /* MainTabBarController.swift */,
+			);
+			path = "Main TabBarController";
+			sourceTree = "<group>";
+		};
+		B8638B072290D97200FACE40 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B8638B082290D98400FACE40 /* ArticleCreateData.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		B8638B0E2290FE9B00FACE40 /* Create Article */ = {
+			isa = PBXGroup;
+			children = (
+				B8638B0F2290FEB900FACE40 /* CreateArticleTests.swift */,
+			);
+			path = "Create Article";
+			sourceTree = "<group>";
+		};
 		B883C1B32280FC170094CC9D = {
 			isa = PBXGroup;
 			children = (
@@ -248,6 +320,8 @@
 		B883C1ED2280FC580094CC9D /* Scenes */ = {
 			isa = PBXGroup;
 			children = (
+				B8638B002290A29100FACE40 /* Main TabBarController */,
+				B8638AFF2290A24C00FACE40 /* Create Article */,
 				B883C1EE2280FC580094CC9D /* Home */,
 				B883C2042280FC580094CC9D /* Welcome */,
 			);
@@ -377,6 +451,7 @@
 		B883C2182280FC5A0094CC9D /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				B8638AFA22907CB000FACE40 /* Coordinators */,
 				B883C2192280FC5A0094CC9D /* Networking */,
 				B883C21D2280FC5A0094CC9D /* Externals */,
 				B883C2252280FC5A0094CC9D /* Keys */,
@@ -472,6 +547,7 @@
 			children = (
 				B883C2382280FC5A0094CC9D /* StringUtils.swift */,
 				B883C2392280FC5A0094CC9D /* Storyboard.swift */,
+				B8638AF82290775E00FACE40 /* KeyboardConstraint.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -489,9 +565,10 @@
 		B883C23E2280FC5A0094CC9D /* Reusable Views */ = {
 			isa = PBXGroup;
 			children = (
-				B883C23F2280FC5A0094CC9D /* Searchbar */,
 				B883C2422280FC5A0094CC9D /* BaseCustomView.swift */,
+				B883C23F2280FC5A0094CC9D /* Searchbar */,
 				B883C2432280FC5A0094CC9D /* Textfield */,
+				B8638AEF228FA61E00FACE40 /* Textview */,
 			);
 			path = "Reusable Views";
 			sourceTree = "<group>";
@@ -527,6 +604,7 @@
 		B883C291228153950094CC9D /* Scenes */ = {
 			isa = PBXGroup;
 			children = (
+				B8638B0E2290FE9B00FACE40 /* Create Article */,
 				B883C294228154910094CC9D /* Welcome */,
 				B883C292228153BF0094CC9D /* BaseSceneTests.swift */,
 			);
@@ -630,6 +708,7 @@
 				B883C2562280FC5A0094CC9D /* Welcome.storyboard in Resources */,
 				B883C1CA2280FC180094CC9D /* LaunchScreen.storyboard in Resources */,
 				B883C27D2280FC5A0094CC9D /* Searchbar.xib in Resources */,
+				B8638B042290A6AC00FACE40 /* CreateArticle.storyboard in Resources */,
 				B883C2492280FC5A0094CC9D /* ArticleCollectionViewCell.xib in Resources */,
 				B883C25F2280FC5A0094CC9D /* RegisterFormView.xib in Resources */,
 				B883C2482280FC5A0094CC9D /* ArticleSearchbarView.xib in Resources */,
@@ -802,7 +881,9 @@
 				B883C2792280FC5A0094CC9D /* Storyboard.swift in Sources */,
 				B883C2522280FC5A0094CC9D /* DidLikeArticleInteractor.swift in Sources */,
 				B883C2652280FC5A0094CC9D /* Articles.swift in Sources */,
+				B8638B0B2290DBA000FACE40 /* CreateArticleViewModel.swift in Sources */,
 				B883C27B2280FC5A0094CC9D /* BaseViewModel.swift in Sources */,
+				B8638B062290A72E00FACE40 /* CreateArticleViewController.swift in Sources */,
 				B883C27C2280FC5A0094CC9D /* BaseInteractor.swift in Sources */,
 				B883C27E2280FC5A0094CC9D /* Searchbar.swift in Sources */,
 				B883C2682280FC5A0094CC9D /* MoyaManager.swift in Sources */,
@@ -822,8 +903,11 @@
 				B883C25A2280FC5A0094CC9D /* RegisterViewModel.swift in Sources */,
 				B883C2712280FC5A0094CC9D /* NotOptional.swift in Sources */,
 				B883C2672280FC5A0094CC9D /* UserDefaults.swift in Sources */,
+				B8638B0D2290DD1900FACE40 /* CreateArticleInteractor.swift in Sources */,
 				B883C2612280FC5A0094CC9D /* LoginFormView.swift in Sources */,
 				B883C25C2280FC5A0094CC9D /* LoginViewModel.swift in Sources */,
+				B8638AF92290775E00FACE40 /* KeyboardConstraint.swift in Sources */,
+				B8638AF1228FA64E00FACE40 /* PlaceholderTextView.swift in Sources */,
 				B883C26F2280FC5A0094CC9D /* IsValidName.swift in Sources */,
 				B883C26C2280FC5A0094CC9D /* NotEmpty.swift in Sources */,
 				B883C2772280FC5A0094CC9D /* Codable+Helpers.swift in Sources */,
@@ -831,6 +915,7 @@
 				B883C26E2280FC5A0094CC9D /* IsValidPassword.swift in Sources */,
 				B883C2582280FC5A0094CC9D /* Token.swift in Sources */,
 				B883C2462280FC5A0094CC9D /* ArticleCollectionViewCell.swift in Sources */,
+				B8638AFC22907CDC00FACE40 /* AppCoordinator.swift in Sources */,
 				B883C2642280FC5A0094CC9D /* Base Service.swift in Sources */,
 				B883C26B2280FC5A0094CC9D /* CachingKeys.swift in Sources */,
 				B883C287228148E80094CC9D /* ValidationErrors.swift in Sources */,
@@ -840,8 +925,10 @@
 				B883C2782280FC5A0094CC9D /* StringUtils.swift in Sources */,
 				B883C2692280FC5A0094CC9D /* Router.swift in Sources */,
 				B883C24A2280FC5A0094CC9D /* HomeViewModel.swift in Sources */,
+				B8638B022290A2B600FACE40 /* MainTabBarController.swift in Sources */,
 				B883C25B2280FC5A0094CC9D /* AuthenticationViewController.swift in Sources */,
 				B883C2532280FC5A0094CC9D /* ArticleDetailsInteractor.swift in Sources */,
+				B8638B092290D98400FACE40 /* ArticleCreateData.swift in Sources */,
 				B883C285228148CF0094CC9D /* ReachabilityValidator.swift in Sources */,
 				B883C24B2280FC5A0094CC9D /* ArticleDetails.swift in Sources */,
 				B883C2632280FC5A0094CC9D /* Authentication.swift in Sources */,
@@ -858,6 +945,7 @@
 				B883C297228154C80094CC9D /* LoginTests.swift in Sources */,
 				B883C28D22814FE40094CC9D /* CacheMock.swift in Sources */,
 				B883C293228153BF0094CC9D /* BaseSceneTests.swift in Sources */,
+				B8638B102290FEBA00FACE40 /* CreateArticleTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1051,7 +1139,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = CE6B995BFDD3CE096A8561BF /* Pods-Legere-iOSTests.debug.xcconfig */;
 			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Legere-iOS.app/Legere-iOS";
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 969Y6REAB6;
 				INFOPLIST_FILE = "Legere-iOSTests/Info.plist";
@@ -1065,7 +1153,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUNDLE_LOADER)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Legere-iOS.app/Legere-iOS";
 			};
 			name = Debug;
 		};
@@ -1073,7 +1161,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = BC76ECF1BC9D6E95BD4EF2CC /* Pods-Legere-iOSTests.release.xcconfig */;
 			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Legere-iOS.app/Legere-iOS";
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 969Y6REAB6;
 				INFOPLIST_FILE = "Legere-iOSTests/Info.plist";
@@ -1087,7 +1175,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUNDLE_LOADER)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Legere-iOS.app/Legere-iOS";
 			};
 			name = Release;
 		};

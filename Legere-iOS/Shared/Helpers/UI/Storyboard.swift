@@ -19,6 +19,7 @@ import UIKit
 enum AppStoryboard: String {
     case Home
     case Welcome
+    case CreateArticle
     
     var instance: UIStoryboard {
         

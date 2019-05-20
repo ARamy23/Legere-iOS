@@ -11,7 +11,7 @@ import XCTest
 @testable import Legere_iOS
 @testable import Promises
 
-class LoginTests: BaseSceneTests {
+final class LoginTests: BaseSceneTests {
 
     var viewModel: LoginViewModel!
     
@@ -112,7 +112,7 @@ class LoginTests: BaseSceneTests {
         XCTAssertEqual(cachedToken?.token ?? "", token.token ?? "nope")
         
         
-        XCTAssertEqual(router.actions[0], .present(UITabBarController()))
+        XCTAssertEqual(router.actions[0], .present(MainTabBarController()))
     }
     
     func testLoginFlowPerformance() {
