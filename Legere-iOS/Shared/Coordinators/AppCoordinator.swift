@@ -33,8 +33,8 @@ class MainCoordinator: Coordinator {
     }
     
     private func openWelcomeScene() {
-        guard let vc = AppStoryboard.Welcome.initialViewController() as? BaseViewController else { fatalError() }
-        router.presentedView = vc
+        guard let navCon = AppStoryboard.Welcome.initialViewController() as? UINavigationController, let vc = navCon.viewControllers.first as? BaseViewController else { fatalError() }
+        router.presentedView = navCon
         vc.router = self.router
     }
     
