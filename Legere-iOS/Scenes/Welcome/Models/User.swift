@@ -13,9 +13,13 @@ struct User: Codable {
     var name: String?
     var username: String?
     
-    init(id: UUID?, name: String, username: String) {
+    /// This is a Base64String Property
+    var profilePicture: String?
+    
+    init(id: UUID?, name: String, username: String, profilePicture: String?) {
         self.id = id
         self.name = name
         self.username = username
+        self.profilePicture = profilePicture
     }
 }

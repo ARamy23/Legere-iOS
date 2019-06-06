@@ -52,7 +52,7 @@ class Router: RouterProtocol {
         presentedView.present(alert, animated: true)
     }
     
-    func toastError(title: String, message: String) {
+    func toast(title: String, message: String) {
         let view = MessageView.viewFromNib(layout: .messageView)
         view.configureTheme(.info)
         view.configureContent(title: title, body: message, iconImage: #imageLiteral(resourceName: "ic_alert_dark"))

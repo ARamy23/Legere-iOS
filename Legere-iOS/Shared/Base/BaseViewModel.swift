@@ -21,6 +21,6 @@ class BaseViewModel {
     }
     
     func handleError(error: Error) {
-        router.toastError(title: "Error", message: error.localizedDescription)
+        router.toast(title: "Error", message: error.localizedDescription)
     }
 }

@@ -44,7 +44,7 @@ final class HomeViewModel: BaseViewModel {
                 self.articleDetails.onNext(articleDetails)
             }.catch { [weak self] (error) in
                 guard let self = self else { return }
-                self.router.toastError(title: "Error", message: error.localizedDescription)
+                self.router.toast(title: "Error", message: error.localizedDescription)
         }.catch(handleError)
     }
     

@@ -64,7 +64,7 @@ class RouterMock: RouterProtocol {
         self.actions.append(.alert(message))
     }
     
-    func toastError(title: String, message: String) {
+    func toast(title: String, message: String) {
         self.actions.append(.toast(message))
     }
     
