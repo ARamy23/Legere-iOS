@@ -87,6 +87,7 @@
 		B8B4489F22A7FFBE0031FAE1 /* ProfileSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B4489E22A7FFBE0031FAE1 /* ProfileSectionViewController.swift */; };
 		B8B448A722A934A50031FAE1 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B448A522A934A50031FAE1 /* ImagePicker.swift */; };
 		B8B448A822A934A50031FAE1 /* RxMediaPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B448A622A934A50031FAE1 /* RxMediaPicker.swift */; };
+		B8B448AA22A945AB0031FAE1 /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B448A922A945AB0031FAE1 /* Profile.swift */; };
 		B8D2C0402281FAB6006F5255 /* RegisterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8D2C03F2281FAB6006F5255 /* RegisterTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -187,6 +188,7 @@
 		B8B4489E22A7FFBE0031FAE1 /* ProfileSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSectionViewController.swift; sourceTree = "<group>"; };
 		B8B448A522A934A50031FAE1 /* ImagePicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
 		B8B448A622A934A50031FAE1 /* RxMediaPicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RxMediaPicker.swift; sourceTree = "<group>"; };
+		B8B448A922A945AB0031FAE1 /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
 		B8D2C03F2281FAB6006F5255 /* RegisterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterTests.swift; sourceTree = "<group>"; };
 		BC76ECF1BC9D6E95BD4EF2CC /* Pods-Legere-iOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSTests.release.xcconfig"; path = "Target Support Files/Pods-Legere-iOSTests/Pods-Legere-iOSTests.release.xcconfig"; sourceTree = "<group>"; };
 		CE6B995BFDD3CE096A8561BF /* Pods-Legere-iOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSTests.debug.xcconfig"; path = "Target Support Files/Pods-Legere-iOSTests/Pods-Legere-iOSTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -499,6 +501,7 @@
 				B883C21A2280FC5A0094CC9D /* Authentication.swift */,
 				B883C21B2280FC5A0094CC9D /* Base Service.swift */,
 				B883C21C2280FC5A0094CC9D /* Articles.swift */,
+				B8B448A922A945AB0031FAE1 /* Profile.swift */,
 			);
 			path = Networking;
 			sourceTree = "<group>";
@@ -929,6 +932,7 @@
 				B883C26A2280FC5A0094CC9D /* Fields.swift in Sources */,
 				B883C27F2280FC5A0094CC9D /* BaseCustomView.swift in Sources */,
 				B883C2542280FC5A0094CC9D /* DidReadArticleInteractor.swift in Sources */,
+				B8B448AA22A945AB0031FAE1 /* Profile.swift in Sources */,
 				B883C2552280FC5A0094CC9D /* AllArticlesInteractor.swift in Sources */,
 				B883C25E2280FC5A0094CC9D /* RegisterFormView.swift in Sources */,
 				B883C27A2280FC5A0094CC9D /* BaseViewController.swift in Sources */,
