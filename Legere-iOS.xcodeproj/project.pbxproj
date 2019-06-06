@@ -85,6 +85,8 @@
 		B8B4489B22A7F7500031FAE1 /* Profile.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B8B4489A22A7F7500031FAE1 /* Profile.storyboard */; };
 		B8B4489D22A7FF9E0031FAE1 /* ProfileMainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B4489C22A7FF9E0031FAE1 /* ProfileMainViewController.swift */; };
 		B8B4489F22A7FFBE0031FAE1 /* ProfileSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B4489E22A7FFBE0031FAE1 /* ProfileSectionViewController.swift */; };
+		B8B448A722A934A50031FAE1 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B448A522A934A50031FAE1 /* ImagePicker.swift */; };
+		B8B448A822A934A50031FAE1 /* RxMediaPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B448A622A934A50031FAE1 /* RxMediaPicker.swift */; };
 		B8D2C0402281FAB6006F5255 /* RegisterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8D2C03F2281FAB6006F5255 /* RegisterTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -183,6 +185,8 @@
 		B8B4489A22A7F7500031FAE1 /* Profile.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Profile.storyboard; sourceTree = "<group>"; };
 		B8B4489C22A7FF9E0031FAE1 /* ProfileMainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileMainViewController.swift; sourceTree = "<group>"; };
 		B8B4489E22A7FFBE0031FAE1 /* ProfileSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSectionViewController.swift; sourceTree = "<group>"; };
+		B8B448A522A934A50031FAE1 /* ImagePicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
+		B8B448A622A934A50031FAE1 /* RxMediaPicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RxMediaPicker.swift; sourceTree = "<group>"; };
 		B8D2C03F2281FAB6006F5255 /* RegisterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterTests.swift; sourceTree = "<group>"; };
 		BC76ECF1BC9D6E95BD4EF2CC /* Pods-Legere-iOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSTests.release.xcconfig"; path = "Target Support Files/Pods-Legere-iOSTests/Pods-Legere-iOSTests.release.xcconfig"; sourceTree = "<group>"; };
 		CE6B995BFDD3CE096A8561BF /* Pods-Legere-iOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSTests.debug.xcconfig"; path = "Target Support Files/Pods-Legere-iOSTests/Pods-Legere-iOSTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -570,6 +574,8 @@
 		B883C2372280FC5A0094CC9D /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				B8B448A522A934A50031FAE1 /* ImagePicker.swift */,
+				B8B448A622A934A50031FAE1 /* RxMediaPicker.swift */,
 				B883C2382280FC5A0094CC9D /* StringUtils.swift */,
 				B883C2392280FC5A0094CC9D /* Storyboard.swift */,
 				B8638AF82290775E00FACE40 /* KeyboardConstraint.swift */,
@@ -909,6 +915,7 @@
 				B883C2472280FC5A0094CC9D /* ArticleSearchbarView.swift in Sources */,
 				B883C2702280FC5A0094CC9D /* IsValidUsername.swift in Sources */,
 				B883C2792280FC5A0094CC9D /* Storyboard.swift in Sources */,
+				B8B448A722A934A50031FAE1 /* ImagePicker.swift in Sources */,
 				B883C2522280FC5A0094CC9D /* DidLikeArticleInteractor.swift in Sources */,
 				B883C2652280FC5A0094CC9D /* Articles.swift in Sources */,
 				B8B4489D22A7FF9E0031FAE1 /* ProfileMainViewController.swift in Sources */,
@@ -947,6 +954,7 @@
 				B883C26E2280FC5A0094CC9D /* IsValidPassword.swift in Sources */,
 				B883C2582280FC5A0094CC9D /* Token.swift in Sources */,
 				B883C2462280FC5A0094CC9D /* ArticleCollectionViewCell.swift in Sources */,
+				B8B448A822A934A50031FAE1 /* RxMediaPicker.swift in Sources */,
 				B8638AFC22907CDC00FACE40 /* AppCoordinator.swift in Sources */,
 				B883C2642280FC5A0094CC9D /* Base Service.swift in Sources */,
 				B883C26B2280FC5A0094CC9D /* CachingKeys.swift in Sources */,
