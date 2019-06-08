@@ -82,6 +82,15 @@
 		B883C2902281504B0094CC9D /* NetworkMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C28F2281504B0094CC9D /* NetworkMock.swift */; };
 		B883C293228153BF0094CC9D /* BaseSceneTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C292228153BF0094CC9D /* BaseSceneTests.swift */; };
 		B883C297228154C80094CC9D /* LoginTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B883C296228154C80094CC9D /* LoginTests.swift */; };
+		B8B4489B22A7F7500031FAE1 /* Profile.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B8B4489A22A7F7500031FAE1 /* Profile.storyboard */; };
+		B8B4489D22A7FF9E0031FAE1 /* ProfileMainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B4489C22A7FF9E0031FAE1 /* ProfileMainViewController.swift */; };
+		B8B4489F22A7FFBE0031FAE1 /* ProfileSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B4489E22A7FFBE0031FAE1 /* ProfileSectionViewController.swift */; };
+		B8B448A722A934A50031FAE1 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B448A522A934A50031FAE1 /* ImagePicker.swift */; };
+		B8B448A822A934A50031FAE1 /* RxMediaPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B448A622A934A50031FAE1 /* RxMediaPicker.swift */; };
+		B8B448AA22A945AB0031FAE1 /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B448A922A945AB0031FAE1 /* Profile.swift */; };
+		B8B448AC22A947F10031FAE1 /* ProfileMainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B448AB22A947F10031FAE1 /* ProfileMainViewModel.swift */; };
+		B8B448AE22A94B730031FAE1 /* ProfileMainInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B448AD22A94B730031FAE1 /* ProfileMainInteractor.swift */; };
+		B8B44B1D22A9AC910031FAE1 /* GetProfileInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B44B1C22A9AC900031FAE1 /* GetProfileInteractor.swift */; };
 		B8D2C0402281FAB6006F5255 /* RegisterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8D2C03F2281FAB6006F5255 /* RegisterTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -177,6 +186,15 @@
 		B883C28F2281504B0094CC9D /* NetworkMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMock.swift; sourceTree = "<group>"; };
 		B883C292228153BF0094CC9D /* BaseSceneTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseSceneTests.swift; sourceTree = "<group>"; };
 		B883C296228154C80094CC9D /* LoginTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginTests.swift; sourceTree = "<group>"; };
+		B8B4489A22A7F7500031FAE1 /* Profile.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Profile.storyboard; sourceTree = "<group>"; };
+		B8B4489C22A7FF9E0031FAE1 /* ProfileMainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileMainViewController.swift; sourceTree = "<group>"; };
+		B8B4489E22A7FFBE0031FAE1 /* ProfileSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSectionViewController.swift; sourceTree = "<group>"; };
+		B8B448A522A934A50031FAE1 /* ImagePicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
+		B8B448A622A934A50031FAE1 /* RxMediaPicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RxMediaPicker.swift; sourceTree = "<group>"; };
+		B8B448A922A945AB0031FAE1 /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
+		B8B448AB22A947F10031FAE1 /* ProfileMainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileMainViewModel.swift; sourceTree = "<group>"; };
+		B8B448AD22A94B730031FAE1 /* ProfileMainInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileMainInteractor.swift; sourceTree = "<group>"; };
+		B8B44B1C22A9AC900031FAE1 /* GetProfileInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetProfileInteractor.swift; sourceTree = "<group>"; };
 		B8D2C03F2281FAB6006F5255 /* RegisterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterTests.swift; sourceTree = "<group>"; };
 		BC76ECF1BC9D6E95BD4EF2CC /* Pods-Legere-iOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSTests.release.xcconfig"; path = "Target Support Files/Pods-Legere-iOSTests/Pods-Legere-iOSTests.release.xcconfig"; sourceTree = "<group>"; };
 		CE6B995BFDD3CE096A8561BF /* Pods-Legere-iOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSTests.debug.xcconfig"; path = "Target Support Files/Pods-Legere-iOSTests/Pods-Legere-iOSTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -209,6 +227,26 @@
 				8C149BAF187DE8EF80265FA3 /* Pods_Legere_iOSTests.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		B822DE7922A7F36A007CB5A4 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				B8B44B1B22A978880031FAE1 /* Interactors */,
+				B822DE7A22A7F3C7007CB5A4 /* View */,
+				B8B448AB22A947F10031FAE1 /* ProfileMainViewModel.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
+		B822DE7A22A7F3C7007CB5A4 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				B8B4489A22A7F7500031FAE1 /* Profile.storyboard */,
+				B8B4489C22A7FF9E0031FAE1 /* ProfileMainViewController.swift */,
+				B8B4489E22A7FFBE0031FAE1 /* ProfileSectionViewController.swift */,
+			);
+			path = View;
 			sourceTree = "<group>";
 		};
 		B836FE1165D758BE9D586DD1 /* Pods */ = {
@@ -322,6 +360,7 @@
 			children = (
 				B8638B002290A29100FACE40 /* Main TabBarController */,
 				B8638AFF2290A24C00FACE40 /* Create Article */,
+				B822DE7922A7F36A007CB5A4 /* Profile */,
 				B883C1EE2280FC580094CC9D /* Home */,
 				B883C2042280FC580094CC9D /* Welcome */,
 			);
@@ -470,6 +509,7 @@
 				B883C21A2280FC5A0094CC9D /* Authentication.swift */,
 				B883C21B2280FC5A0094CC9D /* Base Service.swift */,
 				B883C21C2280FC5A0094CC9D /* Articles.swift */,
+				B8B448A922A945AB0031FAE1 /* Profile.swift */,
 			);
 			path = Networking;
 			sourceTree = "<group>";
@@ -545,6 +585,8 @@
 		B883C2372280FC5A0094CC9D /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				B8B448A522A934A50031FAE1 /* ImagePicker.swift */,
+				B8B448A622A934A50031FAE1 /* RxMediaPicker.swift */,
 				B883C2382280FC5A0094CC9D /* StringUtils.swift */,
 				B883C2392280FC5A0094CC9D /* Storyboard.swift */,
 				B8638AF82290775E00FACE40 /* KeyboardConstraint.swift */,
@@ -618,6 +660,15 @@
 				B8D2C03F2281FAB6006F5255 /* RegisterTests.swift */,
 			);
 			path = Welcome;
+			sourceTree = "<group>";
+		};
+		B8B44B1B22A978880031FAE1 /* Interactors */ = {
+			isa = PBXGroup;
+			children = (
+				B8B448AD22A94B730031FAE1 /* ProfileMainInteractor.swift */,
+				B8B44B1C22A9AC900031FAE1 /* GetProfileInteractor.swift */,
+			);
+			path = Interactors;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -711,6 +762,7 @@
 				B8638B042290A6AC00FACE40 /* CreateArticle.storyboard in Resources */,
 				B883C2492280FC5A0094CC9D /* ArticleCollectionViewCell.xib in Resources */,
 				B883C25F2280FC5A0094CC9D /* RegisterFormView.xib in Resources */,
+				B8B4489B22A7F7500031FAE1 /* Profile.storyboard in Resources */,
 				B883C2482280FC5A0094CC9D /* ArticleSearchbarView.xib in Resources */,
 				B883C2512280FC5A0094CC9D /* Home.storyboard in Resources */,
 				B883C2622280FC5A0094CC9D /* Assets.xcassets in Resources */,
@@ -752,6 +804,7 @@
 				"${BUILT_PRODUCTS_DIR}/SwiftEntryKit/SwiftEntryKit.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftMessages/SwiftMessages.framework",
 				"${BUILT_PRODUCTS_DIR}/SwifterSwift/SwifterSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/UPCarouselFlowLayout/UPCarouselFlowLayout.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
@@ -771,6 +824,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftEntryKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftMessages.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwifterSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/UPCarouselFlowLayout.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -844,6 +898,7 @@
 				"${BUILT_PRODUCTS_DIR}/SwiftEntryKit/SwiftEntryKit.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftMessages/SwiftMessages.framework",
 				"${BUILT_PRODUCTS_DIR}/SwifterSwift/SwifterSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/UPCarouselFlowLayout/UPCarouselFlowLayout.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
@@ -863,6 +918,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftEntryKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftMessages.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwifterSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/UPCarouselFlowLayout.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -877,12 +933,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				B883C2472280FC5A0094CC9D /* ArticleSearchbarView.swift in Sources */,
+				B8B44B1D22A9AC910031FAE1 /* GetProfileInteractor.swift in Sources */,
 				B883C2702280FC5A0094CC9D /* IsValidUsername.swift in Sources */,
 				B883C2792280FC5A0094CC9D /* Storyboard.swift in Sources */,
+				B8B448A722A934A50031FAE1 /* ImagePicker.swift in Sources */,
 				B883C2522280FC5A0094CC9D /* DidLikeArticleInteractor.swift in Sources */,
 				B883C2652280FC5A0094CC9D /* Articles.swift in Sources */,
+				B8B4489D22A7FF9E0031FAE1 /* ProfileMainViewController.swift in Sources */,
 				B8638B0B2290DBA000FACE40 /* CreateArticleViewModel.swift in Sources */,
 				B883C27B2280FC5A0094CC9D /* BaseViewModel.swift in Sources */,
+				B8B448AE22A94B730031FAE1 /* ProfileMainInteractor.swift in Sources */,
 				B8638B062290A72E00FACE40 /* CreateArticleViewController.swift in Sources */,
 				B883C27C2280FC5A0094CC9D /* BaseInteractor.swift in Sources */,
 				B883C27E2280FC5A0094CC9D /* Searchbar.swift in Sources */,
@@ -891,6 +951,7 @@
 				B883C26A2280FC5A0094CC9D /* Fields.swift in Sources */,
 				B883C27F2280FC5A0094CC9D /* BaseCustomView.swift in Sources */,
 				B883C2542280FC5A0094CC9D /* DidReadArticleInteractor.swift in Sources */,
+				B8B448AA22A945AB0031FAE1 /* Profile.swift in Sources */,
 				B883C2552280FC5A0094CC9D /* AllArticlesInteractor.swift in Sources */,
 				B883C25E2280FC5A0094CC9D /* RegisterFormView.swift in Sources */,
 				B883C27A2280FC5A0094CC9D /* BaseViewController.swift in Sources */,
@@ -907,6 +968,7 @@
 				B883C2612280FC5A0094CC9D /* LoginFormView.swift in Sources */,
 				B883C25C2280FC5A0094CC9D /* LoginViewModel.swift in Sources */,
 				B8638AF92290775E00FACE40 /* KeyboardConstraint.swift in Sources */,
+				B8B4489F22A7FFBE0031FAE1 /* ProfileSectionViewController.swift in Sources */,
 				B8638AF1228FA64E00FACE40 /* PlaceholderTextView.swift in Sources */,
 				B883C26F2280FC5A0094CC9D /* IsValidName.swift in Sources */,
 				B883C26C2280FC5A0094CC9D /* NotEmpty.swift in Sources */,
@@ -915,6 +977,7 @@
 				B883C26E2280FC5A0094CC9D /* IsValidPassword.swift in Sources */,
 				B883C2582280FC5A0094CC9D /* Token.swift in Sources */,
 				B883C2462280FC5A0094CC9D /* ArticleCollectionViewCell.swift in Sources */,
+				B8B448A822A934A50031FAE1 /* RxMediaPicker.swift in Sources */,
 				B8638AFC22907CDC00FACE40 /* AppCoordinator.swift in Sources */,
 				B883C2642280FC5A0094CC9D /* Base Service.swift in Sources */,
 				B883C26B2280FC5A0094CC9D /* CachingKeys.swift in Sources */,
@@ -926,6 +989,7 @@
 				B883C2692280FC5A0094CC9D /* Router.swift in Sources */,
 				B883C24A2280FC5A0094CC9D /* HomeViewModel.swift in Sources */,
 				B8638B022290A2B600FACE40 /* MainTabBarController.swift in Sources */,
+				B8B448AC22A947F10031FAE1 /* ProfileMainViewModel.swift in Sources */,
 				B883C25B2280FC5A0094CC9D /* AuthenticationViewController.swift in Sources */,
 				B883C2532280FC5A0094CC9D /* ArticleDetailsInteractor.swift in Sources */,
 				B8638B092290D98400FACE40 /* ArticleCreateData.swift in Sources */,

@@ -40,6 +40,7 @@ PODS:
   - SwiftMessages (6.0.2):
     - SwiftMessages/App (= 6.0.2)
   - SwiftMessages/App (6.0.2)
+  - UPCarouselFlowLayout (1.1.2)
 
 DEPENDENCIES:
   - AlamofireNetworkActivityLogger (~> 2.3.0)
@@ -52,6 +53,7 @@ DEPENDENCIES:
   - SwiftEntryKit (~> 1.0.1)
   - SwifterSwift (~> 4.6.0)
   - SwiftMessages (~> 6.0.2)
+  - UPCarouselFlowLayout (~> 1.1.2)
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
@@ -69,6 +71,7 @@ SPEC REPOS:
     - SwiftEntryKit
     - SwifterSwift
     - SwiftMessages
+    - UPCarouselFlowLayout
 
 SPEC CHECKSUMS:
   Alamofire: ae5c501addb7afdbb13687d7f2f722c78734c2d3
@@ -85,7 +88,8 @@ SPEC CHECKSUMS:
   SwiftEntryKit: 3f55c0b8e676afe24a3703237bcac68372891c56
   SwifterSwift: 812ffec6f301922f5430e75be3f2939ea3a80024
   SwiftMessages: 8b3cc68dba2f1c91aac1a74c90b10287aac35371
+  UPCarouselFlowLayout: 4c7d2c43a10ebb1597bde502a53699d378341dad
 
-PODFILE CHECKSUM: 0ad2de6dcc095ad23906cdc9d50e08f9b90a4427
+PODFILE CHECKSUM: b3298dabbd7c46ae719b93e3ebfbb98bcea69c87
 
 COCOAPODS: 1.6.1

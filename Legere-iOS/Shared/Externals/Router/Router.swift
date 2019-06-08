@@ -40,7 +40,19 @@ class Router: RouterProtocol {
         presentedView.present(alert, animated: true)
     }
     
-    func toastError(title: String, message: String) {
+    func alertWithAction(title: String, message: String, actions: [(title: String, style: UIAlertAction.Style, action: () -> Void)]) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .actionSheet)
+        actions.map { action in
+                UIAlertAction(title: action.title, style: action.style, handler: { (_) in
+                    action.action()
+                })
+            }.forEach {
+                alert.addAction($0)
+            }
+        presentedView.present(alert, animated: true)
+    }
+    
+    func toast(title: String, message: String) {
         let view = MessageView.viewFromNib(layout: .messageView)
         view.configureTheme(.info)
         view.configureContent(title: title, body: message, iconImage: #imageLiteral(resourceName: "ic_alert_dark"))

@@ -21,6 +21,7 @@ enum RoutingAction: Equatable {
     case alert(_ message: String)
     case toast(_ message: String)
     case tabSwitch(_ index: TabBarScenes)
+    case alertWithAction((title: String, message: String))
     
     static public func ==(lhs: RoutingAction, rhs: RoutingAction) -> Bool {
         switch (lhs, rhs) {
@@ -29,6 +30,8 @@ enum RoutingAction: Equatable {
         case let (.toast(a), .toast(b)): return a == b
         case let (.segue(a, b), .segue(c, d)): return a == c && b == d
         case let (.tabSwitch(a), .tabSwitch(b)): return a == b
+        case let (.alertWithAction(a), .alertWithAction(b)):
+            return a.title == b.title && a.message == b.message
         case (.activityStart, .activityStart),
              (.activityStop, .activityStop),
              (.dismiss, .dismiss),
@@ -61,23 +64,27 @@ class RouterMock: RouterProtocol {
         self.actions.append(.alert(message))
     }
     
-    func toastError(title: String, message: String) {
+    func toast(title: String, message: String) {
         self.actions.append(.toast(message))
     }
     
     func startActivityIndicator() {
-        actions.append(.activityStart)
+        self.actions.append(.activityStart)
     }
     
     func stopActivityIndicator() {
-        actions.append(.activityStop)
+        self.actions.append(.activityStop)
     }
     
     func dismiss() {
-        actions.append(.dismiss)
+        self.actions.append(.dismiss)
     }
     
     func pop() {
-        actions.append(.pop)
+        self.actions.append(.pop)
+    }
+    
+    func alertWithAction(title: String, message: String, actions: [(title: String, style: UIAlertAction.Style, action: () -> Void)]) {
+        self.actions.append(.alertWithAction((title, message)))
     }
 }

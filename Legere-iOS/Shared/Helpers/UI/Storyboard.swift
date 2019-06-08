@@ -20,6 +20,7 @@ enum AppStoryboard: String {
     case Home
     case Welcome
     case CreateArticle
+    case Profile
     
     var instance: UIStoryboard {
         
