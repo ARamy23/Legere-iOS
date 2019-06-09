@@ -16,4 +16,5 @@ enum CachingKey: String {
     // MARK: - Creating Articles
     case draftTitle = "draftTitle"
     case draftBody = "draftBody"
+    case draftCoverPhoto = "draftCoverPhoto"
 }

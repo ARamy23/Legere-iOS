@@ -54,7 +54,9 @@ enum NetworkError: Error {
 }
 
 extension NetworkError: LocalizedError {
-    
+    public var errorDescription: String? {
+        return self.message
+    }
 }
 
 struct NetworkErrorResponse: Codable {

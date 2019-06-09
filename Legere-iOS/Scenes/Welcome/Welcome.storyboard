@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="i0n-2n-8AU">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="i0n-2n-8AU">
     <device id="retina6_1" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -48,6 +48,7 @@
                                                     <constraint firstItem="8My-SS-5ve" firstAttribute="leading" secondItem="eMx-yA-ICK" secondAttribute="leading" constant="16" id="HmO-Ga-yxr"/>
                                                     <constraint firstItem="8My-SS-5ve" firstAttribute="top" secondItem="eMx-yA-ICK" secondAttribute="top" id="Ixg-K3-rxD"/>
                                                     <constraint firstAttribute="bottom" secondItem="8My-SS-5ve" secondAttribute="bottom" id="Ssn-jB-Mgv"/>
+                                                    <constraint firstAttribute="width" secondItem="eMx-yA-ICK" secondAttribute="height" multiplier="1:1" id="cxz-TT-4yv"/>
                                                     <constraint firstAttribute="bottom" secondItem="v1B-FU-oSl" secondAttribute="bottom" id="nbJ-sK-Re5"/>
                                                     <constraint firstItem="v1B-FU-oSl" firstAttribute="leading" secondItem="eMx-yA-ICK" secondAttribute="leading" id="t7v-JB-0i7"/>
                                                 </constraints>
@@ -100,6 +101,7 @@
                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <constraints>
                                                     <constraint firstAttribute="bottom" secondItem="Tea-K2-dti" secondAttribute="bottom" id="05Y-CS-jPd"/>
+                                                    <constraint firstAttribute="width" secondItem="YIQ-OX-tKN" secondAttribute="height" multiplier="1:1" id="4py-Mo-h1b"/>
                                                     <constraint firstAttribute="trailing" secondItem="Tea-K2-dti" secondAttribute="trailing" constant="16" id="ARb-VI-uSN"/>
                                                     <constraint firstItem="Tea-K2-dti" firstAttribute="leading" secondItem="YIQ-OX-tKN" secondAttribute="leading" constant="16" id="O0F-7M-gcz"/>
                                                     <constraint firstItem="8eO-9v-NFs" firstAttribute="top" secondItem="YIQ-OX-tKN" secondAttribute="top" id="bDC-SV-rWC"/>
@@ -139,7 +141,6 @@
                                 <constraints>
                                     <constraint firstAttribute="trailing" secondItem="fgf-N8-Rlz" secondAttribute="trailing" id="2Uf-Mv-lbz"/>
                                     <constraint firstAttribute="bottom" secondItem="fgf-N8-Rlz" secondAttribute="bottom" id="bqG-Ew-R4J"/>
-                                    <constraint firstItem="CM1-4M-krd" firstAttribute="width" secondItem="fgf-N8-Rlz" secondAttribute="height" multiplier="3:5" id="lsK-Cn-d58"/>
                                     <constraint firstItem="CM1-4M-krd" firstAttribute="top" secondItem="erI-4U-l7B" secondAttribute="top" id="mmQ-Wi-Voq"/>
                                     <constraint firstItem="CM1-4M-krd" firstAttribute="leading" secondItem="erI-4U-l7B" secondAttribute="leading" id="xuO-GW-LwQ"/>
                                 </constraints>

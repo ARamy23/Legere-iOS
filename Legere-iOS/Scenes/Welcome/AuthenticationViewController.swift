@@ -24,12 +24,12 @@ final class AuthenticationViewController: BaseViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         animateComponents()
+        loginRoundView.cornerRadius = loginRoundView.height / 2
+        registerRoundView.cornerRadius = registerRoundView.height / 2
     }
     
     override func initialize() {
         super.initialize()
-        loginRoundView.cornerRadius = loginRoundView.height / 2
-        registerRoundView.cornerRadius = registerRoundView.height / 2
         prepareComponentsForAnimation()
     }
     
