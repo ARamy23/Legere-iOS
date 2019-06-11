@@ -60,7 +60,7 @@ final class ArticleDetailsViewController: BaseViewController {
         let numberOfLikes = article.numberOfLikes
         peopleLikedThisLabel?.text = "\(numberOfLikes) People Liked This"
         
-        peopleBarView?.isHidden = numberOfLikes < 1
+        peopleBarView?.isHidden = numberOfLikes ?? 0 < 1
         includingYouView?.isHidden = articleDetails.isLikedByCurrentUser != true
     }
     
