@@ -34,12 +34,18 @@ struct Article: Codable {
     
     var numberOfLikes: Int?
     
-    init(title: String, details: String, userID: String, reads: Int = 0, numberOfLikes: Int = 0) {
+    var coverPhoto: String?
+    
+    var author: User?
+    
+    init(title: String, details: String, userID: String, reads: Int = 0, numberOfLikes: Int = 0, coverPhoto: String?, author: User?) {
         self.title = title
         self.details = details
         self.userID = userID
         self.reads = reads
         self.numberOfLikes = numberOfLikes
+        self.coverPhoto = coverPhoto
+        self.author = author
     }
 }
 

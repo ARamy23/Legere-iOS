@@ -254,6 +254,14 @@
             </constraints>
             <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
             <size key="customSize" width="238" height="268"/>
+            <connections>
+                <outlet property="articleTitleLabel" destination="h4U-Pi-RBV" id="XmI-7s-UqU"/>
+                <outlet property="coverPhotoImageView" destination="LsY-vL-4hG" id="PGM-31-jtC"/>
+                <outlet property="numberOfLikes" destination="cGc-f4-dmt" id="87G-dA-GxO"/>
+                <outlet property="numberOfReads" destination="hLw-Hl-Cd1" id="GYx-c3-LG0"/>
+                <outlet property="profilePictureImageView" destination="DCz-qf-0hp" id="eXx-kH-ghY"/>
+                <outlet property="usernameLabel" destination="xc6-Gy-Cpc" id="O4r-aV-sF0"/>
+            </connections>
             <point key="canvasLocation" x="273.91304347826087" y="217.29910714285714"/>
         </collectionViewCell>
     </objects>
