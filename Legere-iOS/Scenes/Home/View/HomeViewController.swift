@@ -17,7 +17,6 @@ final class HomeViewController: BaseViewController
     var viewModel: HomeViewModel!
     var articles: Articles = []
     
-    
     var refresher: UIRefreshControl?
     
     override func viewDidLoad() {

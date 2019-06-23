@@ -92,6 +92,8 @@
 		B8B448AE22A94B730031FAE1 /* ProfileMainInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B448AD22A94B730031FAE1 /* ProfileMainInteractor.swift */; };
 		B8B44B1D22A9AC910031FAE1 /* GetProfileInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B44B1C22A9AC900031FAE1 /* GetProfileInteractor.swift */; };
 		B8D2C0402281FAB6006F5255 /* RegisterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8D2C03F2281FAB6006F5255 /* RegisterTests.swift */; };
+		B8E907C822C0409100A7CCEF /* ArticleWithCoverPhotoCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8E907C622C0409100A7CCEF /* ArticleWithCoverPhotoCollectionViewCell.swift */; };
+		B8E907C922C0409100A7CCEF /* ArticleWithCoverPhotoCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = B8E907C722C0409100A7CCEF /* ArticleWithCoverPhotoCollectionViewCell.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -196,6 +198,8 @@
 		B8B448AD22A94B730031FAE1 /* ProfileMainInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileMainInteractor.swift; sourceTree = "<group>"; };
 		B8B44B1C22A9AC900031FAE1 /* GetProfileInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetProfileInteractor.swift; sourceTree = "<group>"; };
 		B8D2C03F2281FAB6006F5255 /* RegisterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterTests.swift; sourceTree = "<group>"; };
+		B8E907C622C0409100A7CCEF /* ArticleWithCoverPhotoCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleWithCoverPhotoCollectionViewCell.swift; sourceTree = "<group>"; };
+		B8E907C722C0409100A7CCEF /* ArticleWithCoverPhotoCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ArticleWithCoverPhotoCollectionViewCell.xib; sourceTree = "<group>"; };
 		BC76ECF1BC9D6E95BD4EF2CC /* Pods-Legere-iOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSTests.release.xcconfig"; path = "Target Support Files/Pods-Legere-iOSTests/Pods-Legere-iOSTests.release.xcconfig"; sourceTree = "<group>"; };
 		CE6B995BFDD3CE096A8561BF /* Pods-Legere-iOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Legere-iOSTests.debug.xcconfig"; path = "Target Support Files/Pods-Legere-iOSTests/Pods-Legere-iOSTests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -384,8 +388,10 @@
 			children = (
 				B883C1F02280FC580094CC9D /* ArticleCollectionViewCell.swift */,
 				B883C1F12280FC580094CC9D /* ArticleSearchbarView.swift */,
+				B8E907C622C0409100A7CCEF /* ArticleWithCoverPhotoCollectionViewCell.swift */,
 				B883C1F22280FC580094CC9D /* ArticleSearchbarView.xib */,
 				B883C1F32280FC580094CC9D /* ArticleCollectionViewCell.xib */,
+				B8E907C722C0409100A7CCEF /* ArticleWithCoverPhotoCollectionViewCell.xib */,
 			);
 			path = Cells;
 			sourceTree = "<group>";
@@ -768,6 +774,7 @@
 				B883C2622280FC5A0094CC9D /* Assets.xcassets in Resources */,
 				B883C2812280FC5A0094CC9D /* LETextField.xib in Resources */,
 				B883C2602280FC5A0094CC9D /* LoginFormView.xib in Resources */,
+				B8E907C922C0409100A7CCEF /* ArticleWithCoverPhotoCollectionViewCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -951,6 +958,7 @@
 				B883C26A2280FC5A0094CC9D /* Fields.swift in Sources */,
 				B883C27F2280FC5A0094CC9D /* BaseCustomView.swift in Sources */,
 				B883C2542280FC5A0094CC9D /* DidReadArticleInteractor.swift in Sources */,
+				B8E907C822C0409100A7CCEF /* ArticleWithCoverPhotoCollectionViewCell.swift in Sources */,
 				B8B448AA22A945AB0031FAE1 /* Profile.swift in Sources */,
 				B883C2552280FC5A0094CC9D /* AllArticlesInteractor.swift in Sources */,
 				B883C25E2280FC5A0094CC9D /* RegisterFormView.swift in Sources */,
