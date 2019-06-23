@@ -54,3 +54,14 @@ extension Article: Equatable {
         return lhs.id == rhs.id && lhs.reads == rhs.reads && lhs.numberOfLikes == rhs.numberOfLikes
     }
 }
+
+extension Article {
+    enum ArticleType {
+        case withCoverPhoto
+        case plainText
+    }
+    
+    var type: ArticleType {
+        return (coverPhoto == nil) ? .plainText : .withCoverPhoto
+    }
+}

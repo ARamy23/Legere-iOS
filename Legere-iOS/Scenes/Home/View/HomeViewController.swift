@@ -82,9 +82,19 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withClass: ArticleCollectionViewCell.self, for: indexPath)
-        cell.article = articles[indexPath.row]
-        return cell
+        let article = articles[indexPath.row]
+        switch article.type {
+        case .withCoverPhoto:
+            let cell = collectionView.dequeueReusableCell(withClass: ArticleWithCoverPhotoCollectionViewCell.self, for: indexPath)
+            cell.article = articles[indexPath.row]
+            return cell
+        case .plainText:
+            let cell = collectionView.dequeueReusableCell(withClass: ArticleCollectionViewCell.self, for: indexPath)
+            cell.article = articles[indexPath.row]
+            return cell
+        default:
+            fatalError("Article Type doesn't have a specific cell to be matched to")
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
