@@ -6,11 +6,13 @@
 //  Copyright © 2019 Ahmed Ramy. All rights reserved.
 //
 
-import Foundation
+import RxSwift
 
 class BaseViewModel {
     var router: RouterProtocol
     var cache: CacheProtocol
+    
+    var disposeBag = DisposeBag()
     
     var baseInteractor: BaseInteractor
     

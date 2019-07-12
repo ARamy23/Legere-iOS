@@ -10,6 +10,7 @@ import UIKit
 
 final class ArticleDetailsViewController: BaseViewController {
     
+    @IBOutlet weak var articleCoverImageView: UIImageView!
     @IBOutlet weak var articleTitleLabel: UILabel!
     @IBOutlet weak var articleBodyTextView: UITextView!
     @IBOutlet weak var peopleLikedThisLabel: UILabel!
@@ -54,13 +55,14 @@ final class ArticleDetailsViewController: BaseViewController {
     
     func configureViewFromModel() {
         guard let article = articleDetails.article else { return }
+        articleCoverImageView.image = article.coverPhoto?.convertToUIImage()
         articleTitleLabel?.text = article.title
         articleBodyTextView?.text = article.details
         isLovedImageView?.image = (articleDetails.isLikedByCurrentUser == true) ? #imageLiteral(resourceName: "ic_love") : #imageLiteral(resourceName: "ic_love_unselected")
         let numberOfLikes = article.numberOfLikes
-        peopleLikedThisLabel?.text = "\(numberOfLikes) People Liked This"
+        peopleLikedThisLabel?.text = "\(numberOfLikes ?? 0) People Liked This"
         
-        peopleBarView?.isHidden = numberOfLikes < 1
+        peopleBarView?.isHidden = numberOfLikes ?? 0 < 1
         includingYouView?.isHidden = articleDetails.isLikedByCurrentUser != true
     }
     

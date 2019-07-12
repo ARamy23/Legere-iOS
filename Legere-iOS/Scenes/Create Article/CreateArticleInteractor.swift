@@ -12,11 +12,13 @@ import Promises
 final class CreateArticleInteractor: BaseInteractor {
     var title: String?
     var body: String?
+    var coverPhoto: String?
     
-    init(title: String?, body: String?, base: BaseInteractor) {
+    init(title: String?, body: String?, coverPhoto: String?, base: BaseInteractor) {
         super.init(network: base.network, cache: base.cache)
         self.title = title
         self.body = body
+        self.coverPhoto = coverPhoto
     }
     
     override func validate() throws {
@@ -26,7 +28,7 @@ final class CreateArticleInteractor: BaseInteractor {
     }
     
     override func process<T>(_ model: T.Type) -> Promise<T> where T : Decodable, T : Encodable {
-        let article = ArticleCreateData(title: self.title ?? "", details: self.body ?? "")
+        let article = ArticleCreateData(title: self.title ?? "", details: self.body ?? "", coverPhoto: coverPhoto)
         return network.callModel(model: model, api: ArticlesService.createArticle(article: article))
     }
 }

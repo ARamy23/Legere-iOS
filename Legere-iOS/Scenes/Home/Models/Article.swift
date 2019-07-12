@@ -30,28 +30,43 @@ struct Article: Codable {
     var userID: String?
     
     /// Number of reads for this article
-    var reads: Int
+    var reads: Int?
     
-    var likedBy: [String] {
-        didSet {
-            numberOfLikes = likedBy.count
-        }
-    }
+    var numberOfLikes: Int?
     
-    var numberOfLikes: Int
+    var coverPhoto: String?
     
-    init(title: String, details: String, userID: String, reads: Int = 0, likedBy: [String] = []) {
+    init(title: String, details: String, userID: String, reads: Int? = 0, numberOfLikes: Int = 0, coverPhoto: String?) {
         self.title = title
         self.details = details
         self.userID = userID
         self.reads = reads
-        self.likedBy = likedBy
-        self.numberOfLikes = likedBy.count
+        self.numberOfLikes = numberOfLikes
+        self.coverPhoto = coverPhoto
     }
 }
 
 extension Article: Equatable {
     static func ==(lhs: Article, rhs: Article) -> Bool {
         return lhs.id == rhs.id && lhs.reads == rhs.reads && lhs.numberOfLikes == rhs.numberOfLikes
+    }
+}
+
+extension Article {
+    enum ArticleType {
+        case withCoverPhoto
+        case plainText
+    }
+    
+    var type: ArticleType {
+        return (coverPhoto == nil) ? .plainText : .withCoverPhoto
+    }
+}
+
+struct ArticleWithAuthor: Codable, Equatable {
+    var article: Article?
+    var author: User?
+    static func ==(lhs: ArticleWithAuthor, rhs: ArticleWithAuthor) -> Bool {
+        return lhs.article == rhs.article
     }
 }
