@@ -11,15 +11,15 @@ import RxSwift
 import Promises
 
 final class HomeViewModel: BaseViewModel {
-    var articles: BehaviorSubject<Articles> = BehaviorSubject<Articles>(value: [])
+    var articles: BehaviorSubject<[ArticleWithAuthor]> = BehaviorSubject<[ArticleWithAuthor]>(value: [])
     var articleDetails: PublishSubject<ArticleDetails> = PublishSubject<ArticleDetails>()
     override init(cache: CacheProtocol, router: RouterProtocol, network: NetworkProtocol) {
         super.init(cache: cache, router: router, network: network)
-        articles.onNext(self.cache.getObject(Articles.self, key: .articles) ?? [])
+        articles.onNext(self.cache.getObject([ArticleWithAuthor].self, key: .articles) ?? [])
     }
     
     func getAllArticles() {
-        AllArticlesInteractor(base: baseInteractor).execute(Articles.self).then { [weak self] articles in
+        AllArticlesInteractor(base: baseInteractor).execute([ArticleWithAuthor].self).then { [weak self] articles in
             guard let self = self else { return }
             if articles.count <= 10 {
                 self.cache.saveObject(articles, key: .articles)

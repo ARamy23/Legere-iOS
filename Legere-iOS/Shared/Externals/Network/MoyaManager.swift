@@ -26,6 +26,9 @@ class MoyaManager: NetworkProtocol {
                         let model = try response.map(T.self)
                         fullfil(model)
                     } catch let error {
+                        print("=====Error After Network Request====")
+                        print(error)
+                        print("====================================")
                         reject(error)
                     }
                 case .failure(let error):

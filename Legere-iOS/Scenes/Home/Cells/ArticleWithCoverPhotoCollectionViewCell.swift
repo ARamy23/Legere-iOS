@@ -19,16 +19,16 @@ class ArticleWithCoverPhotoCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var numberOfReads: UILabel!
     @IBOutlet weak var numberOfLikes: UILabel!
 
-    var article: Article? {
+    var article: ArticleWithAuthor? {
         didSet {
-            coverPhotoImageView.image = article?.coverPhoto?.convertToUIImage()
-            articleTitleLabel.text = article?.title
+            coverPhotoImageView.image = article?.article?.coverPhoto?.convertToUIImage()
+            articleTitleLabel.text = article?.article?.title
             
             profilePictureImageView.image = article?.author?.profilePicture?.convertToUIImage()
             usernameLabel.text = article?.author?.name
             
-            numberOfReads.text = "\(article?.reads ?? 0)"
-            numberOfLikes.text = "\(article?.numberOfLikes ?? 0)"
+            numberOfReads.text = "\(article?.article?.reads ?? 0)"
+            numberOfLikes.text = "\(article?.article?.numberOfLikes ?? 0)"
         }
     }
     

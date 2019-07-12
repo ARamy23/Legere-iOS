@@ -30,22 +30,19 @@ struct Article: Codable {
     var userID: String?
     
     /// Number of reads for this article
-    var reads: Int
+    var reads: Int?
     
     var numberOfLikes: Int?
     
     var coverPhoto: String?
     
-    var author: User?
-    
-    init(title: String, details: String, userID: String, reads: Int = 0, numberOfLikes: Int = 0, coverPhoto: String?, author: User?) {
+    init(title: String, details: String, userID: String, reads: Int? = 0, numberOfLikes: Int = 0, coverPhoto: String?) {
         self.title = title
         self.details = details
         self.userID = userID
         self.reads = reads
         self.numberOfLikes = numberOfLikes
         self.coverPhoto = coverPhoto
-        self.author = author
     }
 }
 
@@ -63,5 +60,13 @@ extension Article {
     
     var type: ArticleType {
         return (coverPhoto == nil) ? .plainText : .withCoverPhoto
+    }
+}
+
+struct ArticleWithAuthor: Codable, Equatable {
+    var article: Article?
+    var author: User?
+    static func ==(lhs: ArticleWithAuthor, rhs: ArticleWithAuthor) -> Bool {
+        return lhs.article == rhs.article
     }
 }

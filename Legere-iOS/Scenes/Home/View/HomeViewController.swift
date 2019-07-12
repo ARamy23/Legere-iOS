@@ -15,7 +15,7 @@ final class HomeViewController: BaseViewController
     @IBOutlet weak var feedCollectionView: UICollectionView!
     
     var viewModel: HomeViewModel!
-    var articles: Articles = []
+    var articles: [ArticleWithAuthor] = []
     
     var refresher: UIRefreshControl?
     
@@ -33,6 +33,7 @@ final class HomeViewController: BaseViewController
         let layout = feedCollectionView.collectionViewLayout as? UICollectionViewFlowLayout
         layout?.sectionHeadersPinToVisibleBounds = true
         self.feedCollectionView.register(nibWithCellClass: ArticleCollectionViewCell.self)
+        self.feedCollectionView.register(nibWithCellClass: ArticleWithCoverPhotoCollectionViewCell.self)
     }
     
     private func setupPullToRefresh() {
@@ -83,14 +84,14 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let article = articles[indexPath.row]
-        switch article.type {
-        case .withCoverPhoto:
+        switch article.article?.type {
+        case .withCoverPhoto?:
             let cell = collectionView.dequeueReusableCell(withClass: ArticleWithCoverPhotoCollectionViewCell.self, for: indexPath)
             cell.article = articles[indexPath.row]
             return cell
-        case .plainText:
+        case .plainText?:
             let cell = collectionView.dequeueReusableCell(withClass: ArticleCollectionViewCell.self, for: indexPath)
-            cell.article = articles[indexPath.row]
+            cell.article = articles[indexPath.row].article
             return cell
         default:
             fatalError("Article Type doesn't have a specific cell to be matched to")
@@ -98,18 +99,19 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let article = self.articles[indexPath.row].article else { return }
         let vc = ArticleDetailsViewController.instantiate(fromAppStoryboard: .Home)
         vc.viewModel = self.viewModel
-        vc.articleDetails = ArticleDetails(article: self.articles[indexPath.row])
+        vc.articleDetails = ArticleDetails(article: article)
         router.present(view: vc)
     }
 }
 
 extension HomeViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let article = articles[indexPath.row]
+        let article = articles[indexPath.row].article
         let width: CGFloat = self.view.width - 50
-        let actualHeight = article.details?.height(withConstrainedWidth: width, font: .systemFont(ofSize: 17, weight: .light)) ?? 0.0
+        let actualHeight = article?.details?.height(withConstrainedWidth: width, font: .systemFont(ofSize: 17, weight: .light)) ?? 0.0
         let height: CGFloat = (actualHeight <= 300) ? actualHeight : 300
         return CGSize(width: width, height: height + 169 + 40)
     }
