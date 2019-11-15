@@ -7,12 +7,14 @@
 //
 
 import UIKit
+import Highlightr
 
 final class ArticleDetailsViewController: BaseViewController {
     
     @IBOutlet weak var articleCoverImageView: UIImageView!
     @IBOutlet weak var articleTitleLabel: UILabel!
     @IBOutlet weak var articleBodyTextView: UITextView!
+    @IBOutlet weak var contentStackView: UIStackView!
     @IBOutlet weak var peopleLikedThisLabel: UILabel!
     
     @IBOutlet weak var peopleBarView: UIView!
@@ -22,6 +24,7 @@ final class ArticleDetailsViewController: BaseViewController {
     @IBOutlet weak var socialViewStackView: UIStackView!
     @IBOutlet weak var isLovedImageView: UIImageView!
     
+    var highlightr = CodeAttributedString().highlightr
     var viewModel: HomeViewModel!
     var articleDetails: ArticleDetails!
     
@@ -76,7 +79,67 @@ final class ArticleDetailsViewController: BaseViewController {
                 guard let self = self, articleDetails.article != nil else { return }
                 self.articleDetails = articleDetails
                 self.configureViewFromModel()
+                self.initializeTextViews(from: articleDetails.article?.details ?? "")
             }).disposed(by: disposeBag)
+    }
+    
+    private func createCodeBlock(from code: String) -> UIView {
+        let codeBlockView = UIView()
+        codeBlockView.backgroundColor = .white
+        codeBlockView.borderColor = .systemGray
+        codeBlockView.cornerRadius = 8
+        codeBlockView.addShadow(ofColor: .black, radius: 12, offset: .zero, opacity: 0.24)
+        codeBlockView.snp.makeConstraints { (make) in
+            make.height.greaterThanOrEqualTo(100)
+        }
+        
+        let codeTextView = UITextView()
+        codeTextView.attributedText = highlightr.highlight(code, as: "swift", fastRender: true)
+        codeTextView.isEditable = false
+        codeTextView.isSelectable = false
+        codeBlockView.addSubview(codeTextView)
+        codeTextView.snp.makeConstraints { (make) in
+            make.edges.equalTo(codeBlockView).inset(8)
+        }
+        
+        return codeBlockView
+    }
+    
+    private func createContentBlock() -> PlaceholderTextView {
+        let contentTextView = PlaceholderTextView()
+        contentTextView.text = ""
+        contentTextView.isEditable = false
+        contentTextView.isSelectable = false
+        contentTextView.font = articleBodyTextView.font
+        contentTextView.textColor = articleBodyTextView.textColor
+        contentTextView.placeholder = "Continue writing here..."
+        contentTextView.backgroundColor = .clear
+        contentTextView.snp.makeConstraints { (make) in
+            make.height.greaterThanOrEqualTo(100)
+        }
+        return contentTextView
+    }
+    
+    private func createContentBlock(with text: String) -> PlaceholderTextView {
+        let contentTextView = createContentBlock()
+        contentTextView.text = text
+        return contentTextView
+    }
+    
+    private func initializeTextViews(from wholeText: String) {
+        let textForTextviews = wholeText.components(separatedBy: "~")
+        textForTextviews.enumerated().forEach { index, paragraph in
+            let isCodeBlock = paragraph.contains("```")
+            if index == 0 && !isCodeBlock {
+                articleBodyTextView.text = paragraph
+            } else if isCodeBlock {
+                let code = paragraph.replacingOccurrences(of: "`", with: "")
+                let codeBlock = createCodeBlock(from: code)
+                contentStackView.addArrangedSubview(codeBlock)
+            } else {
+                contentStackView.addArrangedSubview(createContentBlock(with: paragraph))
+            }
+        }
     }
     
     @IBAction func dismissButtonTapped(_ sender: Any) {
