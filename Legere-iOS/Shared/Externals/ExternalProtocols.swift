@@ -24,6 +24,7 @@ protocol NetworkProtocol {
 protocol RouterProtocol {
     var presentedView: UIViewController! {set get}
     func present(view: UIViewController)
+    func push(view: UIViewController)
     func startActivityIndicator()
     func stopActivityIndicator()
     func dismiss()

@@ -22,14 +22,14 @@ class ImagePicker: RxMediaPickerDelegate {
     func pickImageWith(title: String, message: String, completion :@escaping (_ image: UIImage) -> Void) {
 
 		let actionSheet = UIAlertController(title: title, message: message, preferredStyle: .actionSheet)
-//        actionSheet.addAction(UIAlertAction(title: "Camera", style: .default, handler: {[weak self] (_) in
-//            guard let strongSelf = self else {
-//                return
-//            }
-//            strongSelf.picker.selectImage(source: .camera, editable: false).subscribe(onNext: { (image1, _) in
-//                completion(image1)
-//            }).disposed(by: strongSelf.disposeBag)
-//        }))
+        actionSheet.addAction(UIAlertAction(title: "Camera", style: .default, handler: {[weak self] (_) in
+            guard let strongSelf = self else {
+                return
+            }
+            strongSelf.picker.selectImage(source: .camera, editable: false).subscribe(onNext: { (image1, _) in
+                completion(image1)
+            }).disposed(by: strongSelf.disposeBag)
+        }))
 
 		actionSheet.addAction(UIAlertAction(title: "Photo Library", style: .default, handler: {[weak self] (_) in
 			guard let strongSelf = self else {

@@ -16,6 +16,10 @@ class Router: RouterProtocol {
         presentedView.present(view, animated: true, completion: nil)
     }
     
+    func push(view: UIViewController) {
+        presentedView.navigationController?.pushViewController(view)
+    }
+    
     func startActivityIndicator() { }
     
     func stopActivityIndicator() { }

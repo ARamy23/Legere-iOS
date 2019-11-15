@@ -3,6 +3,7 @@ PODS:
   - AlamofireNetworkActivityLogger (2.3.0):
     - Alamofire (~> 4.6)
   - Hero (1.4.0)
+  - Highlightr (2.1.0)
   - Moya/Core (12.0.1):
     - Alamofire (~> 4.1)
     - Result (~> 4.0)
@@ -18,6 +19,7 @@ PODS:
     - RxSwift (>= 4.4.2, ~> 4.4)
   - RxSwift (4.5.0)
   - SimpleTwoWayBinding (0.0.2)
+  - SnapKit (5.0.1)
   - SwiftEntryKit (1.0.1):
     - QuickLayout (= 3.0.0)
   - SwifterSwift (4.6.0):
@@ -45,18 +47,20 @@ PODS:
 DEPENDENCIES:
   - AlamofireNetworkActivityLogger (~> 2.3.0)
   - Hero (~> 1.4.0)
+  - Highlightr
   - Moya/RxSwift (~> 12.0.1)
   - PromisesSwift (~> 1.2.7)
   - RxCocoa (~> 4.5.0)
   - RxSwift (~> 4.5.0)
   - SimpleTwoWayBinding (~> 0.0.2)
+  - SnapKit
   - SwiftEntryKit (~> 1.0.1)
   - SwifterSwift (~> 4.6.0)
   - SwiftMessages (~> 6.0.2)
   - UPCarouselFlowLayout (~> 1.1.2)
 
 SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
+  https://github.com/CocoaPods/Specs.git:
     - Alamofire
     - AlamofireNetworkActivityLogger
     - Hero
@@ -72,11 +76,15 @@ SPEC REPOS:
     - SwifterSwift
     - SwiftMessages
     - UPCarouselFlowLayout
+  trunk:
+    - Highlightr
+    - SnapKit
 
 SPEC CHECKSUMS:
   Alamofire: ae5c501addb7afdbb13687d7f2f722c78734c2d3
   AlamofireNetworkActivityLogger: 6f3076652ab7fa6c819b59be08ea038d339e36d8
   Hero: bac92350d7201a1a940003e0767c7b52ce7c99a1
+  Highlightr: 595f3e100737c8de41113385da8bd0b5b65212c6
   Moya: cf730b3cd9e005401ef37a85143aa141a12fd38f
   PromisesObjC: 7b28ddd1e78cce8f80f1ada927d2217663a9c672
   PromisesSwift: b27f410f9ea693753cfd4cfd8ac1c60a471f137b
@@ -84,12 +92,13 @@ SPEC CHECKSUMS:
   Result: bd966fac789cc6c1563440b348ab2598cc24d5c7
   RxCocoa: cbf70265dc65a981d4ac982e513c10cf23df24a0
   RxSwift: f172070dfd1a93d70a9ab97a5a01166206e1c575
-  SimpleTwoWayBinding: de39917a921732dcb0dc0a0d120542fbfa7bd159
+  SimpleTwoWayBinding: 728d751c25d9909ddf2ee76711ab4a8a71e00c69
+  SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
   SwiftEntryKit: 3f55c0b8e676afe24a3703237bcac68372891c56
   SwifterSwift: 812ffec6f301922f5430e75be3f2939ea3a80024
   SwiftMessages: 8b3cc68dba2f1c91aac1a74c90b10287aac35371
   UPCarouselFlowLayout: 4c7d2c43a10ebb1597bde502a53699d378341dad
 
-PODFILE CHECKSUM: b3298dabbd7c46ae719b93e3ebfbb98bcea69c87
+PODFILE CHECKSUM: ead50a282675fb183b7e55e172b84ac13c3026b5
 
-COCOAPODS: 1.6.1
+COCOAPODS: 1.8.4
