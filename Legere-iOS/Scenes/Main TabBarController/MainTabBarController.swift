@@ -37,11 +37,12 @@ class MainTabBarController: UITabBarController {
                   image: #imageLiteral(resourceName: "ic_create_article"),
                   selectedImage: #imageLiteral(resourceName: "ic_create_article"),
                   navBarTitle: "New Article"),
-            setup(scene: ProfileMainViewController.instantiate(fromAppStoryboard: .Profile),
-                  tabIconTitle: "Profile",
-                  image: #imageLiteral(resourceName: "tabBar_ic_profile"),
-                  selectedImage: #imageLiteral(resourceName: "tabBar_ic_profile"),
-                  navBarTitle: "Profile")]
+//            setup(scene: ProfileMainViewController.instantiate(fromAppStoryboard: .Profile),
+//                  tabIconTitle: "Profile",
+//                  image: #imageLiteral(resourceName: "tabBar_ic_profile"),
+//                  selectedImage: #imageLiteral(resourceName: "tabBar_ic_profile"),
+//                  navBarTitle: "Profile")
+        ]
     }
     
     private func setup(scene: BaseViewController, tabIconTitle: String, image: UIImage, selectedImage: UIImage?, navBarTitle: String) -> UINavigationController {

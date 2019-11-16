@@ -16,6 +16,8 @@ def import_pods
     pod 'Hero', '~> 1.4.0'
     pod 'AlamofireNetworkActivityLogger', '~> 2.3.0'
     pod 'UPCarouselFlowLayout', '~> 1.1.2'
+    pod 'Highlightr'
+    pod 'SnapKit'
 end
 
 target 'Legere-iOS' do

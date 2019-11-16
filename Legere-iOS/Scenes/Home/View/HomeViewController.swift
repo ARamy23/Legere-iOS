@@ -10,8 +10,7 @@ import UIKit
 import Hero
 import SwifterSwift
 
-final class HomeViewController: BaseViewController
-{
+final class HomeViewController: BaseViewController {
     @IBOutlet weak var feedCollectionView: UICollectionView!
     
     var viewModel: HomeViewModel!

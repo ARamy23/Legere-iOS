@@ -128,7 +128,7 @@ open class PlaceholderTextView: UITextView {
     }
     
     @objc private func textDidChange() {
-        placeholderLabel.isHidden = !text.isEmpty
+        placeholderLabel.isHidden = !text.isEmpty || layoutManager.textStorage?.string.isEmpty == false
     }
     
     open override func layoutSubviews() {
