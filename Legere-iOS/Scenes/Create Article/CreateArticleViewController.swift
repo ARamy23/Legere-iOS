@@ -12,7 +12,7 @@ import RxCocoa
 import Highlightr
 import SnapKit
 
-class CreateArticleViewController: BaseViewController {
+public class CreateArticleViewController: BaseViewController {
     
     @IBOutlet weak var titleTextView: PlaceholderTextView!
     @IBOutlet weak var bodyTextView: PlaceholderTextView!

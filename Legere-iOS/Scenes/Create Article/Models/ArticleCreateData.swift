@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct ArticleCreateData: Codable {
+public struct ArticleCreateData: Codable {
     let title: String
     let details: String
     let coverPhoto: String?

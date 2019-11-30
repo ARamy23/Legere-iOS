@@ -18,7 +18,6 @@ PODS:
   - RxCocoa (4.5.0):
     - RxSwift (>= 4.4.2, ~> 4.4)
   - RxSwift (4.5.0)
-  - SimpleTwoWayBinding (0.0.2)
   - SnapKit (5.0.1)
   - SwiftEntryKit (1.0.1):
     - QuickLayout (= 3.0.0)
@@ -52,7 +51,6 @@ DEPENDENCIES:
   - PromisesSwift (~> 1.2.7)
   - RxCocoa (~> 4.5.0)
   - RxSwift (~> 4.5.0)
-  - SimpleTwoWayBinding (~> 0.0.2)
   - SnapKit
   - SwiftEntryKit (~> 1.0.1)
   - SwifterSwift (~> 4.6.0)
@@ -71,7 +69,6 @@ SPEC REPOS:
     - Result
     - RxCocoa
     - RxSwift
-    - SimpleTwoWayBinding
     - SwiftEntryKit
     - SwifterSwift
     - SwiftMessages
@@ -92,13 +89,12 @@ SPEC CHECKSUMS:
   Result: bd966fac789cc6c1563440b348ab2598cc24d5c7
   RxCocoa: cbf70265dc65a981d4ac982e513c10cf23df24a0
   RxSwift: f172070dfd1a93d70a9ab97a5a01166206e1c575
-  SimpleTwoWayBinding: 728d751c25d9909ddf2ee76711ab4a8a71e00c69
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
   SwiftEntryKit: 3f55c0b8e676afe24a3703237bcac68372891c56
   SwifterSwift: 812ffec6f301922f5430e75be3f2939ea3a80024
   SwiftMessages: 8b3cc68dba2f1c91aac1a74c90b10287aac35371
   UPCarouselFlowLayout: 4c7d2c43a10ebb1597bde502a53699d378341dad
 
-PODFILE CHECKSUM: ead50a282675fb183b7e55e172b84ac13c3026b5
+PODFILE CHECKSUM: ad2e5b8a9fba8d665316082949b0c871f7942717
 
 COCOAPODS: 1.8.4
